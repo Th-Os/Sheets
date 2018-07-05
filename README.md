@@ -34,6 +34,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 # Database
 
 ## Rolle:
+
 Rolle kann in Userdatenbank oder in eigener Rollentabelle
 
 -> Rollentabelle, die erweitert werden könnte (Berechtigungen)
@@ -51,9 +52,9 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | Name      |
 | CourseIDs      |
 | RoleID      |
-| SubmissionIDs |
 
 ## Course
+
 | Course      |
 | ------------- |
 | ID     |
@@ -63,6 +64,7 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | SheetIDs |
 
 ## Student
+
 | Student     |
 | ------------- |
 | ID     |
@@ -74,8 +76,8 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | Sheet     |
 | ------------- |
 | ID     |
-| Title |
-| Number |
+| Name |
+| Order |
 | SubmissionDate |
 | ExerciseIDs     |
 | SubmissionIDs |
@@ -85,9 +87,35 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | Exercise     |
 | ------------- |
 | ID     |
-| Name      |
-| Type |
-| Solution |
+| Name  |
+| Description |
+| Order |
+| TaskIDs |
+
+## Task
+
+Could need pictures. Optional!
+
+| Task     |
+| ------------- |
+| ID     |
+| Order |
+| Question |
+| Choices (if needed) |
+| Points |
+| SolutionID |
+
+## Solution
+
+// | number (with possibility for ranges) | Optional range
+// | Default |
+
+| Solution     |
+| ------------- |
+| ID     |
+| Type (regex or number or none) |
+| Regex |
+| Hint |
 
 ## Submission
 
@@ -96,4 +124,5 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | ID     |
 | Name      |
 | StudentID     |
+| UserID |
 
