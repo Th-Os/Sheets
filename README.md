@@ -61,6 +61,7 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | Name     |
 | Title |
 | Semester |
+| NeededSheets |
 | SheetIDs |
 
 ## Student
@@ -78,6 +79,7 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | ID     |
 | Name |
 | Order |
+| NecesseryPoints |
 | SubmissionDate |
 | ExerciseIDs     |
 | SubmissionIDs |
