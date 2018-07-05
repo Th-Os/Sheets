@@ -107,8 +107,8 @@ Could need pictures. Optional!
 
 ## Solution
 
-// | number (with possibility for ranges) | Optional range
-// | Default |
+-  | Number (with possibility for ranges) | Optional range
+-  | Default |
 
 | Solution     |
 | ------------- |
@@ -125,4 +125,16 @@ Could need pictures. Optional!
 | Name      |
 | StudentID     |
 | UserID |
+| AnswerIDs |
+
+## Answer
+
+| Answer     |
+| ------------- |
+| ID     |
+| AchievedPoints |
+| TaskID |
+| Feedback |
+| HelpFlag |
+| CheckFlag |
 
