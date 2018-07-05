@@ -40,14 +40,14 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 
 | Roles      |
 | ------------- |
-| RoleID     |
+| ID     |
 | Name      |
 
 ## User
 
 | User (Admin/Tutor)      |
 | ------------- |
-| UserID     |
+| ID     |
 | Name      |
 | CourseIDs      |
 | RoleID      |
@@ -56,7 +56,7 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 ## Course
 | Course      |
 | ------------- |
-| CourseID     |
+| ID     |
 | Name     |
 | Title |
 | Semester |
@@ -65,7 +65,7 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 ## Student
 | Student     |
 | ------------- |
-| StudentID     |
+| ID     |
 | Name      |
 | Matrikelnummer |
 
@@ -73,8 +73,8 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 
 | Sheet     |
 | ------------- |
-| SheetID     |
-| Name      |
+| ID     |
+| Title |
 | Number |
 | SubmissionDate |
 | ExerciseIDs     |
@@ -84,15 +84,16 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 
 | Exercise     |
 | ------------- |
-| ExerciseID     |
+| ID     |
 | Name      |
+| Type |
+| Solution |
 
 ## Submission
 
 | Submission     |
 | ------------- |
-| SubmissionID     |
+| ID     |
 | Name      |
-| SheetID     |
 | StudentID     |
 
