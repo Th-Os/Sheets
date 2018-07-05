@@ -29,3 +29,70 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+
+# Database
+
+## Rolle:
+Rolle kann in Userdatenbank oder in eigener Rollentabelle
+
+-> Rollentabelle, die erweitert werden könnte (Berechtigungen)
+
+| Roles      |
+| ------------- |
+| RoleID     |
+| Name      |
+
+## User
+
+| User (Admin/Tutor)      |
+| ------------- |
+| UserID     |
+| Name      |
+| CourseIDs      |
+| RoleID      |
+| SubmissionIDs |
+
+## Course
+| Course      |
+| ------------- |
+| CourseID     |
+| Name     |
+| Title |
+| Semester |
+| SheetIDs |
+
+## Student
+| Student     |
+| ------------- |
+| StudentID     |
+| Name      |
+| Matrikelnummer |
+
+## Sheet
+
+| Sheet     |
+| ------------- |
+| SheetID     |
+| Name      |
+| Number |
+| SubmissionDate |
+| ExerciseIDs     |
+| SubmissionIDs |
+
+## Exercise
+
+| Exercise     |
+| ------------- |
+| ExerciseID     |
+| Name      |
+
+## Submission
+
+| Submission     |
+| ------------- |
+| SubmissionID     |
+| Name      |
+| SheetID     |
+| StudentID     |
+
