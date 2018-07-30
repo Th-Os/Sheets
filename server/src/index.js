@@ -17,28 +17,28 @@ const port = process.env.PORT || 3000;
 
 app.use(bp.json());
 app.use(bp.urlencoded({
-  'extended': 'false'
+    'extended': 'false'
 }));
 
 app.route('/')
-  .get(function (req, res) {
-    console.log(req);
-    res.send('hello');
-  })
-  .post(function (req, res) {
-    console.log(req);
-    res.send('bla');
-  });
+    .get(function (req, res) {
+        console.log(req);
+        res.send('hello');
+    })
+    .post(function (req, res) {
+        console.log(req);
+        res.send('bla');
+    });
 
 app.route('/login')
-  .get(function (req, res) {
-    console.log(req);
-    res.send('hello login');
-  })
-  .post(function (req, res) {
-    console.log(req);
-    res.send('bla');
-  });
+    .get(function (req, res) {
+        console.log(req);
+        res.send('hello login');
+    })
+    .post(function (req, res) {
+        console.log(req);
+        res.send('bla');
+    });
 
 app.use('/answers', answers);
 app.use('/courses', courses);
