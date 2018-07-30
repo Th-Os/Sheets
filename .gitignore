@@ -42,3 +42,5 @@ package-lock.json
 client/\.idea/
 
 server/\.idea/
+
+server/src/database/config\.js
