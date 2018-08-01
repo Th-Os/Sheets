@@ -1,19 +1,23 @@
 // Content taken from "Getting MEAN with Mongo, Express, Angular, and Node" by Simon Holmes
 /* global require, process */
 var mongoose = require('mongoose');
+require('dotenv').config();
 var gracefulShutdown;
-var config = require('./config');
 
+/*
 var dbURI = config.development.database.URI;
 if (process.env.NODE_ENV === 'production') {
     dbURI = config.production.database.URI;
 }
+*/
 
-mongoose.connect(dbURI);
+mongoose.connect(process.env.DB_URI, {
+    useNewUrlParser: true
+});
 
 // CONNECTION EVENTS
 mongoose.connection.on('connected', function () {
-    console.log('Mongoose connected to ' + dbURI);
+    console.log('Mongoose connected to ' + process.env.DB_URI);
 });
 mongoose.connection.on('error', function (err) {
     console.log('Mongoose connection error: ' + err);

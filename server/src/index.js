@@ -1,5 +1,8 @@
 import bp from 'body-parser';
 import express from 'express';
+import dotenv from 'dotenv';
+import db from './database/db';
+import auth from './auth/auth';
 import answers from './routes/answers';
 import courses from './routes/courses';
 import exercises from './routes/exercises';
@@ -10,10 +13,9 @@ import submissions from './routes/submissions';
 import tasks from './routes/tasks';
 import users from './routes/users';
 
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
-
-// require('./database/db');
 
 app.use(bp.json());
 app.use(bp.urlencoded({
@@ -23,11 +25,7 @@ app.use(bp.urlencoded({
 app.route('/')
     .get(function (req, res) {
         console.log(req);
-        res.send('hello');
-    })
-    .post(function (req, res) {
-        console.log(req);
-        res.send('bla');
+        res.send('Sheets API');
     });
 
 app.route('/login')
@@ -39,6 +37,14 @@ app.route('/login')
         console.log(req);
         res.send('bla');
     });
+
+app.route('/register')
+    .post(function (req, res) {
+        console.log(req);
+        res.send('bla');
+    });
+
+app.use('/auth', auth);
 
 app.use('/answers', answers);
 app.use('/courses', courses);

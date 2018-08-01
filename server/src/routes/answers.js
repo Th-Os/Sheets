@@ -1,8 +1,9 @@
-var express = require('express');
-var router = express.Router();
+import express from 'express';
+import verify from '../auth/verify';
+const router = express.Router();
 
-router.get('/:id', function (req, res) {
+router.get('/:id', verify, function (req, res, next) {
     res.send('Get answer');
 });
 
-module.exports = router;
+export default router;
