@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>
+  {{(data.create === false) ? 'Kurs bearbeiten' : 'Kurs erstellen'}}
+</h2>
+<mat-dialog-content>
+  <mat-form-field
+    [hideRequiredMarker]="false"
+    [floatLabel]="auto">
+    <mat-label>Kursname</mat-label>
+    <input matInput placeholder="Kursname" [(ngModel)]="course.name" required>
+  </mat-form-field>
+
+  <mat-form-field
+    [hideRequiredMarker]="false"
+    [floatLabel]="auto">
+    <input matInput placeholder="Semester" [(ngModel)]="course.semester" required>
+  </mat-form-field>
+
+  <mat-form-field
+    [hideRequiredMarker]="false"
+    [floatLabel]="auto">
+    <input matInput placeholder="Fakultät" [(ngModel)]="course.faculty" required>
+  </mat-form-field>
+
+  <mat-form-field
+    [hideRequiredMarker]="false"
+    [floatLabel]="auto">
+    <input matInput placeholder="Min. Sheets" [(ngModel)]="course.min_req_sheets" type="number" required>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onClose(false)">Abbrechen</button>
+  <button mat-button (click)="onClose(true)">
+    {{ (data.create === false) ? 'Speichern' : 'Erstellen' }}
+  </button>
+</mat-dialog-actions>

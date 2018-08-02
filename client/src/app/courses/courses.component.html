@@ -1,0 +1,26 @@
+<div class="container mt-5">
+  <div class="row">
+    <div class="col">
+      <mat-card>
+        <mat-card-title>Kurse</mat-card-title>
+        <mat-card-content>
+          <mat-list>
+            <mat-list-item *ngFor="let course of courses" role="listitem">
+              <h3 mat-line> {{ course.name }} </h3>
+              <button mat-icon-button (click)="update(course)">
+                <mat-icon color="secondary">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="delete(course)">
+                <mat-icon color="secondary">delete</mat-icon>
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+        <button class="position-absolute" style="right: 10px;" mat-fab color="primary" (click)="create()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-card>
+    </div>
+  </div>
+</div>
+
