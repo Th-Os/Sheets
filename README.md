@@ -2,6 +2,14 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.0.5.
 
+## Design
+
+Material Components:        https://material.angular.io/
+
+Material Design Guidelines: https://material.io/
+
+Bootstrap:                  https://getbootstrap.com/
+
 ## Development server
 
 start mongodb
