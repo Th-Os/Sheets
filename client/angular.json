@@ -24,6 +24,7 @@
             ],
             "styles": [
               "src/styles.css",
+              "src/sheets-app-theme.scss",
               "node_modules/bootstrap/scss/bootstrap.scss"
             ],
             "scripts": [
