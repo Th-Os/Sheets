@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 
 function verify(req, res, next) {
+    if (process.env.AUTH === 'false') {
+        next();
+        return;
+    }
     // check header or url parameters or post parameters for token
     var token = req.headers['x-access-token'];
     if (!token) {
