@@ -11,7 +11,7 @@ function verify(req, res, next) {
     }
 
     // verifies secret and checks exp
-    jwt.verify(token, process.env.SECRET, function (err, decoded) {
+    jwt.verify(token, process.env.SECRET, function(err, decoded) {
         if (err) {
             return res.status(500).send({
                 auth: false,

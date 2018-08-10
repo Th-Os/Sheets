@@ -1,32 +1,33 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express';
+import verify from '../auth/verify';
 
-router.get('/', function (req, res) {
+const router = express.Router();
+router.get('/', verify, function(req, res) {
     res.send('Get course');
 });
 
-router.post('/', function (req, res) {
+router.post('/', verify, function(req, res) {
     res.send('Post course');
 });
 
-router.put('/:id', function (req, res) {
+router.put('/:id', verify, function(req, res) {
     res.send('Put course');
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', verify, function(req, res) {
     res.send('Delete course');
 });
 
-router.get('/:id/students', function (req, res) {
+router.get('/:id/students', verify, function(req, res) {
     res.send('Get students of course');
 });
 
-router.get('/:id/sheets', function (req, res) {
+router.get('/:id/sheets', verify, function(req, res) {
     res.send('Get sheets of course');
 });
 
-router.post('/:id/sheets', function (req, res) {
+router.post('/:id/sheets', verify, function(req, res) {
     res.send('Post sheets to course');
 });
 
-module.exports = router;
+export default router;

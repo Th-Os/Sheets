@@ -1,20 +1,22 @@
-const express = require('express');
+import express from 'express';
+import verify from '../auth/verify';
+
 const router = express.Router();
 
-router.put('/:id', function (req, res) {
+router.put('/:id', verify, function(req, res) {
     res.send('Put task');
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', verify, function(req, res) {
     res.send('Delete task');
 });
 
-router.get('/:id/solutions', function (req, res) {
+router.get('/:id/solutions', verify, function(req, res) {
     res.send('Get solutions of task');
 });
 
-router.post('/:id/solutions', function (req, res) {
+router.post('/:id/solutions', verify, function(req, res) {
     res.send('Post solutions to task');
 });
 
-module.exports = router;
+export default router;

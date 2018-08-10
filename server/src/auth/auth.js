@@ -11,10 +11,10 @@ router.use(bodyParser.urlencoded({
 }));
 router.use(bodyParser.json());
 
-router.post('/login', function (req, res) {
+router.post('/login', function(req, res) {
     User.findOne({
-        email: req.body.email
-    }, function (err, user) {
+        username: req.body.username
+    }, function(err, user) {
         if (err) return res.status(500).send('Error on the server.');
         if (!user) return res.status(404).send('No user found.');
 
@@ -44,58 +44,36 @@ router.post('/login', function (req, res) {
 });
 
 // TODO: logout needs to take place in the client (deleting token)
-router.get('/logout', function (req, res) {
+router.get('/logout', function(req, res) {
     res.status(200).send({
         auth: false,
         token: null
     });
 });
 
-router.post('/register', function (req, res) {
+router.post('/register', function(req, res) {
     if (req !== undefined && req.body !== undefined && req.body.password !== undefined) {
         let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-        let newUser = User({
+        User.create({
             username: req.body.username,
             password: hashedPassword
+        }).then(function(user) {
+            // if user is registered without errors
+            // create a token
+            var token = jwt.sign({
+                id: user._id
+            }, process.env.SECRET, {
+                expiresIn: 86400 // expires in 24 hours
+            });
+            console.log(token);
+            res.status(200).send({
+                auth: true,
+                token: token
+            });
+        }).catch((err) => {
+            if (err) return res.status(500).send('There was a problem registering the user.');
         });
-        console.log(newUser);
-        newUser.save(function (err) {
-            console.log('saved');
-            if (err) {
-                console.log(err);
-                return res.status(500).send('There was a problem registering the user.');
-            }
-            console.log();
-        });
-        /*
-        User.create({
-                username: req.body.username,
-                password: hashedPassword
-            },
-            function (err, user) {
-                console.log('begin');
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send('There was a problem registering the user.');
-                }
-                console.log(user);
-                // if user is registered without errors
-                // create a token
-                var token = jwt.sign({
-                    id: user._id
-                }, process.env.SECRET, {
-                    expiresIn: 86400 // expires in 24 hours
-                });
-                console.log(token);
-                res.status(200).send({
-                    auth: true,
-                    token: token
-                });
-            }).then(function (user) {
-            console.log(user);
-        });
-        */
     } else {
         res.status(400).send();
     }

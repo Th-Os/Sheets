@@ -23,25 +23,9 @@ app.use(bp.urlencoded({
 }));
 
 app.route('/')
-    .get(function (req, res) {
+    .get(function(req, res) {
         console.log(req);
         res.send('Sheets API');
-    });
-
-app.route('/login')
-    .get(function (req, res) {
-        console.log(req);
-        res.send('hello login');
-    })
-    .post(function (req, res) {
-        console.log(req);
-        res.send('bla');
-    });
-
-app.route('/register')
-    .post(function (req, res) {
-        console.log(req);
-        res.send('bla');
     });
 
 app.use('/auth', auth);
@@ -58,5 +42,8 @@ app.use('/users', users);
 
 app.listen(port);
 console.log('server is running at localhost:' + port);
+
+// connecting to database.
+db();
 
 export default app;

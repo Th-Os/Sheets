@@ -1,28 +1,30 @@
-const express = require('express');
+import express from 'express';
+import verify from '../auth/verify';
+
 const router = express.Router();
 
-router.get('/', function (req, res) {
+router.get('/', verify, function(req, res) {
     res.send('Get users');
 });
 
-router.post('/', function (req, res) {
+router.post('/', verify, function(req, res) {
     res.send('Post users');
 });
 
-router.get('/:id', function (req, res) {
+router.get('/:id', verify, function(req, res) {
     res.send('Get user');
 });
 
-router.get('/:id', function (req, res) {
+router.get('/:id', verify, function(req, res) {
     res.send('Get user');
 });
 
-router.put('/:id', function (req, res) {
+router.put('/:id', verify, function(req, res) {
     res.send('Put user');
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', verify, function(req, res) {
     res.send('Delete user');
 });
 
-module.exports = router;
+export default router;
