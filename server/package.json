@@ -3,12 +3,15 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
+    "directories": {
+        "test": "test"
+    },
     "scripts": {
         "babel-node": "babel-node --presets=latest",
         "preload": "node -r dotenv/config -r babel/register index.js",
         "start": "nodemon --exec npm run babel-node -- ./src/index.js",
         "build": "babel src -d dist",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "mocha --require babel-core/register --require babel-polyfill test/*.js"
     },
     "author": "",
     "license": "ISC",
@@ -24,13 +27,18 @@
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
+        "babel-core": "^6.26.3",
+        "babel-polyfill": "^6.26.0",
         "babel-preset-env": "^1.7.0",
         "babel-preset-latest": "^6.24.1",
+        "babel-register": "^6.26.0",
+        "chai": "^4.1.2",
         "eslint": "^5.0.1",
         "eslint-plugin-import": "^2.13.0",
         "eslint-plugin-node": "^6.0.1",
         "eslint-plugin-promise": "^3.8.0",
         "eslint-plugin-standard": "^3.1.0",
+        "mocha": "^5.2.0",
         "nodemon": "^1.17.5"
     },
     "babel": {

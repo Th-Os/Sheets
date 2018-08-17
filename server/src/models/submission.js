@@ -34,6 +34,10 @@ var answerSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    auto_corrected: {
+        type: Boolean,
+        required: false
+    },
     corrected: {
         type: Boolean,
         required: false

@@ -94,6 +94,14 @@ var solutionSchema = new mongoose.Schema({
     number: {
         type: Number,
         reuqired: false
+    },
+    hint: {
+        type: String,
+        required: false
+    },
+    default_points: {
+        type: Number,
+        required: false
     }
 });
 
