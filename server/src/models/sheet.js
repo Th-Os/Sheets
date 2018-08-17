@@ -66,11 +66,38 @@ var taskSchema = new mongoose.Schema({
         required: true
     },
     solution: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'Solution',
         required: true
     }
 });
 
-mongoose.model('Sheet', sheetSchema);
-mongoose.model('Exercise', exerciseSchema);
-mongoose.model('Task', taskSchema);
+var solutionSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        required: true
+    },
+    regex: {
+        type: String,
+        required: false
+    },
+    range: {
+        from: {
+            type: Number,
+            required: false
+        },
+        to: {
+            type: Number,
+            required: false
+        }
+    },
+    number: {
+        type: Number,
+        reuqired: false
+    }
+});
+
+export var Solution = mongoose.model('Solution', solutionSchema);
+export var Sheet = mongoose.model('Sheet', sheetSchema);
+export var Exercise = mongoose.model('Exercise', exerciseSchema);
+export var Task = mongoose.model('Task', taskSchema);

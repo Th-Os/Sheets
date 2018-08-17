@@ -13,11 +13,11 @@ var submissionSchema = new mongoose.Schema({
         ref: 'Student',
         required: true
     },
-    answer: {
+    answers: [{
         type: Schema.Types.ObjectId,
         ref: 'Answer',
         required: true
-    }
+    }]
 });
 
 var answerSchema = new mongoose.Schema({
@@ -59,6 +59,6 @@ var studentSchema = new mongoose.Schema({
     }
 });
 
-mongoose.model('Submission', submissionSchema);
-mongoose.model('Answer', answerSchema);
-mongoose.model('Student', studentSchema);
+export var Submission = mongoose.model('Submission', submissionSchema);
+export var Answer = mongoose.model('Answer', answerSchema);
+export var Student = mongoose.model('Student', studentSchema);
