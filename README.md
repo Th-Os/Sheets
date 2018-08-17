@@ -130,6 +130,7 @@ Could need pictures. Optional!
 | Number |
 | Hint |
 
+
 ## Submission
 
 | Submission     |
@@ -150,4 +151,5 @@ Could need pictures. Optional!
 | Feedback |
 | HelpFlag |
 | CheckFlag |
+| Auto_CorrectionFlag|
 
