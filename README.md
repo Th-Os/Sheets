@@ -119,12 +119,15 @@ Could need pictures. Optional!
 
 -  | Number (with possibility for ranges) | Optional range
 -  | Default |
+- none = no automatic correction
 
 | Solution     |
 | ------------- |
 | ID     |
-| Type (regex or number or none) |
+| Type (regex, range, number or none) |
 | Regex |
+| Range |
+| Number |
 | Hint |
 
 ## Submission
