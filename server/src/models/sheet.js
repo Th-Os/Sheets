@@ -99,8 +99,9 @@ var solutionSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    default_points: {
-        type: Number,
+    // if true then auto-correct will give points, if false -> 0
+    default_free_text: {
+        type: Boolean,
         required: false
     }
 });

@@ -62,8 +62,10 @@ function checkAnswerArray(answers, callback) {
 function checkAnswer(answer, solution, task) {
     let points = 0;
     switch (solution.type) {
+        case 'freetext':
         case 'none':
-            points = solution.default_points;
+            if (solution.default_free_text === undefined) throw new CorrectionError('free text task has not set a default');
+            if (solution.default_free_text) points = task.points;
             break;
         case 'regex':
             if (answer.text.match(solution.regex)) points = task.points;
@@ -79,7 +81,7 @@ function checkAnswer(answer, solution, task) {
             else throw new CorrectionError('number "' + solution.number + '" does not match "' + answer.text + '"');
             break;
         default:
-            throw Error('No specified Type found');
+            throw Error('No specified type found');
     }
 
     answer.set({achieved_points: points, auto_corrected: true});
