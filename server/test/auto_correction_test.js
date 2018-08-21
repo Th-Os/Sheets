@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-
+import * as db from '../src/database/db';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import * as correction from '../src/correction/correction';
@@ -17,7 +17,7 @@ const numberAnswer = new Answer({
         choices: 'no',
         solution: new Solution({
             type: 'number',
-            number: 2
+            number: 3
         })
     })
 });
@@ -69,66 +69,100 @@ const noneAnswer = new Answer({
 });
 
 const submission = new Submission({student: new Student({name: 'bla', mat_nr: 123}),
-    answers: [numberAnswer, rangeAnswer, regexAnswer, noneAnswer]});
-
-function testAnswer(answer) {
-    describe('answer correction of: ' + answer.task.question, function() {
-        let error;
-        it('correction is executed', function(done) {
-            correction.beginCorrection([answer], function(err) {
-                error = err;
-                done();
-            });
-        });
-
-        it('correction has error', function() {
-            chai.assert.exists(error);
-            chai.assert.instanceOf(error, Error, 'Error');
-        });
-
-        it('answer was auto-corrected', function() {
-            chai.assert.exists(answer.auto_corrected);
-            chai.assert.isTrue(answer.auto_corrected);
-        });
-
-        it('right amount of points were given', function() {
-            chai.assert.exists(answer.auto_corrected);
-            chai.assert.strictEqual(answer.points, 10);
-        });
-    });
-}
-
-function testAllAnswers(submission) {
-    describe('testing all answers in unison', function() {
-        let error;
-        it('correction is executed', function(done) {
-            correction.beginCorrection(submission.answers, function(err) {
-                error = err;
-                done();
-            });
-        });
-
-        it('correction has error', function() {
-            chai.assert.exists(error);
-            chai.assert.instanceOf(error, Error, 'Error');
-        });
-
-        for (let answer of submission.answers) {
-            it('submission was auto-corrected', function() {
-                chai.assert.exists(answer.auto_corrected);
-                chai.assert.isTrue(answer.auto_corrected);
-            });
-        }
-    });
-}
+    answers: []});
 
 (function() {
-    // submission save then use answers of submission
+    let sub;
+    let answers;
+    let subId;
+    describe('Auto Correction with Database Tests', function() {
+        // Before starting the test, create a sandboxed database connection
+        // Once a connection is established invoke done()
+        before(function(done) {
+            db.connect(function() {
+                done();
+            });
+        });
+        // submission save then use answers of submission
+        it('init submission', function(done) {
+            submission.answers.push(numberAnswer, rangeAnswer, regexAnswer, noneAnswer);
+            submission.markModified('answers');
+            Answer.insertMany(submission.answers, function(err, docs) {
+                if (err) throw err;
+                submission.save(function(err) {
+                    if (err) throw err;
+                    subId = submission._id;
+                    done();
+                });
+            });
+        });
+        it('get submission from database', function(done) {
+            Submission.findOne({_id: subId}).populate('answers.answer').exec(function(err, submission) {
+                if (err) throw err;
+                sub = submission;
+                done();
+            });
+        });
+        it('get answers', function(done) {
+            Answer.find({
+                '_id': {$in: sub.answers}
+            }, function(err, docs) {
+                if (err) throw err;
+                answers = docs;
+                done();
+            });
+        });
+
+        it('correction is executed', function(done) {
+            correction.beginCorrection(answers, function(err) {
+                console.log('correction ended');
+                it('correction has no error', function(done) {
+                    chai.assert.notExists(err);
+                    // chai.assert.instanceOf(error, Error, 'Error');
+                    done();
+                });
+                done();
+            });
+        });
+
+        it('answers are corrected', function(done) {
+            Answer.find({
+                '_id': {$in: sub.answers}
+            }, function(err, docs) {
+                if (err) throw err;
+                answers = docs;
+                for (let answer of answers) {
+                    it('answer was auto-corrected', function() {
+                        chai.assert.exists(answer.auto_corrected);
+                        chai.assert.isTrue(answer.auto_corrected);
+                    });
+                    it('right amount of points were given', function() {
+                        chai.assert.exists(answer.auto_corrected);
+                        chai.assert.strictEqual(answer.points, 10);
+                    });
+                }
+                done();
+            });
+
+            after('delete submission', function(done) {
+                Submission.findOneAndRemove({ _id: subId }, function(err, doc) {
+                    if (err) throw (err);
+                    doc.remove().then(() => {
+                        db.disconnect();
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    /*
     testAnswer(numberAnswer);
     testAnswer(rangeAnswer);
     testAnswer(regexAnswer);
     testAnswer(noneAnswer);
-    testAllAnswers(submission);
+    */
+    // testAllAnswers(submission);
     // submission delete after execution
 })();
 
@@ -153,5 +187,4 @@ it('should begin correction', function(done) {
             }).catch((err) => { throw err; });
         }).catch((err) => { throw err; });
     });
-});
-*/
+}); */

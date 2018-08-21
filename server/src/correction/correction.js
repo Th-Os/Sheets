@@ -25,8 +25,10 @@ router.post('/', verify, function(req, res) {
 });
 
 function beginCorrection(answers, callback) {
+    console.log('DOING CORRECTION');
     try {
         checkAnswerArray(answers, callback);
+        console.log('without errors');
     } catch (err) {
         console.log('catched error before promises' + err.message);
         callback(err);
@@ -37,6 +39,7 @@ function checkAnswerArray(answers, callback) {
     let promises = [];
     for (let answer of answers) {
         let task = answer.task;
+        console.log(answer);
         let solution = task.solution;
         promises.push(new Promise(function(resolve, reject) {
             try {
@@ -50,7 +53,10 @@ function checkAnswerArray(answers, callback) {
     Promise.all(promises).then((answer) => {
         console.log(answer);
         callback();
-    }).catch((err) => { callback(err); });
+    }).catch((err) => {
+        console.log(err);
+        callback(err);
+    });
 }
 
 /**
@@ -66,17 +72,21 @@ function checkAnswer(answer, solution, task) {
         case 'none':
             if (solution.default_free_text === undefined) throw new CorrectionError('free text task has not set a default');
             if (solution.default_free_text) points = task.points;
+            console.log('free text: ' + points);
             break;
         case 'regex':
+            console.log('regex: ' + (answer.text.match(solution.regex)));
             if (answer.text.match(solution.regex)) points = task.points;
             else throw new CorrectionError('regex "' + solution.regex + '" does not match "' + answer.text + '"');
             break;
         case 'range':
             let value = Number(answer.text);
+            console.log('range: ' + (value >= solution.range.from && value <= solution.range.to));
             if (value >= solution.range.from && value <= solution.range.to) points = task.points;
             else throw new CorrectionError('range "' + solution.range + '" does not match "' + answer.text + '"');
             break;
         case 'number':
+            console.log('number: ' + (answer.text === solution.number.toString()));
             if (answer.text === solution.number.toString()) points = task.points;
             else throw new CorrectionError('number "' + solution.number + '" does not match "' + answer.text + '"');
             break;

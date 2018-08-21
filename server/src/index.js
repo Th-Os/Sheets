@@ -1,7 +1,7 @@
 import bp from 'body-parser';
 import express from 'express';
 import dotenv from 'dotenv';
-import db from './database/db';
+import * as db from './database/db';
 import auth from './auth/auth';
 import correction from './correction/correction';
 import answers from './routes/answers';
@@ -46,6 +46,6 @@ app.listen(port);
 console.log('server is running at localhost:' + port);
 
 // connecting to database.
-db();
+db.connect();
 
 export default app;

@@ -11,10 +11,16 @@ if (process.env.NODE_ENV === 'production') {
 }
 */
 mongoose.Promise = Promise;
-function connect() {
+function connect(callback) {
     mongoose.connect(process.env.DB_URI, {
         useNewUrlParser: true
+    }, function() {
+        if (callback !== undefined) callback();
     });
+}
+
+function disconnect() {
+    mongoose.disconnect();
 }
 
 // CONNECTION EVENTS
@@ -57,4 +63,5 @@ process.on('SIGTERM', function() {
 
 // BRING IN SCHEMAS & MODELS
 // require("./user");
-export default connect;
+export {connect};
+export {disconnect};

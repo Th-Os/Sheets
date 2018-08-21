@@ -20,6 +20,21 @@ var submissionSchema = new mongoose.Schema({
     }]
 });
 
+submissionSchema.pre('find', function(next) {
+    this.populate({
+        path: 'answers',
+        model: 'Answer'
+    });
+    next();
+});
+
+submissionSchema.pre('remove', function(next) {
+    Answer.deleteMany({'_id': {$in: this.answers}}, function(err, res) {
+        if (err) throw err;
+        next();
+    });
+});
+
 var answerSchema = new mongoose.Schema({
     text: {
         type: String,
@@ -50,6 +65,15 @@ var answerSchema = new mongoose.Schema({
         type: Number,
         required: false
     }
+});
+
+answerSchema.pre('find', function(next) {
+    console.log('GETTING TASK');
+    this.populate({
+        path: 'task',
+        model: 'Task'
+    });
+    next();
 });
 
 var studentSchema = new mongoose.Schema({
