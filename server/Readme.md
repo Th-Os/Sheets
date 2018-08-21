@@ -1,5 +1,9 @@
 # Server Implementation
 
+## API
+
+TODO: Paste API for better overview.
+
 ## Database
 
 ### Rolle:
