@@ -20,20 +20,25 @@ var submissionSchema = new mongoose.Schema({
     }]
 });
 
-submissionSchema.pre('find', function(next) {
-    this.populate({
-        path: 'answers',
-        model: 'Answer'
+submissionSchema.pre('remove', function(next) {
+    let answers = this.answers;
+    Answer.find({
+        '_id': {$in: answers}
+    }, function(err, docs) {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.remove();
+        }
+        Answer.remove({ '_id': { $in: answers } }, function(err, res) {
+            if (err) throw err;
+            next();
+        });
     });
-    next();
 });
 
-submissionSchema.pre('remove', function(next) {
-    Answer.deleteMany({'_id': {$in: this.answers}}, function(err, res) {
-        if (err) throw err;
-        next();
-    });
-});
+submissionSchema.methods.populateAll = function(callback) {
+    console.log('hello populate all');
+};
 
 var answerSchema = new mongoose.Schema({
     text: {
@@ -68,11 +73,15 @@ var answerSchema = new mongoose.Schema({
 });
 
 answerSchema.pre('find', function(next) {
-    console.log('GETTING TASK');
     this.populate({
         path: 'task',
         model: 'Task'
     });
+    next();
+});
+
+answerSchema.pre('remove', function(next) {
+    // do something before deletion of answer.
     next();
 });
 

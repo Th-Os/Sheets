@@ -2,6 +2,7 @@
 import * as db from '../src/database/db';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import mongoose from 'mongoose';
 import * as correction from '../src/correction/correction';
 import {Submission, Answer, Student} from '../src/models/submission';
 import {Task, Solution} from '../src/models/sheet';
@@ -9,7 +10,7 @@ import {Task, Solution} from '../src/models/sheet';
 chai.use(chaiAsPromised).should();
 
 const numberAnswer = new Answer({
-    text: '3',
+    text: '2',
     task: new Task({
         question: 'number task',
         points: 10,
@@ -22,8 +23,11 @@ const numberAnswer = new Answer({
     })
 });
 
+const numberTask = numberAnswer.task;
+const numberSolution = numberTask.solution;
+
 const rangeAnswer = new Answer({
-    text: '4',
+    text: '4.2132',
     task: new Task({
         question: 'range task',
         points: 10,
@@ -39,8 +43,11 @@ const rangeAnswer = new Answer({
     })
 });
 
+const rangeTask = rangeAnswer.task;
+const rangeSolution = rangeTask.solution;
+
 const regexAnswer = new Answer({
-    text: 'hallo Automatentheorie, wie gehts?',
+    text: 'hallo Auto, wie gehts?',
     task: new Task({
         question: 'regex task',
         points: 10,
@@ -53,6 +60,9 @@ const regexAnswer = new Answer({
     })
 });
 
+const regexTask = regexAnswer.task;
+const regexSolution = regexTask.solution;
+
 const noneAnswer = new Answer({
     text: 'Freitext',
     task: new Task({
@@ -62,24 +72,61 @@ const noneAnswer = new Answer({
         choices: 'no',
         solution: new Solution({
             type: 'freetext',
-            default_free_text: true
+            default_free_text: false
         })
-
     })
 });
+
+const noneTask = noneAnswer.task;
+const noneSolution = noneTask.solution;
 
 const submission = new Submission({student: new Student({name: 'bla', mat_nr: 123}),
     answers: []});
 
 (function() {
-    let sub;
-    let answers;
-    let subId;
+    /*
     describe('Auto Correction with Database Tests', function() {
-        // Before starting the test, create a sandboxed database connection
-        // Once a connection is established invoke done()
+        let sub;
+        let answers;
+        let subId;
         before(function(done) {
             db.connect(function() {
+                done();
+            });
+        });
+        it('init number', function(done) {
+            numberSolution.save().then((doc) => {
+                numberTask.solution = doc._id;
+                numberTask.save().then((doc) => {
+                    numberAnswer.task = doc._id;
+                });
+                done();
+            });
+        });
+        it('init range', function(done) {
+            rangeSolution.save().then((doc) => {
+                rangeTask.solution = doc._id;
+                rangeTask.save().then((doc) => {
+                    rangeAnswer.task = doc._id;
+                });
+                done();
+            });
+        });
+        it('init regex', function(done) {
+            regexSolution.save().then((doc) => {
+                regexTask.solution = doc._id;
+                regexTask.save().then((doc) => {
+                    regexAnswer.task = doc._id;
+                });
+                done();
+            });
+        });
+        it('init none', function(done) {
+            noneSolution.save().then((doc) => {
+                noneTask.solution = doc._id;
+                noneTask.save().then((doc) => {
+                    noneAnswer.task = doc._id;
+                });
                 done();
             });
         });
@@ -89,6 +136,10 @@ const submission = new Submission({student: new Student({name: 'bla', mat_nr: 12
             submission.markModified('answers');
             Answer.insertMany(submission.answers, function(err, docs) {
                 if (err) throw err;
+                let ids = [];
+                for (let doc in docs) {
+                    ids.push(doc._id);
+                }
                 submission.save(function(err) {
                     if (err) throw err;
                     subId = submission._id;
@@ -97,9 +148,10 @@ const submission = new Submission({student: new Student({name: 'bla', mat_nr: 12
             });
         });
         it('get submission from database', function(done) {
-            Submission.findOne({_id: subId}).populate('answers.answer').exec(function(err, submission) {
+            Submission.findOne({_id: subId}).populate({ path: 'answers.answer', populate: { path: 'task', populate: { path: 'solution' } } }).exec(function(err, submission) {
                 if (err) throw err;
                 sub = submission;
+                console.log(sub);
                 done();
             });
         });
@@ -144,10 +196,14 @@ const submission = new Submission({student: new Student({name: 'bla', mat_nr: 12
                 done();
             });
 
+            // TODO: delete tasks and solutions
             after('delete submission', function(done) {
                 Submission.findOneAndRemove({ _id: subId }, function(err, doc) {
                     if (err) throw (err);
                     doc.remove().then(() => {
+                        for (doc of [numberSolution, rangeSolution, regexSolution, noneSolution, numberTask, rangeTask, regexTask, noneTask]) {
+                            doc.remove();
+                        }
                         db.disconnect();
                         done();
                     });
@@ -155,36 +211,24 @@ const submission = new Submission({student: new Student({name: 'bla', mat_nr: 12
             });
         });
     });
-
-    /*
-    testAnswer(numberAnswer);
-    testAnswer(rangeAnswer);
-    testAnswer(regexAnswer);
-    testAnswer(noneAnswer);
     */
-    // testAllAnswers(submission);
-    // submission delete after execution
-})();
 
-/*
-it('should begin correction', function(done) {
-    correction.beginCorrection(submission.answers).then(() => {
-        done();
-        it('should find submission', function(done) {
-            Submission.findById(subId).then((sub) => {
-                done();
-                let number = sub.answers[0];
-                describe('Answer correction', function() {
-                    it('should be auto-corrected', function(done) {
-                        chai.assert.isTrue(number.auto_corrected, 'Answer was auto-corrected');
-                        done();
-                    });
-                    it('achieved points should be correct', function(done) {
-                        chai.assert.strictEqual(number.achieved_points, 10, 'Achieved points are correct');
-                        done();
-                    });
-                });
-            }).catch((err) => { throw err; });
-        }).catch((err) => { throw err; });
+    submission.answers.push(numberAnswer, rangeAnswer, regexAnswer, noneAnswer);
+    let errors;
+    it('correction is running', function(done) {
+        correction.beginCorrection(submission.answers, function(err) {
+            errors = err;
+            done();
+        });
     });
-}); */
+    it('correction correct', function() {
+        // no errors
+        // chai.expect(errors).to.have.lengthOf(0);
+
+        // all errors
+        chai.expect(errors).to.be.an('array');
+        for (let error of errors) {
+            chai.expect(error).to.be.an.instanceOf(Error);
+        }
+    });
+})();

@@ -28,7 +28,6 @@ function beginCorrection(answers, callback) {
     console.log('DOING CORRECTION');
     try {
         checkAnswerArray(answers, callback);
-        console.log('without errors');
     } catch (err) {
         console.log('catched error before promises' + err.message);
         callback(err);
@@ -37,25 +36,25 @@ function beginCorrection(answers, callback) {
 
 function checkAnswerArray(answers, callback) {
     let promises = [];
+    let errors = [];
     for (let answer of answers) {
         let task = answer.task;
-        console.log(answer);
         let solution = task.solution;
         promises.push(new Promise(function(resolve, reject) {
             try {
                 checkAnswer(answer, solution, task);
                 resolve();
             } catch (err) {
+                errors.push(err);
                 reject(err);
             }
         }));
     }
     Promise.all(promises).then((answer) => {
-        console.log(answer);
         callback();
     }).catch((err) => {
-        console.log(err);
-        callback(err);
+        if (err);
+        callback(errors);
     });
 }
 
