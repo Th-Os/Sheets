@@ -36,10 +36,6 @@ submissionSchema.pre('remove', function(next) {
     });
 });
 
-submissionSchema.methods.populateAll = function(callback) {
-    console.log('hello populate all');
-};
-
 const answerSchema = new mongoose.Schema({
     text: {
         type: String,
