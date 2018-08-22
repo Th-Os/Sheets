@@ -117,3 +117,43 @@ Could need pictures. Optional!
 | HelpFlag |
 | CheckFlag |
 | Auto_CorrectionFlag|
+
+## Test Strings:
+´´´
+{
+	"name": "EIMI",
+	"faculty": "MI",
+	"semester": "SoSe 2018",
+	"min_req_sheets": 3,
+	"sheets": [
+		{
+		"name": "Exercise Sheet",
+		"submissiondate": "2016-05-18 10:00:00.000",
+		"min_req_points": 10,
+		"submissions": [
+			{
+				"student": {
+					"name": "Bernd",
+					"mat_nr": 1234567
+				},
+				"answers": [
+					{
+						"text": "text",
+						"task": {
+							"question": "a task",
+        					"points": 10,
+        					"order": 1,
+        					"choices": "no",
+					        "solution": {
+					            "type": "none",
+					            "number": 3
+					        }
+						}
+					}
+				]
+			}
+			]
+	}
+	]
+}
+´´´
