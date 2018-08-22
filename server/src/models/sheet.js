@@ -8,20 +8,20 @@ var sheetSchema = new mongoose.Schema({
         required: true
     },
     // course: {type: Schema.Types.ObjectId, ref: 'Course'}, // necessary?
-    submission: {
+    submissions: [{
         type: Schema.Types.ObjectId,
         ref: 'Submission',
         required: false
-    },
+    }],
     submissiondate: {
         type: Date,
         required: true
     },
-    exercise: {
+    exercises: [{
         type: Schema.Types.ObjectId,
         ref: 'Exercise',
         required: false
-    },
+    }],
     min_req_points: {
         type: Number,
         required: true
@@ -37,11 +37,11 @@ var exerciseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    task: {
+    tasks: [{
         type: Schema.Types.ObjectId,
         ref: 'Task',
         required: true
-    },
+    }],
     order: {
         type: Number,
         required: true
