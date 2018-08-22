@@ -19,11 +19,11 @@ var courseSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    sheets: {
+    sheets: [{
         type: Schema.Types.ObjectId,
         ref: 'Sheet',
         required: false
-    }
+    }]
 });
 
 export var Course = mongoose.model('Course', courseSchema);

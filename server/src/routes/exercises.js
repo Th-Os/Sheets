@@ -17,13 +17,23 @@ router.get('/:id/tasks', verify, function(req, res) {
     utils.get(req.params.id, res, Exercise, 'tasks.task');
 });
 
+// Test
 router.post('/:id/tasks', verify, function(req, res) {
-    Exercise.findById(req.params.id).populate('tasks.task').exec(function(err, exercise) {
+    Exercise.findById(req.params.id, (err, exercise) => {
         if (err) res.status(400).send(err);
-        exercise.tasks.push(req.body);
-        exercise.save(function(err, response) {
+        if (exercise === null) res.status(404).send('No exercise found');
+        Task.create(req.body, (err, docs) => {
             if (err) res.status(400).send(err);
-            else res.status(200).send(response);
+            if (exercise.tasks === undefined) exercise.tasks = [];
+            if (docs instanceof Array) {
+                for (let doc of docs) {
+                    exercise.tasks.push(doc._id);
+                }
+            } else exercise.tasks.push(docs._id);
+            exercise.save((err, doc) => {
+                if (err) res.status(400).send(err);
+                res.status(200).send(doc);
+            });
         });
     });
 });

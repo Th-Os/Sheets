@@ -34,11 +34,20 @@ router.delete('/:id', verify, function(req, res) {
     utils.del(req.params.id, res, Course);
 });
 
+// Test
 router.get('/:id/students', verify, function(req, res) {
-    Course.findById(req.params.id).populate('sheets.sheet').exec(function(err, course) {
+    Course.findById(req.params.id, (err, course) => {
         if (err) res.status(400).send(err);
-        console.log(course);
-        res.send('Not implemented yet.');
+        Sheet.find().where('_id').in(course.sheets).exec((err, sheets) => {
+            if (err) res.status(400).send(err);
+            Submission.find().where('_id').in(sheets.submissions).exec((err, subs) => {
+                if (err) res.status(400).send(err);
+                Student.find().where('id').in(subs.map((s) => s.student)).exec((err, students) => {
+                    if (err) res.status(400).send(err);
+                    res.send(students);
+                });
+            });
+        });
     });
 });
 
@@ -46,15 +55,23 @@ router.get('/:id/sheets', verify, function(req, res) {
     utils.get(req.params.id, res, Course, 'sheets.sheet');
 });
 
-// TODO: check this behavior!
+// Test
 router.post('/:id/sheets', verify, function(req, res) {
-    Course.findById(req.params.id).populate('sheets.sheet').exec(function(err, course) {
+    Course.findById(req.params.id, (err, course) => {
         if (err) res.status(400).send(err);
         if (course === null) res.status(404).send('No course found');
-        course.sheets.push(req.body);
-        course.save(function(err, course) {
+        Sheet.create(req.body, (err, docs) => {
             if (err) res.status(400).send(err);
-            res.status(200).send(course.sheets);
+            if (course.sheets === undefined) course.sheets = [];
+            if (docs instanceof Array) {
+                for (let doc of docs) {
+                    course.sheets.push(doc._id);
+                }
+            } else course.sheets.push(docs._id);
+            course.save((err, doc) => {
+                if (err) res.status(400).send(err);
+                res.status(200).send(doc);
+            });
         });
     });
 });

@@ -9,14 +9,24 @@ router.get('/', verify, function(req, res) {
     utils.getAll(req, res, User);
 });
 
+// Test
 router.post('/', verify, function(req, res) {
     let data = req.body;
     if (!(data instanceof Array)) data = [data];
     let promises = [];
     for (let item of data) {
-        // TODO: nested objects -> nested models
-        if (('role' in item) === true) res.status(400).send('This object has a role. Currently there is no support for nested objects.');
-        else promises.push(User.create(item));
+        if (('role' in item) === true) {
+            let role = item.role;
+            item.role = {};
+            User.create(item, (err, user) => {
+                if (err) res.status(400).send(err);
+                Role.create(role, (err, doc) => {
+                    if (err) res.status(400).send(err);
+                    user.role = doc._id;
+                    promises.push(user.save());
+                });
+            });
+        } else promises.push(User.create(item));
     }
     Promise.all(promises).then((response) => {
         res.status(200).send(response);

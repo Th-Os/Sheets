@@ -19,29 +19,61 @@ router.get('/:id/exercises', verify, function(req, res) {
 });
 
 router.post('/:id/exercises', verify, function(req, res) {
-    res.send('Post exercises not implemented yet');
+    Sheet.findById(req.params.id, (err, sheet) => {
+        if (err) res.status(400).send(err);
+        Exercise.create(req.body, (err, exercises) => {
+            if (err) res.status(400).send(err);
+            if (sheet.exercises === undefined) sheet.exercises = [];
+            if (exercises instanceof Array) {
+                for (let e of exercises) sheet.exercises.push(e._id);
+            } else sheet.exercises.push(exercises._id);
+            sheet.save((err, doc) => {
+                if (err) res.status(400).send(err);
+                res.send(doc);
+            });
+        });
+    });
 });
 
 router.post('/:id/submissions', verify, function(req, res) {
-    res.send('Post submissions not implemented yet');
+    Sheet.findById(req.params.id, (err, sheet) => {
+        if (err) res.status(400).send(err);
+        Submission.create(req.body, (err, submissions) => {
+            if (err) res.status(400).send(err);
+            if (sheet.submissions === undefined) sheet.submissions = [];
+            if (submissions instanceof Array) {
+                for (let s of submissions) sheet.submissions.push(s._id);
+            } else sheet.submissions.push(submissions._id);
+            sheet.save((err, doc) => {
+                if (err) res.status(400).send(err);
+                res.send(doc);
+            });
+        });
+    });
 });
 
 router.get('/:id/submissions', verify, function(req, res) {
     utils.get(req.params.id, res, Sheet, 'submissions.submission');
 });
 
+// Test
 router.delete('/:id/submissions', verify, function(req, res) {
-    res.send('Delete submissions not implemented yet');
+    Sheet.findById(req.params.id, (err, sheet) => {
+        if (err) res.status(400).send(err);
+        Submission.find({'_id': {$in: sheet.submissions}}, (err, subs) => {
+            if (err) res.status(400).send(err);
+            for (let s of subs) s.remove();
+            res.send(subs);
+        });
+    });
 });
 
 router.get('/:id/export/', verify, function(req, res) {
     res.redirect('../../export/pdf/' + req.params.id);
-    // res.download()
 });
 
 router.get('/:id/csv', verify, function(req, res) {
     res.redirect('../../export/csv/' + req.params.id);
-    res.send('Export csv not implemented yet');
 });
 
 router.get('/:id/template', verify, function(req, res) {
