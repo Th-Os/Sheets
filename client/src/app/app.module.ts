@@ -12,12 +12,14 @@ import { AppComponent } from './app.component';
 import { CoursesComponent } from './courses/courses.component';
 import { AppRoutingModule } from './app-routing.module';
 import { CourseDialogComponent } from './course-dialog/course-dialog.component';
+import { ExerciseComponent } from './exercise/exercise.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CoursesComponent,
-    CourseDialogComponent
+    CourseDialogComponent,
+    ExerciseComponent
   ],
   entryComponents: [
     CourseDialogComponent
