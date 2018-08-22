@@ -46,6 +46,7 @@ router.get('/:id/sheets', verify, function(req, res) {
     utils.get(req.params.id, res, Course, 'sheets.sheet');
 });
 
+// TODO: check this behavior!
 router.post('/:id/sheets', verify, function(req, res) {
     Course.findById(req.params.id).populate('sheets.sheet').exec(function(err, course) {
         if (err) res.status(400).send(err);
