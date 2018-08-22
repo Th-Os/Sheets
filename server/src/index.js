@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import * as db from './database/db';
 import auth from './auth/auth';
 import correction from './correction/correction';
+import exp from './routes/export';
 import answers from './routes/answers';
 import courses from './routes/courses';
 import exercises from './routes/exercises';
@@ -32,6 +33,7 @@ app.route('/')
 app.use('/auth', auth);
 app.use('/correct', correction);
 
+app.use('/export', exp);
 app.use('/answers', answers);
 app.use('/courses', courses);
 app.use('/exercises', exercises);

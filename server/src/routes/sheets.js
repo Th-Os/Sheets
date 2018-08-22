@@ -34,16 +34,18 @@ router.delete('/:id/submissions', verify, function(req, res) {
     res.send('Delete submissions not implemented yet');
 });
 
-router.get('/:id/export', verify, function(req, res) {
-    res.send('Export word / PDF not implemented yet');
+router.get('/:id/export/', verify, function(req, res) {
+    res.redirect('../../export/pdf/' + req.params.id);
+    // res.download()
 });
 
 router.get('/:id/csv', verify, function(req, res) {
+    res.redirect('../../export/csv/' + req.params.id);
     res.send('Export csv not implemented yet');
 });
 
 router.get('/:id/template', verify, function(req, res) {
-    res.send('Export template not implemented yet');
+    res.redirect('../../export/template/' + req.params.id);
 });
 
 export default router;
