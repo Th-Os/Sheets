@@ -1,8 +1,8 @@
-/* global require */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose from 'mongoose';
 
-var submissionSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const submissionSchema = new mongoose.Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -36,11 +36,7 @@ submissionSchema.pre('remove', function(next) {
     });
 });
 
-submissionSchema.methods.populateAll = function(callback) {
-    console.log('hello populate all');
-};
-
-var answerSchema = new mongoose.Schema({
+const answerSchema = new mongoose.Schema({
     text: {
         type: String,
         required: true
@@ -85,7 +81,7 @@ answerSchema.pre('remove', function(next) {
     next();
 });
 
-var studentSchema = new mongoose.Schema({
+const studentSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -96,6 +92,6 @@ var studentSchema = new mongoose.Schema({
     }
 });
 
-export var Submission = mongoose.model('Submission', submissionSchema);
-export var Answer = mongoose.model('Answer', answerSchema);
-export var Student = mongoose.model('Student', studentSchema);
+export let Submission = mongoose.model('Submission', submissionSchema);
+export let Answer = mongoose.model('Answer', answerSchema);
+export let Student = mongoose.model('Student', studentSchema);
