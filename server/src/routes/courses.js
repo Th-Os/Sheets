@@ -1,9 +1,16 @@
 import express from 'express';
 import verify from '../auth/verify';
+import {Course} from '../models/course';
+import {Sheet} from '../models/sheet';
 
 const router = express.Router();
-router.get('/', verify, function(req, res) {
-    res.send('Get course');
+router.get('/:id', verify, function(req, res) {
+    let id = req.params.id;
+    Course.findById(id).populate('sheets.sheet').then((doc) => {
+        res.status(200).send(doc);
+    }).catch((err) => {
+        if (err) res.status(400).send(err);
+    });
 });
 
 router.post('/', verify, function(req, res) {
