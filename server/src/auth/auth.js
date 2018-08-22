@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import bodyParser from 'body-parser';
-import {User} from '../models/user';
+import {User, Role} from '../models/user';
 
 const router = express.Router();
 
@@ -59,17 +59,21 @@ router.post('/register', function(req, res) {
             username: req.body.username,
             password: hashedPassword
         }).then(function(user) {
-            // if user is registered without errors
-            // create a token
-            var token = jwt.sign({
-                id: user._id
-            }, process.env.SECRET, {
-                expiresIn: 86400 // expires in 24 hours
-            });
-            console.log(token);
-            res.status(200).send({
-                auth: true,
-                token: token
+            Role.create({name: 'admin'}).then((role) => {
+                user.role = role._id;
+
+                // if user is registered without errors
+                // create a token
+                var token = jwt.sign({
+                    id: user._id
+                }, process.env.SECRET, {
+                    expiresIn: 86400 // expires in 24 hours
+                });
+                console.log(token);
+                res.status(200).send({
+                    auth: true,
+                    token: token
+                });
             });
         }).catch((err) => {
             if (err) return res.status(500).send('There was a problem registering the user.');
