@@ -75,7 +75,7 @@ router.post('/register', function(req, res) {
             if (err) return res.status(500).send('There was a problem registering the user.');
         });
     } else {
-        res.status(400).send();
+        res.status(404).send();
     }
 });
 
