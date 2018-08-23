@@ -6,7 +6,7 @@ import app from '../src/index';
 import {Answer} from '../src/models/submission';
 import {User} from '../src/models/user';
 
-let should = chai.should();
+let expect = chai.expect();
 
 chai.use(chaiHttp);
 
@@ -22,10 +22,26 @@ describe('API Test', () => {
             password: 'pass',
             role: { name: 'admin' }
         };
-        it('POST', (done) => {
-            chai.request(app).post('/user/').send(user).end((err, res) => {
+        it('POST user with role', (done) => {
+            chai.request(app).post('/users').send(user).end((err, res) => {
                 if (err) throw err;
-                // console.log(res);
+                chai.expect(res).to.have.status(200);
+                done();
+            });
+        });
+    });
+
+    describe('API Course', () => {
+        let course = {
+            name: 'EIMI',
+            faculty: 'MI',
+            semester: 'SoSe 2011',
+            min_req_sheets: 3
+        };
+        it('POST course', (done) => {
+            chai.request(app).post('/courses').send(course).end((err, res) => {
+                if (err) throw err;
+                chai.expect(res).to.have.status(200);
                 done();
             });
         });

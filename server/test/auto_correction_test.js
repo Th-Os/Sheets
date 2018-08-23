@@ -4,15 +4,8 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import mongoose from 'mongoose';
 import * as correction from '../src/correction/correction';
-import {
-    Submission,
-    Answer,
-    Student
-} from '../src/models/submission';
-import {
-    Task,
-    Solution
-} from '../src/models/sheet';
+import {Submission, Answer, Student} from '../src/models/submission';
+import {Task, Solution} from '../src/models/sheet';
 
 chai.use(chaiAsPromised);
 
@@ -95,7 +88,7 @@ const submission = new Submission({
     answers: []
 });
 
-(function () {
+(function() {
     /*
     describe('Auto Correction with Database Tests', function() {
         let sub;
@@ -224,23 +217,23 @@ const submission = new Submission({
         });
     });
     */
-
-    submission.answers.push(numberAnswer, rangeAnswer, regexAnswer, noneAnswer);
-    let errors;
-    it('correction is running', function (done) {
-        correction.beginCorrection(submission.answers, function (err) {
-            errors = err;
-            done();
+    describe('Auto Correction Test', () => {
+        submission.answers.push(numberAnswer, rangeAnswer, regexAnswer, noneAnswer);
+        let errors;
+        it('correction is running', function(done) {
+            correction.beginCorrection(submission.answers, (err) => {
+                errors = err;
+                done();
+            });
         });
-    });
-    it('correction correct', function () {
-        // no errors
-        // chai.expect(errors).to.have.lengthOf(0);
-
-        // all errors
-        chai.expect(errors).to.be.an('array');
-        for (let error of errors) {
-            chai.expect(error).to.be.an.instanceOf(Error);
-        }
+        it('correction correct', function() {
+            // no errors
+            // chai.expect(errors).to.have.lengthOf(0);
+            // all errors
+            chai.expect(errors).to.be.an('array');
+            for (let error of errors) {
+                chai.expect(error).to.be.an.instanceOf(Error);
+            }
+        });
     });
 })();
