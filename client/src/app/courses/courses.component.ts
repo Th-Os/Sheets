@@ -33,11 +33,13 @@ export class CoursesComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((course) => {
-      this.courseService.addCourse(course)
-        .subscribe(course => {
-          console.log(course);
-          this.courses.push(course);
-        });
+      if(course) {
+        this.courseService.addCourse(course)
+          .subscribe(course => {
+            console.log(course);
+            this.courses.push(course);
+          });
+      }
     });
   }
 

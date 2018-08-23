@@ -1,0 +1,46 @@
+<div class="container mt-5">
+  <button (click)="goBack()">
+    <i class="material-icons">arrow_back</i>
+  </button>
+  <h1>{{course.name}}</h1>
+  <div class="row">
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>Übungsblätter</mat-card-title>
+        <mat-card-content>
+          <mat-list>
+            <mat-list-item *ngFor="let sheet of course.sheets" role="listitem">
+              <h3 mat-line> {{ sheet.name }} </h3>
+              <button mat-icon-button (click)="delete(sheet)">
+                <mat-icon color="secondary">delete</mat-icon>
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+        <button class="position-absolute" style="right: 10px;" mat-fab color="primary">
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>Statistik</mat-card-title>
+        <mat-card-content>
+         Statistik
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>Studenten</mat-card-title>
+        <mat-card-content>
+          <mat-list>
+            <mat-list-item *ngFor="let student of []" role="listitem">
+              <h3 mat-line> {{ student.name }} </h3>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
