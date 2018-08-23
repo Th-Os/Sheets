@@ -3,7 +3,7 @@ import {Course} from "./course";
 export class Sheet {
   id: number;
   name: string;
-  course: Course;
+  course_id: number;
   submissions: string[];
   submissiondate: string;
   exercises: string[];

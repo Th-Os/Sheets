@@ -14,6 +14,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { CourseDialogComponent } from './course-dialog/course-dialog.component';
 import { ExerciseComponent } from './exercise/exercise.component';
 import { CourseComponent } from './course/course.component';
+import { SheetComponent } from './sheet/sheet.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { CourseComponent } from './course/course.component';
     CoursesComponent,
     CourseDialogComponent,
     ExerciseComponent,
-    CourseComponent
+    CourseComponent,
+    SheetComponent
   ],
   entryComponents: [
     CourseDialogComponent

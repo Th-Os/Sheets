@@ -30,7 +30,7 @@ export class CourseComponent implements OnInit {
   getCourse(): void {
     const id = +this.route.snapshot.paramMap.get('id');
     this.courseService.getCourse(id)
-      .subscribe(course => this.course = course);
+      .subscribe(course => this.course = course );
   }
 
   delete(sheet: Sheet): void {
