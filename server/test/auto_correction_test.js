@@ -4,10 +4,17 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import mongoose from 'mongoose';
 import * as correction from '../src/correction/correction';
-import {Submission, Answer, Student} from '../src/models/submission';
-import {Task, Solution} from '../src/models/sheet';
+import {
+    Submission,
+    Answer,
+    Student
+} from '../src/models/submission';
+import {
+    Task,
+    Solution
+} from '../src/models/sheet';
 
-chai.use(chaiAsPromised).should();
+chai.use(chaiAsPromised);
 
 const numberAnswer = new Answer({
     text: '2',
@@ -80,10 +87,15 @@ const noneAnswer = new Answer({
 const noneTask = noneAnswer.task;
 const noneSolution = noneTask.solution;
 
-const submission = new Submission({student: new Student({name: 'bla', mat_nr: 123}),
-    answers: []});
+const submission = new Submission({
+    student: new Student({
+        name: 'bla',
+        mat_nr: 123
+    }),
+    answers: []
+});
 
-(function() {
+(function () {
     /*
     describe('Auto Correction with Database Tests', function() {
         let sub;
@@ -215,13 +227,13 @@ const submission = new Submission({student: new Student({name: 'bla', mat_nr: 12
 
     submission.answers.push(numberAnswer, rangeAnswer, regexAnswer, noneAnswer);
     let errors;
-    it('correction is running', function(done) {
-        correction.beginCorrection(submission.answers, function(err) {
+    it('correction is running', function (done) {
+        correction.beginCorrection(submission.answers, function (err) {
             errors = err;
             done();
         });
     });
-    it('correction correct', function() {
+    it('correction correct', function () {
         // no errors
         // chai.expect(errors).to.have.lengthOf(0);
 
