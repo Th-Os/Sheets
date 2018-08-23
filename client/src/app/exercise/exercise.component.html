@@ -1,14 +1,27 @@
 <div class="container mt-5">
 	<div class="row">
 		<div class="col">
-			<mat-card>
+			<mat-card id="submissionsCard">
 				<mat-card-title>Abgaben</mat-card-title>
+				<mat-card-content>
+					<div
+					fileDrop
+					(filesDropped)="handleFileDrop($event)"
+					(filesHovered)="dropzoneState($event)"
+					[ngClass]="{'active': dropzoneActive}">
 
-				<mat-card-content></mat-card-content>
-				<button class="position-absolute" style="right: 10px;" mat-fab color="primary" (click)="create()">
-					<mat-icon>publish</mat-icon>
-				</button>
-			</mat-card>
-		</div>
+					<i class="fa fa-cloud-upload fa-2x"></i>
+
+					<div class="dropzone">
+						Abgaben hinzufügen
+					</div>
+				</div>
+			</mat-card-content>
+			<button class="position-absolute" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
+				<mat-icon>publish</mat-icon>
+			</button>
+			<input id="fileToUpload" type="file" style="display:none;" (change)="handleFileSelection($event)" >
+		</mat-card>
 	</div>
+</div>
 </div>
