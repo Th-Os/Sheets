@@ -1,7 +1,6 @@
 .dropzone {
 	height: 500px;
-	border-color: $sheets-app-primary;
-	border-style: dotted;
+	border-style: dashed;
 	border-width: 1px;
 	text-align: center;
 	vertical-align: middle;
