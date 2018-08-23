@@ -13,13 +13,15 @@ import { CoursesComponent } from './courses/courses.component';
 import { AppRoutingModule } from './app-routing.module';
 import { CourseDialogComponent } from './course-dialog/course-dialog.component';
 import { ExerciseComponent } from './exercise/exercise.component';
+import { FileDropDirective } from './file-drop.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
     CoursesComponent,
     CourseDialogComponent,
-    ExerciseComponent
+    ExerciseComponent,
+    FileDropDirective
   ],
   entryComponents: [
     CourseDialogComponent

@@ -1,0 +1,9 @@
+.dropzone {
+	height: 500px;
+	border-color: $sheets-app-primary;
+	border-style: dotted;
+	border-width: 1px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 500px; 
+}

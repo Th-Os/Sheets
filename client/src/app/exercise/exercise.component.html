@@ -4,11 +4,25 @@
 			<mat-card>
 				<mat-card-title>Abgaben</mat-card-title>
 
-				<mat-card-content></mat-card-content>
-				<button class="position-absolute" style="right: 10px;" mat-fab color="primary" (click)="create()">
-					<mat-icon>publish</mat-icon>
-				</button>
-			</mat-card>
-		</div>
+				<mat-card-content>
+					
+					<div class="dropzone"
+					fileDrop
+					(filesDropped)="handleFileDrop($event)"
+					(filesHovered)="dropzoneState($event)"
+					[ngClass]="{'active': dropzoneActive}">
+
+					<i class="fa fa-cloud-upload fa-2x"></i>
+						Abgaben hinzufügen
+				</div>
+
+
+			</mat-card-content>
+			<button class="position-absolute" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
+				<mat-icon>publish</mat-icon>
+			</button>
+			<input id="fileToUpload" type="file" style="display:none;" (change)="handleFileSelection($event)">
+		</mat-card>
 	</div>
+</div>
 </div>
