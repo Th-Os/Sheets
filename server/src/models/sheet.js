@@ -68,7 +68,7 @@ var taskSchema = new mongoose.Schema({
     solution: {
         type: Schema.Types.ObjectId,
         ref: 'Solution',
-        required: true
+        required: false
     }
 });
 

@@ -1,6 +1,6 @@
 import express from 'express';
 import verify from '../auth/verify';
-import * as utils from './utils';
+import * as methods from './methods';
 import {Student, Submission} from '../models/submission';
 import {Sheet} from '../models/sheet';
 import {Course} from '../models/course';
@@ -8,19 +8,19 @@ import {Course} from '../models/course';
 const router = express.Router();
 
 router.get('/:id', verify, function(req, res) {
-    utils.get(req.params.id, res, Student);
+    methods.get(req.params.id, res, Student);
 });
 
 router.post('/', verify, function(req, res) {
-    utils.post(req.body, res, Student);
+    methods.post(req.body, res, Student);
 });
 
 router.put('/:id', verify, function(req, res) {
-    utils.put(req.params.id, req.body, res, Student);
+    methods.put(req.params.id, req.body, res, Student);
 });
 
 router.delete('/:id', verify, function(req, res) {
-    utils.del(req.params.id, res, Student);
+    methods.del(req.params.id, res, Student);
 });
 
 // Test

@@ -1,6 +1,6 @@
 import express from 'express';
 import verify from '../auth/verify';
-import * as utils from './utils';
+import * as methods from './methods';
 import {
     User,
     Role
@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router.get('/', verify, function(req, res) {
-    utils.getAll(req, res, User);
+    methods.getAll(req, res, User);
 });
 
 // TODO: response is an empty array.
@@ -34,15 +34,15 @@ router.post('/', verify, function(req, res) {
 });
 
 router.get('/:id', verify, function(req, res) {
-    utils.get(req.params.id, res, User, 'role');
+    methods.get(req.params.id, res, User, 'role');
 });
 
 router.put('/:id', verify, function(req, res) {
-    utils.put(req.params.id, req.body, res, User);
+    methods.put(req.params.id, req.body, res, User);
 });
 
 router.delete('/:id', verify, function(req, res) {
-    utils.del(req.params.id, User);
+    methods.del(req.params.id, User);
 });
 
 export default router;
