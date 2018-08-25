@@ -7,7 +7,7 @@ import * as correction from '../src/correction/correction';
 import {Submission, Answer, Student} from '../src/models/submission';
 import {Task, Solution} from '../src/models/sheet';
 
-chai.use(chaiAsPromised).should();
+chai.use(chaiAsPromised);
 
 const numberAnswer = new Answer({
     text: '2',
@@ -80,8 +80,13 @@ const noneAnswer = new Answer({
 const noneTask = noneAnswer.task;
 const noneSolution = noneTask.solution;
 
-const submission = new Submission({student: new Student({name: 'bla', mat_nr: 123}),
-    answers: []});
+const submission = new Submission({
+    student: new Student({
+        name: 'bla',
+        mat_nr: 123
+    }),
+    answers: []
+});
 
 (function() {
     /*
@@ -212,23 +217,23 @@ const submission = new Submission({student: new Student({name: 'bla', mat_nr: 12
         });
     });
     */
-
-    submission.answers.push(numberAnswer, rangeAnswer, regexAnswer, noneAnswer);
-    let errors;
-    it('correction is running', function(done) {
-        correction.beginCorrection(submission.answers, function(err) {
-            errors = err;
-            done();
+    describe('Auto Correction Test', () => {
+        submission.answers.push(numberAnswer, rangeAnswer, regexAnswer, noneAnswer);
+        let errors;
+        it('correction is running', function(done) {
+            correction.beginCorrection(submission.answers, (err) => {
+                errors = err;
+                done();
+            });
         });
-    });
-    it('correction correct', function() {
-        // no errors
-        // chai.expect(errors).to.have.lengthOf(0);
-
-        // all errors
-        chai.expect(errors).to.be.an('array');
-        for (let error of errors) {
-            chai.expect(error).to.be.an.instanceOf(Error);
-        }
+        it('correction correct', function() {
+            // no errors
+            // chai.expect(errors).to.have.lengthOf(0);
+            // all errors
+            chai.expect(errors).to.be.an('array');
+            for (let error of errors) {
+                chai.expect(error).to.be.an.instanceOf(Error);
+            }
+        });
     });
 })();

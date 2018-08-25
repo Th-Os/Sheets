@@ -7,26 +7,56 @@ var sheetSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // course: {type: Schema.Types.ObjectId, ref: 'Course'}, // necessary?
-    submission: {
+    submissions: [{
         type: Schema.Types.ObjectId,
         ref: 'Submission',
         required: false
-    },
+    }],
     submissiondate: {
         type: Date,
         required: true
     },
-    exercise: {
+    exercises: [{
         type: Schema.Types.ObjectId,
         ref: 'Exercise',
         required: false
-    },
+    }],
     min_req_points: {
         type: Number,
         required: true
+    },
+    perstistent: {
+        type: Boolean,
+        default: false
     }
 });
+
+sheetSchema.post('remove', (doc) => {
+    mongoose.model('Exercise').find().where('_id').in(doc.exercises).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            if (!doc.perstistent) doc.remove();
+        }
+    });
+    mongoose.model('Submission').find().where('_id').in(doc.submissions).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.remove();
+        }
+    });
+});
+
+sheetSchema.methods.setPersistence = function(isPersistent, callback) {
+    this.persistent = isPersistent;
+    mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.persistent = isPersistent;
+            doc.save();
+        }
+        this.save(callback);
+    });
+};
 
 var exerciseSchema = new mongoose.Schema({
     name: {
@@ -37,16 +67,34 @@ var exerciseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    task: {
+    tasks: [{
         type: Schema.Types.ObjectId,
         ref: 'Task',
         required: true
-    },
+    }],
     order: {
         type: Number,
         required: true
+    },
+    perstistent: {
+        type: Boolean,
+        default: false
     }
 });
+
+exerciseSchema.post('remove', (doc) => {
+    mongoose.model('Task').find().where('_id').in(doc.tasks).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.remove();
+        }
+    });
+});
+
+exerciseSchema.methods.setPersistence = function(isPersistent, callback) {
+    this.persistent = isPersistent;
+    this.save(callback);
+};
 
 var taskSchema = new mongoose.Schema({
     question: {
@@ -68,8 +116,15 @@ var taskSchema = new mongoose.Schema({
     solution: {
         type: Schema.Types.ObjectId,
         ref: 'Solution',
-        required: true
+        required: false
     }
+});
+
+taskSchema.post('remove', (doc) => {
+    mongoose.model('Solution').findById(doc.solution, (err, doc) => {
+        if (err) throw err;
+        doc.remove();
+    });
 });
 
 var solutionSchema = new mongoose.Schema({

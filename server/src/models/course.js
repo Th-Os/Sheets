@@ -19,11 +19,20 @@ var courseSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    sheets: {
+    sheets: [{
         type: Schema.Types.ObjectId,
         ref: 'Sheet',
         required: false
-    }
+    }]
+});
+
+courseSchema.post('remove', (doc) => {
+    mongoose.model('Sheet').find().where('_id').in(doc.sheets).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.remove();
+        }
+    });
 });
 
 export var Course = mongoose.model('Course', courseSchema);
