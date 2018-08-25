@@ -1,0 +1,20 @@
+@media print {
+    body {
+        font-family: sans-serif;
+        font-size: 12px;
+    }
+    p, pre, ol, ul, dl, blockquote {
+        line-height: 20px;
+        page-break-inside: avoid;
+    }
+
+    img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+
+    #pageContent {
+        padding: 0 20pt;
+    }
+}
