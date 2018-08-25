@@ -15,7 +15,7 @@ router.delete('/:id', verify, function(req, res) {
 });
 
 router.get('/:id/exercises', verify, function(req, res) {
-    methods.get(req.params.id, res, Sheet, 'exercises.exercise');
+    methods.deepGet(req.params.id, res, Sheet, Exercise);
 });
 
 router.post('/:id/exercises', verify, function(req, res) {
@@ -27,10 +27,9 @@ router.post('/:id/submissions', verify, function(req, res) {
 });
 
 router.get('/:id/submissions', verify, function(req, res) {
-    methods.get(req.params.id, res, Sheet, 'submissions.submission');
+    methods.deepGet(req.params.id, res, Sheet, Submission);
 });
 
-// Test
 router.delete('/:id/submissions', verify, function(req, res) {
     Sheet.findById(req.params.id, (err, sheet) => {
         if (err) res.status(400).send(err);

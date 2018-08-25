@@ -6,6 +6,8 @@ import app from '../src/index';
 
 chai.use(chaiHttp);
 
+// TODO: Extend testing. For now it is enough.
+
 describe('API Test', () => {
     let user = {
         username: 'bla',
@@ -32,7 +34,6 @@ describe('API Test', () => {
             if (err) throw err;
             chai.expect(res).to.have.status(200);
             courseId = res.body[0]._id;
-            console.log(courseId);
             done();
         });
     });
@@ -147,7 +148,7 @@ describe('API Test', () => {
         chai.request(app).get('/courses/').send().end((err, res) => {
             if (err) throw err;
             chai.expect(res).to.have.status(200);
-            chai.expect(res.body[0]._id).to.equal(courseId);
+            chai.expect(res.body[res.body.length - 1]._id).to.equal(courseId);
             done();
         });
     });
@@ -156,11 +157,54 @@ describe('API Test', () => {
         chai.request(app).get('/courses/' + courseId + '/students').send().end((err, res) => {
             if (err) throw err;
             chai.expect(res).to.have.status(200);
-            console.log(res.body);
             done();
         });
     });
-    /*
+
+    it('GET sheets', (done) => {
+        chai.request(app).get('/courses/' + courseId + '/sheets').send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            done();
+        });
+    });
+
+    it('GET exercises', (done) => {
+        chai.request(app).get('/sheets/' + sheetId + '/exercises').send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            done();
+        });
+    });
+
+    it('GET submissions', (done) => {
+        chai.request(app).get('/sheets/' + sheetId + '/submissions').send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            done();
+        });
+    });
+
+    it('GET students submissions', (done) => {
+        chai.request(app).get('/students/' + studentId + '/submissions').send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            chai.expect(res.body).to.be.an.instanceOf(Array);
+            chai.expect(res.body).to.have.lengthOf.at.least(1);
+            done();
+        });
+    });
+
+    it('GET students courses', (done) => {
+        chai.request(app).get('/students/' + studentId + '/courses').send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            chai.expect(res.body).to.be.an.instanceOf(Array);
+            chai.expect(res.body).to.have.lengthOf.at.least(1);
+            done();
+        });
+    });
+
     it('DELETE course + sheet + submission + answer + exercise + task + solution', (done) => {
         console.log('CONTINUING WITH DELETE');
         chai.request(app).delete('/courses/' + courseId).send().end((err, res) => {
@@ -169,5 +213,4 @@ describe('API Test', () => {
             done();
         });
     });
-    */
 });

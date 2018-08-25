@@ -1,10 +1,7 @@
 import express from 'express';
 import verify from '../auth/verify';
 import * as methods from './methods';
-import {
-    User,
-    Role
-} from '../models/user';
+import {User, Role} from '../models/user';
 
 const router = express.Router();
 

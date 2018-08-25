@@ -16,7 +16,23 @@ function get(id, res, model, populate) {
     }
     model.findById(id, (err, doc) => {
         if (err) res.status(400).send(err);
-        res.send(doc);
+        else if (doc === undefined) res.status(404).send(model.modelName + ' not found.');
+        else res.send(doc);
+    });
+}
+
+function deepGet(id, res, parent, model, isSingle) {
+    let ids = '';
+    if (isSingle) ids = model.modelName.toLowerCase();
+    else ids = model.modelName.toLowerCase() + 's';
+    parent.findById(id, (err, doc) => {
+        if (err) res.status(400).send(err);
+        if (doc === undefined) res.status(404).send(parent.modelName + ' not found.');
+        model.find().where('_id').in(doc[ids]).exec((err, docs) => {
+            if (err) res.status(400).send(err);
+            if (docs === undefined || docs.length === 0) res.status(404).send(model.modelName + ' not found.');
+            res.status(200).send(docs);
+        });
     });
 }
 
@@ -98,4 +114,4 @@ function deepPost(id, body, res, parent, child, isSingle) {
     });
 }
 
-export {get, getAll, put, del, post, deepPost};
+export {get, deepGet, getAll, put, del, post, deepPost};

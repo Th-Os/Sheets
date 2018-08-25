@@ -17,7 +17,6 @@ router.get('/:id/solutions', verify, function(req, res) {
     methods.get(req.params.id, res, Task, 'solution');
 });
 
-// Test
 router.post('/:id/solutions', verify, function(req, res) {
     methods.deepPost(req.params.id, req.body, res, Task, Solution, true);
 });
