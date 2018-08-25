@@ -7,7 +7,6 @@ var sheetSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // course: {type: Schema.Types.ObjectId, ref: 'Course'}, // necessary?
     submissions: [{
         type: Schema.Types.ObjectId,
         ref: 'Submission',
@@ -25,6 +24,10 @@ var sheetSchema = new mongoose.Schema({
     min_req_points: {
         type: Number,
         required: true
+    },
+    perstistent: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -42,6 +45,18 @@ sheetSchema.post('remove', (doc) => {
         }
     });
 });
+
+sheetSchema.methods.setPersistence = function(isPersistent, callback) {
+    this.persistent = isPersistent;
+    mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.persistent = isPersistent;
+            doc.save();
+        }
+        this.save(callback);
+    });
+};
 
 var exerciseSchema = new mongoose.Schema({
     name: {
@@ -75,6 +90,11 @@ exerciseSchema.post('remove', (doc) => {
         }
     });
 });
+
+exerciseSchema.methods.setPersistence = function(isPersistent, callback) {
+    this.persistent = isPersistent;
+    this.save(callback);
+};
 
 var taskSchema = new mongoose.Schema({
     question: {
