@@ -20,19 +20,12 @@ const submissionSchema = new mongoose.Schema({
     }]
 });
 
-submissionSchema.pre('remove', function(next) {
-    let answers = this.answers;
-    Answer.find({
-        '_id': {$in: answers}
-    }, function(err, docs) {
+submissionSchema.post('remove', function(doc) {
+    mongoose.model('Answer').find().where('_id').in(doc.answers).exec((err, docs) => {
         if (err) throw err;
         for (let doc of docs) {
             doc.remove();
         }
-        Answer.remove({ '_id': { $in: answers } }, function(err, res) {
-            if (err) throw err;
-            next();
-        });
     });
 });
 
@@ -68,16 +61,12 @@ const answerSchema = new mongoose.Schema({
     }
 });
 
+// FIXME: This is a test for populating.
 answerSchema.pre('find', function(next) {
     this.populate({
         path: 'task',
         model: 'Task'
     });
-    next();
-});
-
-answerSchema.pre('remove', function(next) {
-    // do something before deletion of answer.
     next();
 });
 

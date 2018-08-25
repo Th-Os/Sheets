@@ -26,4 +26,13 @@ var courseSchema = new mongoose.Schema({
     }]
 });
 
+courseSchema.post('remove', (doc) => {
+    mongoose.model('Sheet').find().where('_id').in(doc.sheets).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.remove();
+        }
+    });
+});
+
 export var Course = mongoose.model('Course', courseSchema);

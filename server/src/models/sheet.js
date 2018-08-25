@@ -28,6 +28,21 @@ var sheetSchema = new mongoose.Schema({
     }
 });
 
+sheetSchema.post('remove', (doc) => {
+    mongoose.model('Exercise').find().where('_id').in(doc.exercises).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            if (!doc.perstistent) doc.remove();
+        }
+    });
+    mongoose.model('Submission').find().where('_id').in(doc.submissions).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.remove();
+        }
+    });
+});
+
 var exerciseSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -45,7 +60,20 @@ var exerciseSchema = new mongoose.Schema({
     order: {
         type: Number,
         required: true
+    },
+    perstistent: {
+        type: Boolean,
+        default: false
     }
+});
+
+exerciseSchema.post('remove', (doc) => {
+    mongoose.model('Task').find().where('_id').in(doc.tasks).exec((err, docs) => {
+        if (err) throw err;
+        for (let doc of docs) {
+            doc.remove();
+        }
+    });
 });
 
 var taskSchema = new mongoose.Schema({
@@ -70,6 +98,13 @@ var taskSchema = new mongoose.Schema({
         ref: 'Solution',
         required: false
     }
+});
+
+taskSchema.post('remove', (doc) => {
+    mongoose.model('Solution').findById(doc.solution, (err, doc) => {
+        if (err) throw err;
+        doc.remove();
+    });
 });
 
 var solutionSchema = new mongoose.Schema({

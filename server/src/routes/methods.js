@@ -44,7 +44,10 @@ function del(id, res, model) {
     model.findByIdAndRemove(id, (err, doc) => {
         if (err) res.status(400).send(err);
         if (doc === null) res.status(404).send('No object with ' + id + ' was found.');
-        else res.send('Successfully deleted document');
+        else {
+            doc.remove();
+            res.send('Successfully deleted document');
+        }
     });
 }
 
