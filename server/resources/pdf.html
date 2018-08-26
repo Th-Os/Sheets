@@ -3,6 +3,15 @@
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">   
     </head>
     <body>
-        <h1>Hello</h1>
+        <h1>{{name}}</h1>
+        <h2>{{submissiondate}}</h2>
+        <h2>{{min_req_points}}</h2>
+        {{#each exercises}}
+        <h3>{{name}}</h3>
+        <h3>{{description}}</h3>
+        {{#each tasks}}
+        <p>{{order}}</p>
+        {{/each}}
+        {{/each}}
     </body>
 </html>
