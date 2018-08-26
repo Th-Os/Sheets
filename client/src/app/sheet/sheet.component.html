@@ -4,13 +4,26 @@
       <mat-card>
         <mat-card-title>Abgaben</mat-card-title>
         <mat-card-content>
-          <mat-list *ngIf="sheet" >
-            <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
-              <h3 mat-line> {{ submission.name }} </h3>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
-    </div>
+          <div
+            fileDrop
+            (filesDropped)="handleFileDrop($event)"
+            (filesHovered)="dropzoneState($event)"
+            [ngClass]="{'active': dropzoneActive}">
+            <div class="dropzone">
+              Abgaben hinzufügen
+            </div>
+          </div>
+        <mat-list *ngIf="sheet" >
+          <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
+            <h3 mat-line> {{ submission.name }} </h3>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+      <button class="position-absolute" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
+        <mat-icon>publish</mat-icon>
+      </button>
+      <input id="fileToUpload" type="file" style="display:none;" (change)="handleFileSelection($event)" >
+    </mat-card>
   </div>
+</div>
 </div>
