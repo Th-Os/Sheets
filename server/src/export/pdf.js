@@ -38,9 +38,11 @@ PDFRenderer.prototype.send = function(res) {
             // TODO send via buffer or stream
             fs.writeFileSync('output/' + this.pdf.name + '.pdf', response.content);
             res.download('output/' + this.pdf.name + '.pdf');
+        }).catch((e) => {
+            console.error(e);
         });
     }).catch((e) => {
-        console.log(e);
+        console.error(e);
     });
 };
 
