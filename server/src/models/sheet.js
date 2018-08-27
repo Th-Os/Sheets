@@ -25,6 +25,10 @@ var sheetSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    order: {
+        type: Number,
+        default: 0
+    },
     perstistent: {
         type: Boolean,
         default: false
@@ -110,7 +114,7 @@ var taskSchema = new mongoose.Schema({
         required: true
     },
     choices: {
-        type: String,
+        type: Array,
         required: true
     },
     solution: {
