@@ -80,6 +80,10 @@ var exerciseSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    points: {
+        type: Number,
+        required: false
+    },
     perstistent: {
         type: Boolean,
         default: false
