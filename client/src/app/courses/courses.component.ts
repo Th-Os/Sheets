@@ -18,7 +18,7 @@ export class CoursesComponent implements OnInit {
     public dialog: MatDialog) { }
 
   ngOnInit() {
-    this.getCourses()
+    this.getCourses();
   }
 
   getCourses(): void {
