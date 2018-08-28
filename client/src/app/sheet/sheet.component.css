@@ -1,0 +1,8 @@
+#dropzone {
+	height: 500px;
+	border-style: dashed;
+	border-width: 1px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 500px; 
+}

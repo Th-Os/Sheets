@@ -12,7 +12,6 @@ import { AppComponent } from './app.component';
 import { CoursesComponent } from './courses/courses.component';
 import { AppRoutingModule } from './app-routing.module';
 import { CourseDialogComponent } from './course-dialog/course-dialog.component';
-import { ExerciseComponent } from './exercise/exercise.component';
 import { CourseComponent } from './course/course.component';
 import { SheetComponent } from './sheet/sheet.component';
 import { FileDropDirective } from './file-drop.directive';
@@ -22,7 +21,6 @@ import { FileDropDirective } from './file-drop.directive';
     AppComponent,
     CoursesComponent,
     CourseDialogComponent,
-    ExerciseComponent,
     CourseComponent,
     SheetComponent,
     FileDropDirective,
