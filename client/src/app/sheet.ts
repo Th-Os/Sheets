@@ -9,5 +9,6 @@ export class Sheet {
   submissions: Submission[];
   submissiondate: string;
   exercises: string[];
-  min_reg_points: number;
+  min_req_points: number;
+  perstistent: boolean;
 }
