@@ -143,4 +143,12 @@ describe('Export Test', () => {
             done();
         });
     });
+    it('Get Template', (done) => {
+        chai.request(app).get('/export/template/' + sheetId).send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            console.log(res.body);
+            done();
+        });
+    });
 });

@@ -1,6 +1,9 @@
 <html>
     <head>
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">   
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <style>
+            {#asset pdf.css @encoding=utf8}
+        </style>
     </head>
     <body>
         <header>
@@ -28,17 +31,7 @@
                 Diese soll eine reine Textdatei (UTF-8) sein -  d.h. kein Word-Dokument, keine PDF-Datei, etc. 
                 Die Datei soll exakt nach folgendem Schema aufgebaut sein (Text in spitzen Klammern ist als Platzhalter für Ihre Lösung zu verstehen - die spitzen Klammern selbst sollen nicht in der Textdatei stehen!). 
                 Im Schema angegebene Lösungen sind nur als Formatierungsbeispiele zu sehen:</br>
-                &lt;Ihre Matrikelnummer&gt;
-                {{#each sheet.exercises}}
-                <section>
-                    Aufgabe {{@root.sheet.order}}.{{order}} :
-                    {{#each tasks}}
-                    <section>
-                        {{order}})  {{#each choices}} &lt;{{this}}&gt; {{/each}}
-                    </section>
-                    {{/each}}
-                </section>
-                {{/each}}
+                {{template}}</br>
                 Verwenden Sie am besten die vorgegebene Textdatei auf Grips und tauschen Sie nur die Lösungen aus.
                 Ansonsten soll die Datei nichts beinhalten. Wenn Sie die Antwort auf eine Teilfrage nicht wissen, lassen Sie diese Zeile weg oder leer.
                 Aufgaben oder Teilaufgaben, die nicht nach dem vorgegebenem Schema angegeben werden, werden mit 0 Punkten bewertet. Für Fragen und Hinweise nutzen Sie bitte das Forum in GRIPS.
