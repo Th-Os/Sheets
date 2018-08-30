@@ -80,11 +80,6 @@ var exerciseSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    // TODO: This can be prevented by using the template export for the pdf.
-    points: {
-        type: Number,
-        required: false
-    },
     perstistent: {
         type: Boolean,
         default: false
