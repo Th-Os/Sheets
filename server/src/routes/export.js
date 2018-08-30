@@ -1,13 +1,27 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import dateformat from 'dateformat';
 import verify from '../auth/verify';
 import PDF from '../export/pdf';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
-import { resolve } from 'url';
 
 const router = express.Router();
+
+dateformat.i18n = {
+    dayNames: [
+        'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',
+        'Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'
+    ],
+    monthNames: [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+        'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+    ],
+    timeNames: [
+        'a', 'p', 'am', 'pm', 'A', 'P', 'AM', 'PM'
+    ]
+};
 
 router.get('/pdf/:id', verify, function(req, res) {
     fs.readFile(path.join(__dirname, '../../resources/pdf.html'), 'utf8', function(err, html) {
@@ -22,6 +36,7 @@ router.get('/pdf/:id', verify, function(req, res) {
                 if (err) res.status(400).send(err);
                 if (docs === undefined) if (err) res.status(404).send('Sheet not found');
                 obj.sheet = doc;
+                obj.date = toReadableDate(obj.sheet.submissiondate);
                 obj.template = getTemplate(doc);
                 new PDF().data(JSON.stringify(obj)).html(html).send(res);
             });
@@ -82,6 +97,11 @@ function toAlphabeticOrder(numerical) {
         if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
         return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
     }
+}
+
+// FIXME: string is utc, but date() converts it to GMT+2 (local time). +5 Minuten bug.
+function toReadableDate(str) {
+    return dateformat(new Date(str), 'dddd, dd. mmmm yyyy, hh:mm "Uhr"');
 }
 
 export default router;

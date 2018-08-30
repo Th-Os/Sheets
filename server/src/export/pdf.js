@@ -11,7 +11,20 @@ function PDFRenderer() {
         data: {},
         name: 'abc'
     };
-    this.renderer = report();
+    this.renderer = report({
+        'extensions': {
+            'assets': {
+                // wildcard pattern for accessible linked or external files
+                allowedFiles: '**.css',
+                // enables access to files not stored as linked assets in jsreport store
+                searchOnDiskIfNotFoundInStore: false,
+                // root url used when embedding assets as links {#asset foo.js @encoding=link}
+                rootUrlForLinks: 'localhost:3000/resources',
+                // make all assets accessible to anonymous requests
+                publicAccessEnabled: true
+            }
+        }
+    });
 }
 
 PDFRenderer.prototype.html = function(html) {

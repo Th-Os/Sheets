@@ -2,23 +2,61 @@
     <head>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <style>
-            {#asset pdf.css @encoding=utf8}
-        </style>
+            body {
+                margin: 10%;
+            }
+
+            header {
+                text-align: left;
+                font-size: 80%;
+            }
+            
+            h1 {
+                text-align: center;
+            }
+            
+            h2 {
+                text-align: center;
+                font-weight: normal;
+            }
+
+            h3 {
+                font-weight: bold;
+            }
+
+            h4 {
+                font-weight: bold;
+            }
+
+            p {
+
+            }
+
+            .template {
+                margin: 30px;
+                font-family: "Courier New";
+            }
+
+            footer {
+                text-align: right;
+                font-size: 80%;
+            }
+            </style>
     </head>
     <body>
         <header>
-            {{course.faculty}}
-            {{course.name}}
-            {{course.semester}}
+            {{course.faculty}}<br>
+            {{course.name}}<br>
+            {{course.semester}}<br>
         </header>
         <main>
                 <h2>Übungsblatt {{sheet.order}}:</h2>
                 <h1>{{sheet.name}}</h1>
-                Abgabe: {{sheet.submissiondate}}
+                <h4>Abgabe: {{date}}</h4>
                 {{#each sheet.exercises}}
                 <section>
-                    <h1>{{@root.sheet.order}}.{{order}} {{name}} (points)</h1>
-                    {{description}}
+                    <h3>{{@root.sheet.order}}.{{order}} {{name}} (points)</h3>
+                    <p>{{description}}</p>
                     {{#each tasks}}
                     <section>
                         <p>{{order}}) {{question}}</p>
@@ -27,11 +65,11 @@
                 </section>
                 {{/each}}
                 <p>
-                Laden Sie bis zu Deadline auf G.R.I.P.S ( http://elearning.ur.de ) eine Datei mit Namen u01.txt hoch. 
+                Laden Sie bis zu Deadline auf G.R.I.P.S ( <a href="http://elearning.ur.de">http://elearning.ur.de</a> ) eine Datei mit Namen <b>u01.txt</b> hoch. 
                 Diese soll eine reine Textdatei (UTF-8) sein -  d.h. kein Word-Dokument, keine PDF-Datei, etc. 
-                Die Datei soll exakt nach folgendem Schema aufgebaut sein (Text in spitzen Klammern ist als Platzhalter für Ihre Lösung zu verstehen - die spitzen Klammern selbst sollen nicht in der Textdatei stehen!). 
-                Im Schema angegebene Lösungen sind nur als Formatierungsbeispiele zu sehen:</br>
-                {{template}}</br>
+                Die Datei soll exakt nach folgendem Schema aufgebaut sein (Text in spitzen Klammern ist als Platzhalter für Ihre Lösung zu verstehen - die spitzen Klammern selbst sollen <u>nicht</u> in der Textdatei stehen!). 
+                Im Schema angegebene Lösungen sind nur als Formatierungsbeispiele zu sehen:<br>
+                <div class="template">{{template}}</div><br>
                 Verwenden Sie am besten die vorgegebene Textdatei auf Grips und tauschen Sie nur die Lösungen aus.
                 Ansonsten soll die Datei nichts beinhalten. Wenn Sie die Antwort auf eine Teilfrage nicht wissen, lassen Sie diese Zeile weg oder leer.
                 Aufgaben oder Teilaufgaben, die nicht nach dem vorgegebenem Schema angegeben werden, werden mit 0 Punkten bewertet. Für Fragen und Hinweise nutzen Sie bitte das Forum in GRIPS.
@@ -39,7 +77,7 @@
                 Sollten Plagiate identifiziert werden, wird das Übungsblatt mit 0 Punkten bewertet.
                 </p>
         </main>
-        <footer>Viel Erfolg</footer>
+        <footer><i>Viel Erfolg</i></footer>
 
     </body>
 </html>
