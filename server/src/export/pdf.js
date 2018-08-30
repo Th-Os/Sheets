@@ -4,13 +4,13 @@ import fs from 'fs';
 function PDFRenderer() {
     this.pdf = {
         template: {
-            content: 'localhost:3000/resources/pdf.html',
+            content: 'localhost:' + process.env.PORT + '/resources/pdf.html',
             engine: 'handlebars',
             recipe: 'chrome-pdf',
             helpers: String(calcPoints)
         },
         data: {},
-        name: 'abc'
+        name: 'output'
     };
     this.renderer = report({
         'extensions': {
@@ -20,7 +20,7 @@ function PDFRenderer() {
                 // enables access to files not stored as linked assets in jsreport store
                 searchOnDiskIfNotFoundInStore: false,
                 // root url used when embedding assets as links {#asset foo.js @encoding=link}
-                rootUrlForLinks: 'localhost:3000/resources',
+                rootUrlForLinks: 'localhost:' + process.env.PORT + '/resources',
                 // make all assets accessible to anonymous requests
                 publicAccessEnabled: true
             }
