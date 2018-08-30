@@ -85,7 +85,7 @@ router.get('/template/:id', verify, function(req, res) {
             }
             Promise.all(promises).then(() => {
                 // https://stackoverflow.com/questions/21950049/create-a-text-file-in-node-js-from-a-string-and-stream-it-in-response
-                res.attachment('template.txt').type('txt').end(getTemplate(sheet, 'file'));
+                res.attachment('template.txt').type('txt').end(getTemplate(sheet, 'txt'));
             }).catch((err) => {
                 console.error(err);
             });
@@ -93,16 +93,28 @@ router.get('/template/:id', verify, function(req, res) {
     });
 });
 
-// FIXME if choices are html, they are interpreted ({{{template}}} in html).
+/**
+ * Parses a sheet to a template.
+ * This function uses replacing of '<' and '>' to prevent html to be interpreted.
+ * Furthermore, it adds linebreaks to its output depending on the mode.
+ * @param {*} sheet a sheet object.
+ * @param {*} mode (txt|html)
+ */
 function getTemplate(sheet, mode) {
-    let newLine = (mode === 'file') ? '\n' : '<br>';
-    let template = (mode === 'file') ? '<Ihre Matrikelnummer>' : '&lt;Ihre Matrikelnummer&gt;';
+    let newLine = (mode === 'txt') ? '\n' : '<br>';
+    let template = (mode === 'txt') ? '<Ihre Matrikelnummer>' : '&lt;Ihre Matrikelnummer&gt;';
     template += newLine;
     for (let exercise of sheet.exercises) {
         if (exercise.tasks !== undefined) {
             template += 'Aufgabe ' + sheet.order + '.' + exercise.order + ':' + newLine;
             for (let task of exercise.tasks) {
-                template += toAlphabeticOrder(task.order) + ')  < ' + task.choices.join(' | ') + ' >' + newLine;
+                let choices = task.choices.join(' | ');
+                // Should prevent html from being interpreted.
+                if (mode === 'html') {
+                    choices = choices.replace('<', '&lt;');
+                    choices = choices.replace('>', '&gt;');
+                }
+                template += toAlphabeticOrder(task.order) + ')  < ' + choices + ' >' + newLine;
             }
         }
     }

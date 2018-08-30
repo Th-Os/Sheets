@@ -1,5 +1,4 @@
 import report from 'jsreport-core';
-import fs from 'fs';
 
 function PDFRenderer() {
     this.pdf = {
@@ -62,9 +61,8 @@ PDFRenderer.prototype.send = function(res) {
             template: this.pdf.template,
             data: this.pdf.data
         }).then((response) => {
-            // TODO send via buffer or stream
-            fs.writeFileSync('output/' + this.pdf.name + '.pdf', response.content);
-            res.download('output/' + this.pdf.name + '.pdf');
+            res.writeHead(200, {'Content-Type': 'application/pdf'});
+            res.end(response.content, 'binary');
         }).catch((e) => {
             console.error(e);
         });
