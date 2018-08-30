@@ -6,7 +6,8 @@ function PDFRenderer() {
         template: {
             content: 'localhost:3000/resources/pdf.html',
             engine: 'handlebars',
-            recipe: 'chrome-pdf'
+            recipe: 'chrome-pdf',
+            helpers: String(calcPoints)
         },
         data: {},
         name: 'abc'
@@ -27,6 +28,14 @@ function PDFRenderer() {
     });
 }
 
+function calcPoints(exercise) {
+    let points = 0;
+    for (let task of exercise.tasks) {
+        points += task.points;
+    }
+    return points;
+}
+
 PDFRenderer.prototype.html = function(html) {
     this.pdf.template.content = html;
     return this;
@@ -39,6 +48,11 @@ PDFRenderer.prototype.data = function(data) {
 
 PDFRenderer.prototype.name = function(name) {
     this.pdf.name = name;
+    return this;
+};
+
+PDFRenderer.prototype.addHelper = function(helper) {
+    this.pdf.template.helpers += String(helper);
     return this;
 };
 

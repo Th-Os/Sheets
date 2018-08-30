@@ -32,13 +32,26 @@ router.get('/pdf/:id', verify, function(req, res) {
             if (err) res.status(400).send(err);
             if (docs === undefined || docs.length === 0) if (err) res.status(404).send('Course not found');
             obj.course = docs[0];
-            Sheet.findById(sheetId, (err, doc) => {
+            Sheet.findById(sheetId, (err, sheet) => {
                 if (err) res.status(400).send(err);
-                if (docs === undefined) if (err) res.status(404).send('Sheet not found');
-                obj.sheet = doc;
-                obj.date = toReadableDate(obj.sheet.submissiondate);
-                obj.template = getTemplate(doc);
-                new PDF().data(JSON.stringify(obj)).html(html).send(res);
+                if (sheet === undefined) if (err) res.status(404).send('Sheet not found');
+                Exercise.find().where('_id').in(sheet.exercises).exec((err, exercises) => {
+                    if (err) res.status(400).send(err);
+                    obj.sheet = sheet;
+                    obj.sheet.exercises = exercises;
+                    let promises = [];
+                    for (let exercise of sheet.exercises) {
+                        promises.push(Task.find().where('_id').in(exercise.tasks).then((docs) => {
+                            if (err) res.status(400).send(err);
+                            exercise.tasks = docs;
+                        }));
+                    }
+                    Promise.all(promises).then(() => {
+                        obj.date = toReadableDate(obj.sheet.submissiondate);
+                        obj.template = getTemplate(sheet, 'html');
+                        new PDF().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).send(res);
+                    });
+                });
             });
         });
     });
@@ -65,11 +78,14 @@ router.get('/template/:id', verify, function(req, res) {
                 promises.push(Task.find().where('_id').in(exercise.tasks).then((docs) => {
                     if (err) res.status(400).send(err);
                     exercise.tasks = docs;
+                    for (let task of exercise.tasks) {
+                        task.order = toAlphabeticOrder(task.order);
+                    }
                 }));
             }
             Promise.all(promises).then(() => {
                 // https://stackoverflow.com/questions/21950049/create-a-text-file-in-node-js-from-a-string-and-stream-it-in-response
-                res.attachment('template.txt').type('txt').end(getTemplate(sheet));
+                res.attachment('template.txt').type('txt').end(getTemplate(sheet, 'file'));
             }).catch((err) => {
                 console.error(err);
             });
@@ -77,13 +93,16 @@ router.get('/template/:id', verify, function(req, res) {
     });
 });
 
-function getTemplate(sheet) {
-    let template = '<Ihre Matrikelnummer>\n';
+// FIXME if choices are html, they are interpreted ({{{template}}} in html).
+function getTemplate(sheet, mode) {
+    let newLine = (mode === 'file') ? '\n' : '<br>';
+    let template = (mode === 'file') ? '<Ihre Matrikelnummer>' : '&lt;Ihre Matrikelnummer&gt;';
+    template += newLine;
     for (let exercise of sheet.exercises) {
         if (exercise.tasks !== undefined) {
-            template += 'Aufgabe ' + sheet.order + '.' + exercise.order + ':\n';
+            template += 'Aufgabe ' + sheet.order + '.' + exercise.order + ':' + newLine;
             for (let task of exercise.tasks) {
-                template += toAlphabeticOrder(task.order) + ')  < ' + task.choices.join(' | ') + ' >\n';
+                template += toAlphabeticOrder(task.order) + ')  < ' + task.choices.join(' | ') + ' >' + newLine;
             }
         }
     }
