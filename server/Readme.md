@@ -54,7 +54,7 @@
 |/students/:id/courses		|GET	|	|:id	|200, [Courses]	|400, 401, 404	|
 |**Misc**		|	|	|	|	|	|
 |/sheets/:id/export		|GET	|	|:id	|200, (Word,PDF)	|400, 401, 404	|
-|/sheets/:id/csv		|GET	|	|:id	|200, csv	|400. 401, 404	|
+|/sheets/:id/csv		|GET	|	|:id	|200, csv	|400, 401, 404	|
 |/sheets/:id/template		|GET	|	|:id	|200, template	|400, 401, 404	|
 
 
