@@ -66,6 +66,7 @@
 Rolle kann in Userdatenbank oder in eigener Rollentabelle
 
 -> Rollentabelle, die erweitert werden könnte (Berechtigungen)
+-> enum 'admin', 'courseadmin', 'tutor'
 
 | Roles      |
 | ------------- |
@@ -77,7 +78,10 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | User (Admin/Tutor)      |
 | ------------- |
 | ID     |
-| Name      |
+| username      |
+| password      |
+| forename      |
+| lastname      |
 | CourseIDs      |
 | RoleID      |
 
@@ -87,9 +91,9 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | ------------- |
 | ID     |
 | Name     |
-| Title |
+| Faculty |
 | Semester |
-| NeededSheets |
+| NecessarySheets |
 | SheetIDs |
 
 ### Student
@@ -102,15 +106,20 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 
 ### Sheet
 
+A sheet can now be persistent -> won't be deleted, when a course (parent) is deleted.
+
 | Sheet     |
 | ------------- |
 | ID     |
 | Name |
 | Order |
-| NecesseryPoints |
+| NecessaryPoints |
 | SubmissionDate |
 | ExerciseIDs     |
 | SubmissionIDs |
+| PersistentFlag |
+
+An excercise can now be persistent -> won't be deleted, when a sheet (parent) is deleted.
 
 ### Exercise
 
@@ -121,17 +130,19 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | Description |
 | Order |
 | TaskIDs |
+| PersistentFlag |
 
 ### Task
 
 Could need pictures. Optional!
+Choices are hints for a task.
 
 | Task     |
 | ------------- |
 | ID     |
 | Order |
 | Question |
-| Choices (if needed) |
+| Choices |
 | Points |
 | SolutionID |
 
@@ -140,15 +151,18 @@ Could need pictures. Optional!
 -  | Number (with possibility for ranges) | Optional range
 -  | Default |
 - none = no automatic correction
+- Hint: is a information for the correction
+- DefaultFreeText is an boolean flag, which indicates whether a freetext answer will result in all (true) or no (false) points.
 
 | Solution     |
 | ------------- |
 | ID     |
-| Type (regex, range, number or none) |
+| Type (regex, range, number, freetext or none) |
 | Regex |
-| Range |
+| Range (from, to) |
 | Number |
 | Hint |
+| DefaultFreeTextFlag |
 
 
 ### Submission
@@ -156,19 +170,20 @@ Could need pictures. Optional!
 | Submission     |
 | ------------- |
 | ID     |
-| Name      |
+| SheetID      |
 | StudentID     |
-| UserID |
 | AnswerIDs |
+| UserID |
 
 ### Answer
 
 | Answer     |
 | ------------- |
 | ID     |
+| Text |
 | AchievedPoints |
 | TaskID |
 | Feedback |
 | HelpFlag |
-| CheckFlag |
-| Auto_CorrectionFlag|
+| CorrectedFlag |
+| AutoCorrectedFlag|
