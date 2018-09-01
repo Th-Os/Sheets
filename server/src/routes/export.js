@@ -1,49 +1,39 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import dateformat from 'dateformat';
+import moment from 'moment';
+import RouteError from './error';
 import verify from '../auth/verify';
 import PDF from '../export/pdf';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
 
 const router = express.Router();
-
-dateformat.i18n = {
-    dayNames: [
-        'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',
-        'Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'
-    ],
-    monthNames: [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-        'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
-    ],
-    timeNames: [
-        'a', 'p', 'am', 'pm', 'A', 'P', 'AM', 'PM'
-    ]
-};
+moment.locale('de');
 
 router.get('/pdf/:id', verify, function(req, res) {
     fs.readFile(path.join(__dirname, '../../resources/pdf.html'), 'utf8', function(err, html) {
-        if (err) res.status(400).send(err);
+        if (err) throw new RouteError(500, err, res);
         let sheetId = req.params.id;
         let obj = {};
         Course.find({sheets: sheetId}).exec((err, docs) => {
-            if (err) res.status(400).send(err);
-            if (docs === undefined || docs.length === 0) if (err) res.status(404).send('Course not found');
+            if (err) throw new RouteError(400, err, res);
+            if (docs === undefined || docs.length === 0) throw new RouteError(404, 'Course not found', res);
             obj.course = docs[0];
             Sheet.findById(sheetId, (err, sheet) => {
-                if (err) res.status(400).send(err);
-                if (sheet === undefined) if (err) res.status(404).send('Sheet not found');
+                if (err) throw new RouteError(400, err, res);
+                if (sheet === undefined || sheet === null) throw new RouteError(404, 'Sheet not found', res);
                 Exercise.find().where('_id').in(sheet.exercises).exec((err, exercises) => {
-                    if (err) res.status(400).send(err);
+                    if (err) throw new RouteError(400, err, res);
+                    if (exercises === undefined || exercises.length === 0) throw new RouteError(404, 'Exercises not found', res);
                     obj.sheet = sheet;
                     obj.sheet.exercises = exercises;
                     let promises = [];
                     for (let exercise of sheet.exercises) {
-                        promises.push(Task.find().where('_id').in(exercise.tasks).then((docs) => {
-                            if (err) res.status(400).send(err);
-                            exercise.tasks = docs;
+                        promises.push(Task.find().where('_id').in(exercise.tasks).then((tasks) => {
+                            if (err) throw new RouteError(400, err, res);
+                            if (tasks === undefined || tasks.length === 0) throw new RouteError(404, 'Tasks not found', res);
+                            exercise.tasks = tasks;
                         }));
                     }
                     Promise.all(promises).then(() => {
@@ -130,9 +120,8 @@ function toAlphabeticOrder(numerical) {
     }
 }
 
-// FIXME: string is utc, but date() converts it to GMT+2 (local time). +5 Minuten bug.
 function toReadableDate(str) {
-    return dateformat(new Date(str), 'dddd, dd. mmmm yyyy, hh:mm "Uhr"');
+    return moment(str).format('dddd, D. MMMM YYYY, hh:mm [Uhr]');
 }
 
 export default router;
