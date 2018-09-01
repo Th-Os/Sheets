@@ -3,11 +3,6 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const submissionSchema = new mongoose.Schema({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: false
-    },
     student: {
         type: Schema.Types.ObjectId,
         ref: 'Student',
@@ -17,7 +12,12 @@ const submissionSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Answer',
         required: true
-    }]
+    }],
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
+    }
 });
 
 submissionSchema.post('remove', function(doc) {
@@ -59,15 +59,6 @@ const answerSchema = new mongoose.Schema({
         type: Number,
         required: false
     }
-});
-
-// FIXME: This is a test for populating.
-answerSchema.pre('find', function(next) {
-    this.populate({
-        path: 'task',
-        model: 'Task'
-    });
-    next();
 });
 
 const studentSchema = new mongoose.Schema({
