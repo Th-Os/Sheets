@@ -170,7 +170,6 @@ Choices are hints for a task.
 | Submission     |
 | ------------- |
 | ID     |
-| SheetID      |
 | StudentID     |
 | AnswerIDs |
 | UserID |
