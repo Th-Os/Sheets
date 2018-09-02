@@ -69,6 +69,10 @@ const studentSchema = new mongoose.Schema({
     mat_nr: {
         type: Number,
         required: true
+    },
+    grips_id: {
+        type: Number,
+        required: true
     }
 });
 
