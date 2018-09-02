@@ -103,6 +103,7 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | ID     |
 | Name      |
 | Matrikelnummer |
+| GripsID |
 
 ### Sheet
 
