@@ -7,4 +7,5 @@ export class Submission {
 	answers: Answer[];
 	//ui
 	author_name:string;
+	author_lastname: string;
 }

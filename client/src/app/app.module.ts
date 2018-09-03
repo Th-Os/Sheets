@@ -6,8 +6,6 @@ import { SheetsMaterialComponentsModule } from './sheets-material-components.mod
 import { HttpClientModule }    from '@angular/common/http';
 import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { InMemoryDataService }  from './in-memory-data.service';
-
-
 import { AppComponent } from './app.component';
 import { CoursesComponent } from './courses/courses.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -15,6 +13,7 @@ import { CourseDialogComponent } from './course-dialog/course-dialog.component';
 import { CourseComponent } from './course/course.component';
 import { SheetComponent } from './sheet/sheet.component';
 import { FileDropDirective } from './file-drop.directive';
+import { SubmissionUploadErrorDialogComponent } from './submission-upload-error-dialog/submission-upload-error-dialog.component';
 
 @NgModule({
   declarations: [
@@ -24,8 +23,10 @@ import { FileDropDirective } from './file-drop.directive';
     CourseComponent,
     SheetComponent,
     FileDropDirective,
+    SubmissionUploadErrorDialogComponent,
   ],
   entryComponents: [
+    SubmissionUploadErrorDialogComponent,
     CourseDialogComponent
   ],
   imports: [

@@ -5,34 +5,53 @@ import {SheetService} from "../sheet.service";
 import {Location} from "@angular/common";
 import {Sheet} from "../sheet";
 import {Submission} from "../submission";
+import {SubmissionValidationResult} from "../submission-validation-result";
 import {Student} from "../student";
 import {Answer} from "../answer";
 import * as JSZip from 'jszip';
 //Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");" 
 //durch "module.exports = require("readable-stream");" ersetzt werden!
+import {MatSnackBar} from '@angular/material';
+import {Inject} from '@angular/core'; 
+import {DOCUMENT} from '@angular/common';
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+import {SubmissionUploadErrorDialogComponent} from "../submission-upload-error-dialog/submission-upload-error-dialog.component";
 
 @Component({
   selector: 'app-sheet',
   templateUrl: './sheet.component.html',
   styleUrls: ['./sheet.component.css']
 })
+
 export class SheetComponent implements OnInit {
 
-  sheet: Sheet;
+  uploadErrorMsg = "Es kann nur eine aus GRIPS exportierte .zip-Datei verwendet werden";
 
+  sheet: Sheet;
   selectedFile = null;
 
-  dropzoneVisible:boolean = true;
+  submissionsAvaliable:boolean = false;
+  submissionValidationResults: SubmissionValidationResult[];
+
   dropzoneActive:boolean = false;
 
   constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    @Inject(DOCUMENT) document,
     private route: ActivatedRoute,
     private sheetService: SheetService,
     private location: Location
-    ) { }
+    ) {}
 
   ngOnInit() {
     this.getSheet();
+  }
+
+  displayMessage(text: string) {
+    this.snackBar.open(text, "", {
+      duration: 3000,
+    });
   }
 
   getSheet(): void {
@@ -40,7 +59,7 @@ export class SheetComponent implements OnInit {
     this.sheetService.getSheet(id).subscribe(sheet => {
       this.sheet = sheet;
       this.updateUI;
-      console.log(sheet);
+      console.log("done fetching sheet");
     });
   }
 
@@ -49,27 +68,30 @@ export class SheetComponent implements OnInit {
   }
 
   updateUI(): void {
-    this.dropzoneVisible = this.updateDropzoneVisibility();
+    this.submissionsAvaliable = this.submissionsAvailable();
   }
 
-  updateDropzoneVisibility(): boolean {
+  submissionsAvailable(): boolean {
     if(this.sheet == null) return false;
     if(this.sheet.submissions == null) return false;
-    if(this.sheet.submissions.length > 0) return false;
+    if(this.sheet.submissions.length <= 0) return false;
     return true;
   }
 
   onFilesAdded(fileList: FileList): void {
     if(fileList.length <= 0){
-      console.log("Error reading files: List <= 0")
+      this.displayMessage(this.uploadErrorMsg);
       return
     }
 
     if(fileList.length == 1 && this.isZip(fileList[0])){
+      this.submissionValidationResults = [];
       this.readZipFolder(fileList[0]);
     }else{
-      console.log("Error reading files: Only single .zip file allowed");
+      this.displayMessage(this.uploadErrorMsg);
     }
+    
+    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
   }
 
   isZip(file): boolean {
@@ -86,28 +108,52 @@ export class SheetComponent implements OnInit {
         Object.keys(zip.files).forEach((filename) => {
           if(filename.split("/").length < 3) return;
           if(!filename.endsWith("/")) {
+
             let submission = new Submission();
-            submission.author_name = this.readAuthorName(filename);
+            let name = this.readAuthorName(filename);
+
+            submission.author_name = name.split(" ")[0];
+            submission.author_lastname = name.split(" ")[name.split(" ").length - 1];
             submissions.push(submission);
+
             if(filename.includes(".txt")){
               promises.push(zip.files[filename].async('string').then((fileData) => {
-                submission.answers = this.readAnswers(fileData);
-                submission.student_id = this.readStudentId(fileData);
+
+                let answers = this.readAnswers(fileData);
+                let student_id = this.readStudentId(fileData);
+
+                if(answers == null || student_id == null || student_id == NaN){
+                  this.submissionValidationResults.push(new SubmissionValidationResult(filename));
+                }else{
+                  submission.answers = answers;
+                  submission.student_id = student_id; 
+                }
               }));
             }
           }
         })
 
         Promise.all(promises).then(() => {
-          console.log("Done reading zip");
-          this.sheet.submissions = submissions;
-          this.updateUI();
-          console.log(this.sheet)
+          console.log("done reading zip");
+          if(this.submissionValidationResults.length <= 0){
+            this.sheet.submissions = submissions;
+            this.updateUI();
+            console.log("validation ok")
+            console.log(this.sheet)
+          }else{
+            this.displayValidationResults();
+          }
         });
       })
     }
 
     reader.readAsArrayBuffer(file);
+  }
+
+  displayValidationResults() {
+    this.dialog.open(SubmissionUploadErrorDialogComponent, {
+      data: this.submissionValidationResults
+    });
   }
 
   readStudentId(text: string): number {
@@ -121,45 +167,56 @@ export class SheetComponent implements OnInit {
   }
 
   readAnswers(text: string): Answer[] {
-    let lines = text.split("\n");
-    let answers = [];
-    let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
-    let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s.*");
 
-    let taskNum = 1;
-    let subtaskNum = 0;
+/*
+Außnahmen bei der Validierung:
+- kein Leerzeichen nach "x)"
+*/
 
-    for (var i = 0; i < lines.length; ++i) {
-      if(i == 0) continue;
-      let line = lines[i];
+let lines = text.split("\n");
+let answers = [];
+let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
+let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?.*");
 
-      if(line.match(regexTask) != null) {
-        taskNum = parseInt(line.match(this.formatRegExp("\\\d+.\\\d+"))[0].replace(".", ""));
-        subtaskNum = 0;
-        continue;
-      }
+let taskNum = 1;
+let subtaskNum = 0;
 
-      if(line.match(regexText) != null) {
-        let answer = new Answer();
-        answer.text = line.replace(this.formatRegExp("[a-z]{1}\\\)\\\s"), "");
-        answer.task_id = parseInt(taskNum.toString() + subtaskNum.toString());
-        answers.push(answer);
-        subtaskNum++;
-      }
-    }
+for (var i = 0; i < lines.length; ++i) {
+  if(i == 0) continue;
+  let line = lines[i];
 
-    return answers;
+  if(line.match(regexTask) != null) {
+    taskNum = parseInt(line.match(this.formatRegExp("\\\d+.\\\d+"))[0].replace(".", ""));
+    subtaskNum = 0;
+    continue;
   }
 
- formatRegExp(str) {
+  if(line.match(regexText) != null) {
+    let answer = new Answer();
+    answer.text = line.replace(this.formatRegExp("[a-z]{1}\\\)\\\s"), "");
+    answer.task_id = parseInt(taskNum.toString() + subtaskNum.toString());
+    answers.push(answer);
+    subtaskNum++;
+    continue
+  }
+
+  //Kriterien verletzt
+  //console.log(line)
+  return null
+}
+
+return answers;
+}
+
+formatRegExp(str) {
   return new RegExp(str);
 }
 
-  readAuthorName(fileName): string {
-    let res = null;
-    let pathSlices = fileName.split("/");
+readAuthorName(fileName): string {
+  let res = null;
+  let pathSlices = fileName.split("/");
 
-    if(pathSlices.length < 2) return null;
+  if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
     let relevantFolderName: string = pathSlices[pathSlices.length - 2]; 
@@ -169,6 +226,11 @@ export class SheetComponent implements OnInit {
 
   addFile(file): void {
 
+  }
+
+  clearSubmissions() {
+    this.sheet.submissions = [];
+    this.updateUI();
   }
 
   handleFileSelection(event): void {

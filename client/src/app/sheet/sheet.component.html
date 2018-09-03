@@ -1,24 +1,26 @@
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-12 col-lg-4 col-md-4">
+<div class="container-fluid mt-5 h-100">
+  <div class="row h-100">
+    <div flex class="col-12 col-lg-4 col-md-4">
       <mat-card>
         <mat-card-title>Abgaben</mat-card-title>
-        <mat-card-content>
-          <div 
-            fileDrop
-            (filesDropped)="handleFileDrop($event)"
-            (filesHovered)="dropzoneState($event)"
-            [ngClass]="{'active': dropzoneActive}">
-            <div id="dropzone" *ngIf="dropzoneVisible">
-              Abgaben hinzufügen
-            </div>
-          </div>
+        <mat-card-content
+        fileDrop
+        (filesDropped)="handleFileDrop($event)"
+        (filesHovered)="dropzoneState($event)"
+        [ngClass]="{'active': dropzoneActive}">
+        <div id="dropzone" *ngIf="!submissionsAvaliable">
+          Abgaben hinzufügen
+        </div>
         <mat-list id="submissionsList" *ngIf="sheet" >
           <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
-            <h3 mat-line> {{ submission.author_name }} </h3>
+            <h3 mat-line>{{submission.author_lastname }} {{submission.author_name }}</h3>
+            <p mat-line class="text-grayed"> {{ submission.student_id }} </p>
           </mat-list-item>
         </mat-list>
       </mat-card-content>
+      <button class="position-absolute" *ngIf="submissionsAvaliable" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">
+        <mat-icon>delete</mat-icon>
+      </button>
       <button class="position-absolute" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
         <mat-icon>publish</mat-icon>
       </button>
