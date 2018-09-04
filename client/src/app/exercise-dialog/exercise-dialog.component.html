@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>
+  Übungsblatt erstellen
+</h2>
+<mat-dialog-content>
+  <mat-radio-group [(ngModel)]="useTemplate">
+    <mat-radio-button [value]="true">
+      Aus Vorlage:<br>
+      <mat-form-field>
+        <!--<input type="" matInput>-->
+        <!--Todo: fix error: "mat-form-field must contain a MatFormFieldControl."-->
+        <mat-select *ngIf="course" [(ngModel)]="selectedSheetId">
+          <mat-option *ngFor="let sheet of course.sheets" matInput value={{sheet.id}}>{{ sheet.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-radio-button>
+    <mat-divider></mat-divider>
+    <br>
+    <mat-radio-button [value]="false">
+      Neues Übungsblatt
+    </mat-radio-button>
+  </mat-radio-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onClose(false)">Abbrechen</button>
+  <button mat-button (click)="onClose(true)">Erstellen</button>
+</mat-dialog-actions>
+

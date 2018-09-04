@@ -9,6 +9,9 @@ import { MatDialogModule, } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from "@angular/material";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {MatSelectModule} from '@angular/material/select';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @NgModule({
   imports: [
@@ -16,14 +19,20 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatListModule, MatDividerModule,
     MatButtonModule, MatIconModule,
     MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatSnackBarModule
+    MatInputModule, MatSnackBarModule,
+    MatSelectModule, MatFormFieldModule,
+    MatInputModule, MatRadioModule,
+    MatGridListModule
   ],
   exports: [
     MatToolbarModule, MatCardModule,
     MatListModule, MatDividerModule,
     MatButtonModule, MatIconModule,
     MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatSnackBarModule
+    MatInputModule, MatSnackBarModule,
+    MatSelectModule, MatFormFieldModule,
+    MatInputModule, MatRadioModule,
+    MatGridListModule
   ],
 })
 export class SheetsMaterialComponentsModule { }

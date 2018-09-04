@@ -1,5 +1,6 @@
 import {Course} from "./course";
 import {Submission} from "./submission";
+import {Exercise} from './exercise';
 
 
 export class Sheet {
@@ -8,6 +9,6 @@ export class Sheet {
   course_id: number;
   submissions: Submission[];
   submissiondate: string;
-  exercises: string[];
+  exercises: Exercise;
   min_reg_points: number;
 }

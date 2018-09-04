@@ -6,6 +6,8 @@ import { CourseService }  from '../course.service';
 import {Course} from "../course";
 import {Sheet} from "../sheet";
 import {SheetService} from "../sheet.service";
+import {ExerciseDialogComponent} from '../exercise-dialog/exercise-dialog.component';
+import {MatDialog} from '@angular/material';
 
 @Component({
   selector: 'app-course',
@@ -20,7 +22,8 @@ export class CourseComponent implements OnInit {
     private route: ActivatedRoute,
     private courseService: CourseService,
     private sheetService: SheetService,
-    private location: Location
+    private location: Location,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -36,6 +39,12 @@ export class CourseComponent implements OnInit {
   delete(sheet: Sheet): void {
     this.course.sheets = this.course.sheets.filter(s => s !== sheet);
     this.sheetService.deleteSheet(sheet);
+  }
+
+  add(): void {
+    this.dialog.open(ExerciseDialogComponent, {
+      width: 'auto'
+    });
   }
 
   goBack(): void {

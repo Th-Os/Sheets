@@ -1,0 +1,75 @@
+<div class="container mt-5">
+  <button (click)="goBack()">
+    <i class="material-icons">arrow_back</i>
+  </button>
+  <!--Todo: Probably replace with better solution to update edited text-->
+  <h2 #head contenteditable="true" (blur)="title=head.textContent">{{title}}</h2>
+  <div class="row">
+    <div class="col-12 col-lg-5 col-md-5">
+      <mat-card>
+        <mat-card-title>Übersicht</mat-card-title>
+        <mat-card-content>
+          <p>Übersicht über erstellte Aufgaben.</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-6 col-md-6">
+      <mat-card>
+        <mat-card-title>Erstellen</mat-card-title>
+        <mat-card-content>
+          <!--Todo: Fill with array of tasks-->
+          <div *ngIf="tasks.length > 0">
+            <div *ngFor="let task of tasks">
+              <div>
+                <mat-grid-list [cols]="2" rowHeight="70px" >
+                  <mat-grid-tile>
+                    <h5>{{tasks[iterator].order}}</h5>
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <input type="text" [ngModel]="questionTitle">
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <label>Typ:</label>
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <mat-form-field>
+                      <mat-select placeholder="Typ wählen" [(ngModel)]="type">
+                        <mat-option value="freet">Freitext</mat-option>
+                        <mat-option value="multchoice">Multiple Choice</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <label>Frage:</label>
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <textarea [ngModel]="questionText"></textarea>
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <label>Antworten:</label>
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <input type="text" [ngModel]="answers">
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <label>Punkte:</label>
+                    <input type="number" [ngModel]="points">
+                  </mat-grid-tile>
+                  <mat-grid-tile>
+                    <textarea placeholder="Some Regex" [ngModel]="regex"></textarea>
+                  </mat-grid-tile>
+                </mat-grid-list>
+                <mat-divider></mat-divider>
+              </div>
+            </div>
+          </div>
+          <!--Todo: Put this above and replace hardcoded stuff with respective task fields-->
+
+          <button mat-icon-button (click)="addTask()">
+          <mat-icon color="secondary">add</mat-icon>
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

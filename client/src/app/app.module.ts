@@ -15,6 +15,9 @@ import { CourseDialogComponent } from './course-dialog/course-dialog.component';
 import { CourseComponent } from './course/course.component';
 import { SheetComponent } from './sheet/sheet.component';
 import { FileDropDirective } from './file-drop.directive';
+import { ExerciseComponent } from './exercise/exercise.component';
+import { ExerciseDialogComponent } from './exercise-dialog/exercise-dialog.component';
+
 
 @NgModule({
   declarations: [
@@ -24,9 +27,12 @@ import { FileDropDirective } from './file-drop.directive';
     CourseComponent,
     SheetComponent,
     FileDropDirective,
+    ExerciseComponent,
+    ExerciseDialogComponent,
   ],
   entryComponents: [
-    CourseDialogComponent
+    CourseDialogComponent,
+    ExerciseDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +43,7 @@ import { FileDropDirective } from './file-drop.directive';
     HttpClientInMemoryWebApiModule.forRoot(
       InMemoryDataService, { dataEncapsulation: false }
     ),
-    AppRoutingModule
+    AppRoutingModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
