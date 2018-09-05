@@ -11,7 +11,7 @@
         "preload": "node -r dotenv/config -r babel/register index.js",
         "start": "nodemon --exec npm run babel-node -- ./src/index.js",
         "build": "babel src -d dist",
-        "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/export_test.js"
+        "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/api_test.js"
     },
     "author": "",
     "license": "ISC",

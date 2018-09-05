@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
-import RouteError from './error';
+import {RouteError} from '../utils/error';
 import verify from '../auth/verify';
 import PDF from '../export/pdf';
 import {Course} from '../models/course';

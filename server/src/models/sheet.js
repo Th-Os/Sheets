@@ -62,6 +62,16 @@ sheetSchema.methods.setPersistence = function(isPersistent, callback) {
     });
 };
 
+sheetSchema.methods.getMaxPoints = function() {
+    return new Promise((resolve, reject) => {
+        mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
+            if (err) throw err;
+            for (let doc of docs) {
+            }
+        });
+    });
+};
+
 var exerciseSchema = new mongoose.Schema({
     name: {
         type: String,

@@ -29,6 +29,20 @@ submissionSchema.post('remove', function(doc) {
     });
 });
 
+submissionSchema.methods.hasPassed = function(requiredPoints) {
+    return new Promise((resolve, reject) => {
+        mongoose.model('Answer').find().where('_id').in(this.answers).exec((err, docs) => {
+            if (err) reject(err);
+            let points = 0;
+            for (let doc of docs) {
+                points += doc.achieved_points;
+            }
+            if (points >= requiredPoints) resolve(true);
+            else resolve(false);
+        });
+    });
+};
+
 const answerSchema = new mongoose.Schema({
     text: {
         type: String,

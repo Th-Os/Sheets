@@ -14,4 +14,16 @@ class RouteError extends Error {
     }
 }
 
-export default RouteError;
+class StatusError extends Error {
+    constructor(status, msg, ...params) {
+        super(...params);
+        this.status = status;
+        this.message = msg;
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, RouteError);
+        }
+    }
+}
+
+export {RouteError, StatusError};
