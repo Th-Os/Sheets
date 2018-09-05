@@ -29,6 +29,7 @@ bestanden",,"
 <p> Aufgabe 1.5d): (CHI) ist korrekt! </p>
 <p> Aufgabe 1.5e): (Abstract) ist korrekt! </p>
 <p> Aufgabe 1.6 ist korrekt! </p>
+<p> Korrigiert von Vorname Nachname </p>
 "
 */
 
@@ -50,13 +51,14 @@ CSVRenderer.prototype.addHeader = function(header) {
 /**
  * This method will parse a submission to a valid csv line and adds it to the csv string.
  * @param {*} submission with student, answers (with task with exercise) and user
- * @param {*} sheetOrder 
- * @param {*} requiredPoints 
- * @param {*} maxPoints 
+ * @param {*} sheetOrder
+ * @param {*} requiredPoints
+ * @param {*} maxPoints
  */
 CSVRenderer.prototype.addSubmission = function(submission, sheetOrder, requiredPoints, maxPoints) {
     let line = '';
-    line += 'Teilnehmer/in' + submission.student.grips_id + ',' + hasPassed(submission, requiredPoints) + ',"nicht bestanden\nbestanden",,"\n<p> ' + getOverallFeedback(submission, requiredPoints, maxPoints) + ' </p>\n';
+    line += 'Teilnehmer/in' + submission.student.grips_id + ',' + hasPassed(submission, requiredPoints) + ',"nicht bestanden\nbestanden",,"\n';
+    line += '<p> ' + getOverallFeedback(submission, requiredPoints, maxPoints) + ' </p>\n';
     let length = submission.answers.length;
     for (let i = 0; i < length; i++) {
         let answer = submission.answers[i];
@@ -72,6 +74,7 @@ CSVRenderer.prototype.addSubmission = function(submission, sheetOrder, requiredP
         line += ' ' + answer.feedback + ' </p>';
         line += '\n';
     }
+    line += '<p> Korrigiert von ' + submission.user.forename + ' ' + submission.user.lastname + ' </p>';
     line += '"';
     this.csv += line;
     return this;
@@ -81,7 +84,6 @@ CSVRenderer.prototype.export = function() {
     return this.csv;
 };
 
-// TODO: Implement
 function hasPassed(submission, requiredPoints) {
     let points;
     for (let answer of submission.answers) {
@@ -91,7 +93,6 @@ function hasPassed(submission, requiredPoints) {
     else return 'nicht bestanden';
 }
 
-// TODO: Implement
 function getOverallFeedback(submission, requiredPoints, maxPoints) {
     let points;
     for (let answer of submission.answers) {
