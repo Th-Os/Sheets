@@ -49,17 +49,27 @@ CSVRenderer.prototype.addHeader = function(header) {
 
 /**
  * This method will parse a submission to a valid csv line and adds it to the csv string.
- * @param {*} submission with student, answers (with task with exercise with sheet) and user
+ * @param {*} submission with student, answers (with task with exercise) and user
+ * @param {*} sheetOrder 
+ * @param {*} requiredPoints 
+ * @param {*} maxPoints 
  */
-CSVRenderer.prototype.addSubmission = function(submission, sheetOrder) {
+CSVRenderer.prototype.addSubmission = function(submission, sheetOrder, requiredPoints, maxPoints) {
     let line = '';
-    line += 'Teilnehmer/in' + submission.student.grips_id + ',' + hasPassed() + ',"nicht bestanden\nbestanden",,"\n<p> ' + getOverallFeedback() + ' </p>\n';
-    for (let answer of submission.answers) {
+    line += 'Teilnehmer/in' + submission.student.grips_id + ',' + hasPassed(submission, requiredPoints) + ',"nicht bestanden\nbestanden",,"\n<p> ' + getOverallFeedback(submission, requiredPoints, maxPoints) + ' </p>\n';
+    let length = submission.answers.length;
+    for (let i = 0; i < length; i++) {
+        let answer = submission.answers[i];
+        if (i === length - 1) {
+            line += '<p> Aufgabe ' + sheetOrder + '.' + answer.task.exercise.order;
+            line += ' ist korrekt! </p>';
+            break;
+        }
         line += '<p> Aufgabe ' + sheetOrder + '.' + answer.task.exercise.order + toAlphabeticOrder(answer.task.order) + '): ';
         let txt = toCSVString(answer.text);
         if (txt.length !== 0) line += '(' + txt + ')';
+        else line += 'fehlt.';
         line += ' ' + answer.feedback + ' </p>';
-        // TODO: last line
         line += '\n';
     }
     line += '"';
@@ -72,13 +82,24 @@ CSVRenderer.prototype.export = function() {
 };
 
 // TODO: Implement
-function hasPassed(data) {
-    return 'bestanden';
+function hasPassed(submission, requiredPoints) {
+    let points;
+    for (let answer of submission.answers) {
+        points += answer.achieved_points;
+    }
+    if (points >= requiredPoints) return 'bestanden';
+    else return 'nicht bestanden';
 }
 
 // TODO: Implement
-function getOverallFeedback(data) {
-    return 'Sehr gut! Fast alles richtig!';
+function getOverallFeedback(submission, requiredPoints, maxPoints) {
+    let points;
+    for (let answer of submission.answers) {
+        points += answer.achieved_points;
+    }
+    if (points === maxPoints) return 'Sehr gut! Alles richtig.';
+    if (points >= requiredPoints) return 'Sehr gut! Fast alles richtig.';
+    else return 'Schade. Nicht bestanden.';
 }
 
 function toCSVString(str) {
