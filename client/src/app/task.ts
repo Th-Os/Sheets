@@ -1,11 +1,10 @@
+import {Solution} from './solution';
+
 export class Task {
   id: number;
-  questiontitle: string;
-  questiontext: string;
+  question: string;
   points: number;
   order: number;
   choices: string;
-  solution: string;
-  type: string;
+  solution: Solution;
 }
-// Todo: Probably add field for type of question (e.g. freetext, multiple choice etc.)

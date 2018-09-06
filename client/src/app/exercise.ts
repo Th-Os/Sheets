@@ -4,8 +4,7 @@ export class Exercise {
   id: number;
   name: string;
   description: string;
-  task: Task[];
+  tasks: Task[];
   order: number;
+  persistentFlag: boolean;
 }
-
-// Todo: Probably remove order-field (not necessary because only one exeercise per sheet)

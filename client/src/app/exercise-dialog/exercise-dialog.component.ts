@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
 import {Router} from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
@@ -8,7 +8,6 @@ import {Course} from '../course';
 import {Sheet} from '../sheet';
 import {Exercise} from '../exercise';
 import { CourseService } from '../course.service';
-import {ExerciseService} from '../exercise.service';
 import {SheetService} from '../sheet.service';
 
 @Component({
@@ -22,14 +21,12 @@ export class ExerciseDialogComponent implements OnInit {
   sheet: Sheet;
   exercise: Exercise;
   useTemplate: boolean;
-  exerciseId: number;
   selectedSheetId: number;
 
   constructor(
     public dialogRef: MatDialogRef<CourseDialogComponent>,
     private router: Router,
     private courseService: CourseService,
-    private exerciseService: ExerciseService,
     private sheetService: SheetService,
     private route: ActivatedRoute
   ) { }
@@ -48,7 +45,6 @@ export class ExerciseDialogComponent implements OnInit {
   create(): void {
     // Todo: Test with API
     /*this.sheet = new Sheet();
-    this.exercise = new Exercise();
 
     if (this.useTemplate) {
       this.sheetService.getSheet(this.selectedSheetId)
@@ -57,25 +53,18 @@ export class ExerciseDialogComponent implements OnInit {
           this.sheet = sheet;
           this.sheet.name = 'Aufgabenblatt aus Vorlage: ' + sheet.name;
         });
-      this.exercise = this.sheet.exercises;
     } else {
       this.sheet.name = 'Neues Aufgabenblatt';
     }
 
-    this.exerciseService.addExercise(this.exercise)
-      .subscribe(exercise => {
-        console.log(exercise);
-        this.sheet.exercises = exercise;
-      });
-
     this.sheetService.addSheet(this.sheet)
       .subscribe(sheet => {
         console.log(sheet);
-        this.exerciseId = sheet.exercises.id;
+        //this.newSheetId = sheet.id;
+        this.router.navigateByUrl('/createSheet/' + sheet.id);
       });*/
 
-    //this.router.navigateByUrl('/exercise/' + this.exerciseId);
-    this.router.navigateByUrl('/exercise');
+    this.router.navigateByUrl('/createSheet');
     this.dialogRef.close();
   }
 

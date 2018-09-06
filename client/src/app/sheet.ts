@@ -9,6 +9,6 @@ export class Sheet {
   course_id: number;
   submissions: Submission[];
   submissiondate: string;
-  exercises: Exercise;
+  exercises: Exercise[];
   min_reg_points: number;
 }

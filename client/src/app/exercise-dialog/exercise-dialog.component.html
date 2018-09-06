@@ -5,14 +5,14 @@
   <mat-radio-group [(ngModel)]="useTemplate">
     <mat-radio-button [value]="true">
       Aus Vorlage:<br>
-      <mat-form-field>
-        <!--<input type="" matInput>-->
-        <!--Todo: fix error: "mat-form-field must contain a MatFormFieldControl."-->
-        <mat-select *ngIf="course" [(ngModel)]="selectedSheetId">
-          <mat-option *ngFor="let sheet of course.sheets" matInput value={{sheet.id}}>{{ sheet.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div *ngIf="course">
+        <mat-form-field>
+          <mat-select [(ngModel)]="selectedSheetId">
+            <mat-option *ngFor="let sheet of course.sheets" matInput value={{sheet.id}}>{{ sheet.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </mat-radio-button>
     <mat-divider></mat-divider>
     <br>

@@ -17,6 +17,7 @@ import { SheetComponent } from './sheet/sheet.component';
 import { FileDropDirective } from './file-drop.directive';
 import { ExerciseComponent } from './exercise/exercise.component';
 import { ExerciseDialogComponent } from './exercise-dialog/exercise-dialog.component';
+import { CreateSheetComponent } from './create-sheet/create-sheet.component';
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { ExerciseDialogComponent } from './exercise-dialog/exercise-dialog.compo
     FileDropDirective,
     ExerciseComponent,
     ExerciseDialogComponent,
+    CreateSheetComponent,
   ],
   entryComponents: [
     CourseDialogComponent,
