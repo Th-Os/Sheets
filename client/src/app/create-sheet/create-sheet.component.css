@@ -1,5 +1,9 @@
 .mat-grid-tile .mat-figure { justify-content: left !important; }
 
+#title {
+  width:90% !important;
+}
+
 /*ol {
   counter-reset: item;
 }

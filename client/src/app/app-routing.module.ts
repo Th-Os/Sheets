@@ -10,7 +10,8 @@ const routes: Routes = [
   { path: '', component: CoursesComponent },
   { path: 'courses/:id', component: CourseComponent },
   { path: 'sheets/:id', component: SheetComponent },
-  { path: 'createSheet', component: CreateSheetComponent },
+  { path: 'sheet/create', component: CreateSheetComponent },  // Todo: replace with sheet/:id/create later
+  { path: 'sheet/edit', component: CreateSheetComponent}, // Todo: replace with sheet/:id/edit later
 ];
 
 @NgModule({

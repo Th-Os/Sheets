@@ -44,9 +44,9 @@ export class ExerciseDialogComponent implements OnInit {
 
   create(): void {
     // Todo: Test with API
-    /*this.sheet = new Sheet();
+    this.sheet = new Sheet();
 
-    if (this.useTemplate) {
+    /*if (this.useTemplate) {
       this.sheetService.getSheet(this.selectedSheetId)
         .subscribe(sheet => {
           console.log(sheet);
@@ -57,14 +57,15 @@ export class ExerciseDialogComponent implements OnInit {
       this.sheet.name = 'Neues Aufgabenblatt';
     }
 
-    this.sheetService.addSheet(this.sheet)
-      .subscribe(sheet => {
-        console.log(sheet);
-        //this.newSheetId = sheet.id;
-        this.router.navigateByUrl('/createSheet/' + sheet.id);
-      });*/
+    if (this.sheet.id) {
+      this.sheetService.addSheet(this.sheet)
+        .subscribe(sheet => {
+          console.log(sheet);
+          this.router.navigateByUrl('/sheet/' + sheet.id + '/create');
+        });
+    }*/
 
-    this.router.navigateByUrl('/createSheet');
+    this.router.navigateByUrl('/sheet/create');
     this.dialogRef.close();
   }
 
