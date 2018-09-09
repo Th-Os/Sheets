@@ -29,6 +29,18 @@ submissionSchema.post('remove', function(doc) {
     });
 });
 
+submissionSchema.method.populate = function() {
+    let promises = [];
+    promises.push(mongoose.model('Student').findById(this.student).then((student) => {
+        this.student = student;
+    }));
+    promises.push(mongoose.model('Answer').find().where('_id').in(this.answers).exec().then((answers) => {
+        if (!(answers instanceof Array)) answers = [answers];
+        this.answers = answers;
+    }));
+    return Promise.all(promises);
+};
+
 submissionSchema.methods.hasPassed = function(requiredPoints) {
     return new Promise((resolve, reject) => {
         mongoose.model('Answer').find().where('_id').in(this.answers).exec((err, docs) => {
@@ -74,6 +86,12 @@ const answerSchema = new mongoose.Schema({
         required: false
     }
 });
+
+answerSchema.method.populate = function() {
+    return mongoose.model('Task').findById(this.task).then((task) => {
+        this.task = task;
+    });
+};
 
 const studentSchema = new mongoose.Schema({
     name: {

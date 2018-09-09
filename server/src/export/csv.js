@@ -33,8 +33,6 @@ bestanden",,"
 "
 */
 
-// TODO: last line needs to be dynamically added. Find a way to do that.
-
 function CSVRenderer() {
     this.header = 'ID,Bewertung,Skala,Zuletzt geändert (Bewertung),Feedback als Kommentar';
     this.type = 'text/csv;charset=utf-8;';
@@ -45,7 +43,6 @@ CSVRenderer.prototype.addHeader = function(header) {
     if (header === undefined || header.length === 0) this.csv += this.header;
     else this.csv += header;
     this.csv += '\n';
-    return this;
 };
 
 /**
@@ -77,7 +74,6 @@ CSVRenderer.prototype.addSubmission = function(submission, sheetOrder, requiredP
     line += '<p> Korrigiert von ' + submission.user.forename + ' ' + submission.user.lastname + ' </p>';
     line += '"';
     this.csv += line;
-    return this;
 };
 
 CSVRenderer.prototype.export = function() {

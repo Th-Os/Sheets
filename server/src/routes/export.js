@@ -2,11 +2,15 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
+import * as methods from '../utils/methods';
+import * as operations from '../database/operations';
 import {RouteError} from '../utils/error';
 import verify from '../auth/verify';
-import PDF from '../export/pdf';
+import PDFRenderer from '../export/pdf';
+import CSVRenderer from '../export/csv';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
+import { Submission } from '../models/submission';
 
 const router = express.Router();
 moment.locale('de');
@@ -39,7 +43,7 @@ router.get('/pdf/:id', verify, function(req, res) {
                     Promise.all(promises).then(() => {
                         obj.date = toReadableDate(obj.sheet.submissiondate);
                         obj.template = getTemplate(sheet, 'html');
-                        new PDF().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).send(res);
+                        new PDFRenderer().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).send(res);
                     });
                 });
             });
@@ -51,8 +55,31 @@ router.get('/word/:id', verify, function(req, res) {
     res.send('not implemented yet');
 });
 
+// TODO Get submissions, answers, task and exercise.
 router.get('/csv/:id', verify, function(req, res) {
+    methods.get(req.params.id, Sheet).then((doc) => {
+        operations.populate(doc, 3, 'submissions').then((res) => console.log(res));
+    });
+    /*
+    let renderer = new CSVRenderer();
+    renderer.setHeader();
+    methods.get(req.params.id, Sheet).then((doc) => {
+        let maxPoints = 0;
+        let promises = [];
+        promises.push(doc.getMaxPoints().then((res) => {
+            maxPoints = res;
+        }));
+        promises.push(methods.deepGet(req.params.id, Sheet, Submission).then((submissions) => {
+            for (let submission of submissions) {
+                promises.push();
+            }
+
+            // TODO: implement for each submission.
+        }));
+        Promise.all(promises).then(() => res.send(renderer.export()));
+    });
     res.send('not implemented yet');
+    */
 });
 
 router.get('/template/:id', verify, function(req, res) {
