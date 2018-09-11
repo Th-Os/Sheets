@@ -51,7 +51,7 @@ export class CourseService {
     );
   }
 
-  /** DELETE: delete the hero from the server */
+  /** DELETE: delete the course from the server */
   deleteCourse (course: Course | number): Observable<Course> {
     const id = typeof course === 'number' ? course : course._id;
     const url = `${this.coursesUrl}/${id}`;
@@ -61,6 +61,7 @@ export class CourseService {
       catchError(this.handleError<Course>('deleteCourse'))
     );
   }
+
 
   /**
    * Handle Http operation that failed.

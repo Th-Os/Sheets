@@ -9,6 +9,7 @@ import { MatDialogModule, } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from "@angular/material";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   imports: [
@@ -16,14 +17,16 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatListModule, MatDividerModule,
     MatButtonModule, MatIconModule,
     MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatSnackBarModule
+    MatInputModule, MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     MatToolbarModule, MatCardModule,
     MatListModule, MatDividerModule,
     MatButtonModule, MatIconModule,
     MatDialogModule, MatFormFieldModule,
-    MatInputModule, MatSnackBarModule
+    MatInputModule, MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
 })
 export class SheetsMaterialComponentsModule { }

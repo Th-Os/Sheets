@@ -9,9 +9,8 @@ import { CourseService } from "../course.service";
   styleUrls: ['./course-dialog.component.css']
 })
 export class CourseDialogComponent implements OnInit {
-  semesters = ['Wintersemester', 'Sommersemester',];
   course: Course;
-  loading: boolean = false;
+  saving: boolean = false;
 
   constructor(
     private courseService: CourseService,
@@ -27,15 +26,19 @@ export class CourseDialogComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.saving = true;
     if (this.data.create) {
       this.courseService.addCourse(this.course)
         .subscribe(course => {
-          console.log(course);
           this.dialogRef.close(course);
-        } );
+          this.saving = false;
+        });
     } else {
       this.courseService.updateCourse(this.course)
-        .subscribe(course => this.dialogRef.close(course) );
+        .subscribe(course => {
+          this.dialogRef.close(course);
+          this.saving = false
+        });
     }
   }
 

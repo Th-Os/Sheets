@@ -23,21 +23,21 @@
 
     <div class="form-group">
       <label for="semester">Semester</label>
-      <select class="form-control" id="semester"
-              required
-              [(ngModel)]="course.semester" name="semester"
-              #semester="ngModel">
-        <option *ngFor="let semester of semesters" [value]="semester">{{semester}}</option>
-      </select>
-      <div [hidden]="semester.valid || semester.pristine" class="alert alert-danger">
-        Semester is required
-      </div>
+      <input type="text" class="form-control" id="semester"
+             [(ngModel)]="course.semester" name="semester">
     </div>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button (click)="onClose()">Abbrechen</button>
-  <button mat-button (click)="onSubmit()" [disabled]="!courseForm.form.valid || loading">
-    {{ (data.create === false) ? 'Speichern' : 'Erstellen' }}
+  <button mat-button (click)="onSubmit()" [disabled]="!courseForm.form.valid || saving">
+    <span *ngIf="!saving">
+      {{ (data.create === false) ? 'Speichern' : 'Erstellen' }}
+    </span>
+    <mat-progress-spinner *ngIf="saving"
+      color="primary"
+      mode="indeterminate"
+      [diameter]="20">
+    </mat-progress-spinner>
   </button>
 </mat-dialog-actions>

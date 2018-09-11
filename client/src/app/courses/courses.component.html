@@ -5,8 +5,8 @@
         <mat-card-title>Kurse</mat-card-title>
         <mat-card-content>
           <mat-list>
-            <mat-list-item *ngFor="let course of courses" role="listitem" routerLink="/courses/{{course._id}}">
-              <h3 mat-line> {{ course.name }} </h3>
+            <mat-list-item *ngFor="let course of courses" role="listitem">
+              <a mat-line routerLink="/courses/{{course._id}}"> {{ course.name }} </a>
               <button mat-icon-button (click)="update(course)">
                 <mat-icon color="secondary">edit</mat-icon>
               </button>

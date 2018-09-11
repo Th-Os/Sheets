@@ -17,7 +17,7 @@ router.get('/', verify, function(req, res) {
 
 router.post('/', verify, function(req, res) {
     methods.post(req.body, Course)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => res.status(201).send(doc))
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);
             else res.status(500).send(err);
@@ -35,7 +35,7 @@ router.put('/:id', verify, function(req, res) {
 
 router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, Course)
-        .then((doc) => res.status(200).send(doc))
+        .then(() => res.status(204).send())
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);
             else res.status(500).send(err);

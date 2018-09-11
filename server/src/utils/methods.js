@@ -84,7 +84,7 @@ function del(id, model) {
             if (doc === null) reject(new StatusError(404, 'No ' + model.modeName + ' with ' + id + ' was found.'));
             else {
                 doc.remove();
-                resolve('Successfully deleted document');
+                resolve();
             }
         });
     });
@@ -96,7 +96,7 @@ function del(id, model) {
  * @param {*} model
  */
 function post(body, model) {
-    return Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         model.create(body, (err, docs) => {
             if (err) reject(new StatusError(400, err));
             if (docs === null || docs.length === 0) reject(new StatusError(404, model.modelName + ' not found.'));
