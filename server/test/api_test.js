@@ -23,8 +23,8 @@ describe('API Test', () => {
     });
 
     let course = {
-        name: 'EIMI',
-        faculty: 'MI',
+        name: 'Einführung in die Medieninformatik',
+        faculty: 'Universität Regensburg, Lehrstuhl für Medieninformatik',
         semester: 'SoSe 2011',
         min_req_sheets: 3
     };
@@ -39,9 +39,10 @@ describe('API Test', () => {
     });
 
     let sheet = {
-        name: 'Übung 1',
+        name: 'Das erste Übungsblatt',
         submissiondate: '2016-05-18 10:00:00.000',
-        min_req_points: 10
+        min_req_points: 10,
+        order: 1
     };
     let sheetId;
     it('POST sheet', (done) => {
@@ -54,8 +55,8 @@ describe('API Test', () => {
     });
 
     let exercise = {
-        name: 'First exercise',
-        description: 'Do something',
+        name: 'Die erste Aufgabe',
+        description: 'Aufgabenbeschreibung',
         order: 1
     };
     let exerciseId;
@@ -72,7 +73,7 @@ describe('API Test', () => {
         question: 'How much is 1+1?',
         points: 5,
         order: 1,
-        choices: '2|3|4'
+        choices: [2, 3, 4]
     };
     let taskId;
     it('POST task', (done) => {
