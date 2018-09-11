@@ -1,7 +1,7 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
-import { CourseDialogData} from "./course-dialog-data";
-import {Course} from "../course";
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material";
+import { Course } from "../course";
+import { CourseService } from "../course.service";
 
 @Component({
   selector: 'app-course-dialog',
@@ -9,28 +9,34 @@ import {Course} from "../course";
   styleUrls: ['./course-dialog.component.css']
 })
 export class CourseDialogComponent implements OnInit {
-
+  semesters = ['Wintersemester', 'Sommersemester',];
   course: Course;
+  loading: boolean = false;
 
   constructor(
+    private courseService: CourseService,
     public dialogRef: MatDialogRef<CourseDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: CourseDialogData) {}
+    @Inject(MAT_DIALOG_DATA) public data: {create: boolean,course: Course}) { }
 
   ngOnInit() {
-    this.course = new Course();
-    if (!this.data.create) {
-      this.course.name = this.data.course.name;
-      this.course.faculty = this.data.course.faculty;
-      this.course.semester = this.data.course.semester;
-      this.course.min_req_sheets = this.data.course.min_req_sheets;
-      this.course.id = this.data.course.id;
-      this.course.sheets = this.data.course.sheets;
-    }
+    this.course = this.data.course;
   }
 
-  onClose(withResult: boolean): void {
-    if (withResult) this.dialogRef.close(this.course);
-    else this.dialogRef.close();
+  onClose(): void {
+    this.dialogRef.close();
+  }
+
+  onSubmit(): void {
+    if (this.data.create) {
+      this.courseService.addCourse(this.course)
+        .subscribe(course => {
+          console.log(course);
+          this.dialogRef.close(course);
+        } );
+    } else {
+      this.courseService.updateCourse(this.course)
+        .subscribe(course => this.dialogRef.close(course) );
+    }
   }
 
 }

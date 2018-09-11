@@ -26,39 +26,33 @@ export class CoursesComponent implements OnInit {
       .subscribe(courses => this.courses = courses);
   }
 
-  create(): void {
+  showEditDialog(create:boolean, course: Course): void {
     const dialogRef = this.dialog.open(CourseDialogComponent, {
       width: 'auto',
-      data: {create: true, course: null}
+      data: { create: create, course: course }
     });
 
-    dialogRef.afterClosed().subscribe((course) => {
-      if(course) {
-        this.courseService.addCourse(course)
-          .subscribe(course => {
-            console.log(course);
-            this.courses.push(course);
-          });
+    dialogRef.afterClosed().subscribe((result: Course) => {
+      if (!course) return;
+      if (create) {
+        this.courses.push(result)
+      } else {
+        let index = this.courses.findIndex(c => c._id === course._id);
+        this.courses[index] = result;
       }
     });
   }
 
   update(course: Course): void {
-    const dialogRef = this.dialog.open(CourseDialogComponent, {
-      data: {create: false, course: course}
-    });
+    this.showEditDialog(false, course);
+  }
 
-    dialogRef.afterClosed().subscribe(updatedCourse => {
-      this.courseService.updateCourse(updatedCourse)
-        .subscribe(() => {
-          let index = this.courses.indexOf(this.courses.find((c) => c.id === course.id, course));
-          this.courses[index] = updatedCourse;
-        });
-    });
+  add(): void {
+    this.showEditDialog(true, new Course(null, '','','',0));
   }
 
   delete(course: Course): void {
     this.courses = this.courses.filter(c => c !== course);
-    this.courseService.deleteCourse(course)
+    this.courseService.deleteCourse(course).subscribe();
   }
 }

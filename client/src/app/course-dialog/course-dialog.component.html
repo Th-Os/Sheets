@@ -2,34 +2,42 @@
   {{(data.create === false) ? 'Kurs bearbeiten' : 'Kurs erstellen'}}
 </h2>
 <mat-dialog-content>
-  <mat-form-field
-    [hideRequiredMarker]="false"
-    [floatLabel]="auto">
-    <mat-label>Kursname</mat-label>
-    <input matInput placeholder="Kursname" [(ngModel)]="course.name" required>
-  </mat-form-field>
+  <form #courseForm="ngForm">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" id="name"
+             required
+             [(ngModel)]="course.name" name="name"
+             #name="ngModel">
+      <div [hidden]="name.valid || name.pristine"
+           class="alert alert-danger">
+        Name is required
+      </div>
+    </div>
 
-  <mat-form-field
-    [hideRequiredMarker]="false"
-    [floatLabel]="auto">
-    <input matInput placeholder="Semester" [(ngModel)]="course.semester" required>
-  </mat-form-field>
+    <div class="form-group">
+      <label for="faculty">Fakultät</label>
+      <input type="text" class="form-control" id="faculty"
+             [(ngModel)]="course.faculty" name="faculty">
+    </div>
 
-  <mat-form-field
-    [hideRequiredMarker]="false"
-    [floatLabel]="auto">
-    <input matInput placeholder="Fakultät" [(ngModel)]="course.faculty" required>
-  </mat-form-field>
-
-  <mat-form-field
-    [hideRequiredMarker]="false"
-    [floatLabel]="auto">
-    <input matInput placeholder="Min. Sheets" [(ngModel)]="course.min_req_sheets" type="number" required>
-  </mat-form-field>
+    <div class="form-group">
+      <label for="semester">Semester</label>
+      <select class="form-control" id="semester"
+              required
+              [(ngModel)]="course.semester" name="semester"
+              #semester="ngModel">
+        <option *ngFor="let semester of semesters" [value]="semester">{{semester}}</option>
+      </select>
+      <div [hidden]="semester.valid || semester.pristine" class="alert alert-danger">
+        Semester is required
+      </div>
+    </div>
+  </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button (click)="onClose(false)">Abbrechen</button>
-  <button mat-button (click)="onClose(true)">
+  <button mat-button (click)="onClose()">Abbrechen</button>
+  <button mat-button (click)="onSubmit()" [disabled]="!courseForm.form.valid || loading">
     {{ (data.create === false) ? 'Speichern' : 'Erstellen' }}
   </button>
 </mat-dialog-actions>
