@@ -140,6 +140,7 @@ export class SheetComponent implements OnInit {
             this.updateUI();
             console.log("validation ok")
             console.log(this.sheet)
+            this.uploadSubmissions();
           }else{
             this.displayValidationResults();
           }
@@ -148,6 +149,10 @@ export class SheetComponent implements OnInit {
     }
 
     reader.readAsArrayBuffer(file);
+  }
+
+  uploadSubmissions() {
+    this.sheetService.updateSheet(this.sheet);
   }
 
   displayValidationResults() {
@@ -202,7 +207,7 @@ for (var i = 0; i < lines.length; ++i) {
 
   //Kriterien verletzt
   //console.log(line)
-  return null
+  //return null
 }
 
 return answers;
