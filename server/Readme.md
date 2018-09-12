@@ -9,6 +9,7 @@
 | /auth/logout  | GET  | |  |  { auth: false, token: null }  |   |
 | /correct  | POST  | | {Submission} with id  | new {Submission}  |  400 |
 |/courses		|GET	|	|	|200, [Courses]	|401, 404, 400	|
+|/courses/:id		|GET	|	|	|200, {Courses}	|401, 404, 400	|
 |/courses		|POST	|	|{Courses}	|200, {Courses}	|400, 401, 404	|
 |/courses/:id		|PUT	|	|:id, {Courses}	|200, {Courses}	|400, 401, 404	|
 |/courses/:id		|DELETE	|	|:id	|200	|403, 404	|
@@ -16,6 +17,7 @@
 |**Sheets**		|	|	|	|	|	|
 |/courses/:id/sheets		|GET	|	|:id	|200, [Sheets]	|400, 401, 404	|
 |/courses/:id/sheets		|POST	|	|:id, {Sheets}	|200, {Sheets}	|400, 401, 404	|
+|/sheets/:id		|GET	|	|	|200, {Sheets}	|401, 404, 400	|
 |/sheets/:id		|DELETE	|	|:id	|200	|403, 404	|
 |/sheets/:id		|PUT	|	|:id, {Sheets}	|200, {Sheets}	|400, 401, 404	|
 |/sheets/:id/exercises		|GET	|	|:id	|200, {Exercises}	|400, 401, 404	|
