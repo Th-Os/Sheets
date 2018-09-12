@@ -69,9 +69,11 @@ function del(id, res, model) {
 
 function post(body, res, model) {
     model.create(body, (err, docs) => {
+        console.log(docs);
         if (err) res.status(400).send(err);
         if (!(docs instanceof Array)) docs = [docs];
-        res.status(200).send(docs);
+        console.log(docs[0]);
+        res.status(200).send(docs[0]);
     });
 }
 

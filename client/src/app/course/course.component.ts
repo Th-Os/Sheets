@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { Location } from '@angular/common';
 
 import { CourseService }  from '../course.service';
 import {Course} from "../course";
 import {Sheet} from "../sheet";
 import {SheetService} from "../sheet.service";
+import {ExerciseDialogComponent} from '../exercise-dialog/exercise-dialog.component';
+import {MatDialog} from '@angular/material';
 
 @Component({
   selector: 'app-course',
@@ -18,9 +20,11 @@ export class CourseComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private courseService: CourseService,
     private sheetService: SheetService,
-    private location: Location
+    private location: Location,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -28,7 +32,7 @@ export class CourseComponent implements OnInit {
   }
 
   getCourse(): void {
-    const id = +this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
     this.courseService.getCourse(id)
       .subscribe(course => this.course = course );
   }
@@ -36,6 +40,16 @@ export class CourseComponent implements OnInit {
   delete(sheet: Sheet): void {
     this.course.sheets = this.course.sheets.filter(s => s !== sheet);
     this.sheetService.deleteSheet(sheet);
+  }
+
+  update(sheet: Sheet): void {
+    this.router.navigateByUrl('/sheet/' + sheet.id + '/edit');
+  }
+
+  add(): void {
+    this.dialog.open(ExerciseDialogComponent, {
+      width: 'auto'
+    });
   }
 
   goBack(): void {

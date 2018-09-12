@@ -1,0 +1,169 @@
+<div class="container mt-5">
+  <button (click)="goBack()">
+    <i class="material-icons">arrow_back</i>
+  </button>
+  <h3>
+    <mat-form-field id="title">
+      <input matInput type="text" [ngModel]="sheet.name">
+    </mat-form-field>
+  </h3>
+  <div class="row">
+    <div class="col-12 col-lg-5 col-md-5">
+      <mat-card>
+        <mat-card-title>Übersicht</mat-card-title>
+        <mat-card-content>
+          <p>Übersicht über erstellte Aufgaben.</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-6 col-md-6">
+      <mat-card>
+        <!--Todo: Fix some display issues when size of grid-tile entries change-->
+        <mat-card-title>Erstellen</mat-card-title>
+        <mat-card-content>
+          <mat-divider></mat-divider><br>
+          <div *ngIf="sheet.exercises.length > 0">
+            <ol>
+              <li *ngFor="let exercises of sheet.exercises">
+                <!--Todo: Test if two-way-binding works this way-->
+                <mat-form-field>
+                  <input matInput type="text" [ngModel]="exercises.name" placeholder="Aufgabentitel">
+                </mat-form-field>
+                <button mat-icon-button style="float: right" (click)="deleteExercise(exercises)">
+                  <mat-icon color="secondary">delete</mat-icon>
+                </button>
+                <div>
+                  <mat-grid-list [cols]="2" rowHeight="fit">
+                    <mat-grid-tile>
+                      <label>Frage:</label>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                      <mat-form-field>
+                        <textarea matInput [ngModel]="exercises.description" placeholder="Aufgabenbeschreibung"></textarea>
+                      </mat-form-field>
+                    </mat-grid-tile>
+                  </mat-grid-list>
+                  <br>
+                  <div>
+                    <div *ngIf="exercises.tasks.length > 0">
+                      <ol style="list-style-type: lower-alpha">
+                        <li *ngFor="let tasks of exercises.tasks">
+                          <mat-form-field>
+                            <input matInput type="text"  [(ngModel)]="tasks.question" placeholder="Titel Teilaufgabe">
+                          </mat-form-field>
+                          <button mat-icon-button style="float: right" (click)="deleteTask(exercises, tasks)">
+                            <mat-icon color="secondary">delete</mat-icon>
+                          </button>
+                          <div>
+                            <mat-grid-list [cols]="2" rowHeight="70px">
+                              <mat-grid-tile>
+                                <label>Antworttyp:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <mat-form-field>
+                                  <mat-select placeholder="Typ wählen" [(ngModel)]="tasks.solution.type">
+                                    <mat-option value="freetext">Freitext</mat-option>
+                                    <mat-option value="number">Zahl</mat-option>
+                                    <mat-option value="range">Zahlenbereich</mat-option>
+                                    <mat-option value="regex">Regex</mat-option>
+                                    <mat-option value="none">Keine</mat-option>
+                                  </mat-select>
+                                </mat-form-field>
+                              </mat-grid-tile>
+                              <div *ngIf="tasks.solution.type && tasks.solution.type != 'none'">
+                                <mat-grid-tile>
+                                  <label>Antworten:</label>
+                                  <div *ngIf="tasks.solution.type == 'regex'">
+                                    <br>
+                                    <p style="font-size: 80%">Bitte in folgendem Format ohne Trennzeichen eingeben: Wort/bWort/b</p>
+                                  </div>
+                                </mat-grid-tile>
+                                <mat-grid-tile class="mat-grid-tile-custom">
+                                  <div *ngIf="tasks.solution.type == 'freetext'">
+                                    <!--<mat-form-field>
+                                      <input matInput type="text" placeholder="Freitext..." [ngModel]="tasks.solution.regex">
+                                    </mat-form-field>-->
+                                    <label>Antworten geben:</label>
+                                    <mat-radio-group [(ngModel)]="tasks.solution.defaultFreeTextFlag">
+                                      <mat-radio-button value="true">Volle Punkte</mat-radio-button>
+                                      <mat-radio-button value="false">Keine Punkte</mat-radio-button>
+                                    </mat-radio-group>
+
+                                  </div>
+                                  <div *ngIf="tasks.solution.type == 'number'">
+                                    <mat-form-field>
+                                      <input matInput type="number" placeholder="Zahl..." [ngModel]="tasks.solution.number">
+                                    </mat-form-field>
+                                  </div>
+                                  <div *ngIf="tasks.solution.type == 'range'">
+                                    <mat-form-field>
+                                      <input matInput type="text" placeholder="Von,Bis" [ngModel]="tasks.solution.range">
+                                    </mat-form-field>
+                                  </div>
+                                  <div *ngIf="tasks.solution.type == 'regex'">
+                                    <!--Todo: Maybe use multiple input fields instead of one-->
+                                    <mat-form-field>
+                                      <input matInput type="text" placeholder="Regex..." [ngModel]="tasks.solution.regex"><br>
+                                    </mat-form-field>
+                                   <!-- <button mat-icon-button style="float: right" (click)="addRegex()">
+                                      <mat-icon color="secondary">add</mat-icon>
+                                    </button>-->
+                                  </div>
+                                </mat-grid-tile>
+                              </div>
+                              <mat-grid-tile>
+                                <label>Punkte:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <mat-form-field>
+                                  <input matInput type="number" [ngModel]="tasks.points">
+                                </mat-form-field>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                              <label>Bearbeitungshinweise:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <mat-form-field>
+                                  <textarea matInput [(ngModel)]="tasks.choices" ></textarea>
+                                </mat-form-field>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <label>Korrekturhinweise:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <mat-form-field>
+                                  <textarea matInput [(ngModel)]="tasks.solution.hint" ></textarea>
+                                </mat-form-field>
+                              </mat-grid-tile>
+                            </mat-grid-list>
+                          </div>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                  <br>
+                  <!--Todo: Probably find better solution to show button above mat-divider-->
+                  <button mat-icon-button style="float: right; position: relative; bottom:15px" (click)="addTask(exercises)">
+                    <mat-icon color="secondary">add</mat-icon>
+                  </button>
+                </div>
+                <br>
+                <mat-divider></mat-divider>
+                <br>
+              </li>
+            </ol>
+          </div>
+          <button mat-icon-button (click)="addExercise()">
+            <mat-icon color="secondary">add</mat-icon>
+          </button>
+          <button style="float: right" (click)="saveProgress()">
+            Save
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+
+
+

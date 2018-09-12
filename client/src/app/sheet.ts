@@ -1,5 +1,6 @@
 import {Course} from "./course";
 import {Submission} from "./submission";
+import {Exercise} from './exercise';
 
 
 export class Sheet {

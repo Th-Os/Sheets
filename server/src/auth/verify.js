@@ -1,6 +1,15 @@
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 function verify(req, res, next) {
+    // check if id is a valid mongoose ObjectId:
+    if (req.params.id !== undefined) {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            res.status(400).send('Bad ObjectId.');
+            return;
+        }
+    }
+
     if (process.env.AUTH === 'false') {
         next();
         return;
@@ -28,5 +37,4 @@ function verify(req, res, next) {
         next();
     });
 }
-
-module.exports = verify;
+export default verify;

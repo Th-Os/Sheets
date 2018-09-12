@@ -15,7 +15,7 @@ const httpOptions = {
 
 export class SheetService {
 
-  private sheetsUrl = 'api/sheets';
+  private sheetsUrl = 'http://localhost:3000/sheets';
 
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService) { }

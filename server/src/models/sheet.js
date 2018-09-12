@@ -25,6 +25,10 @@ var sheetSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    order: {
+        type: Number,
+        default: 0
+    },
     perstistent: {
         type: Boolean,
         default: false
@@ -55,6 +59,16 @@ sheetSchema.methods.setPersistence = function(isPersistent, callback) {
             doc.save();
         }
         this.save(callback);
+    });
+};
+
+sheetSchema.methods.getMaxPoints = function() {
+    return new Promise((resolve, reject) => {
+        mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
+            if (err) throw err;
+            for (let doc of docs) {
+            }
+        });
     });
 };
 
@@ -110,7 +124,7 @@ var taskSchema = new mongoose.Schema({
         required: true
     },
     choices: {
-        type: String,
+        type: Array,
         required: true
     },
     solution: {
