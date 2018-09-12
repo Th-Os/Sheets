@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { Location } from '@angular/common';
 
 import { CourseService }  from '../course.service';
@@ -20,6 +20,7 @@ export class CourseComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private courseService: CourseService,
     private sheetService: SheetService,
     private location: Location,
@@ -39,6 +40,10 @@ export class CourseComponent implements OnInit {
   delete(sheet: Sheet): void {
     this.course.sheets = this.course.sheets.filter(s => s !== sheet);
     this.sheetService.deleteSheet(sheet);
+  }
+
+  update(sheet: Sheet): void {
+    this.router.navigateByUrl('/sheet/' + sheet.id + '/edit');
   }
 
   add(): void {

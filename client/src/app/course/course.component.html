@@ -11,6 +11,9 @@
           <mat-list *ngIf="course" >
             <mat-list-item *ngFor="let sheet of course.sheets" role="listitem" routerLink="/sheets/{{sheet.id}}">
               <h3 mat-line> {{ sheet.name }} </h3>
+              <button mat-icon-button (click)="update(sheet)">
+                <mat-icon color="secondary">edit</mat-icon>
+              </button>
               <button mat-icon-button (click)="delete(sheet)">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>

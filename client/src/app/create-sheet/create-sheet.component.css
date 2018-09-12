@@ -18,3 +18,8 @@ ol li:before {
   margin-right: 100%;
   right: 10px; !* space between number and text *!
 }*/
+
+.mat-grid-tile-custom {
+  overflow: visible!important;
+}
+

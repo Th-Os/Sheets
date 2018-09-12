@@ -6,7 +6,6 @@ import { ActivatedRoute } from '@angular/router';
 
 import {Course} from '../course';
 import {Sheet} from '../sheet';
-import {Exercise} from '../exercise';
 import { CourseService } from '../course.service';
 import {SheetService} from '../sheet.service';
 
@@ -19,7 +18,6 @@ export class ExerciseDialogComponent implements OnInit {
 
   course: Course;
   sheet: Sheet;
-  exercise: Exercise;
   useTemplate: boolean;
   selectedSheetId: number;
 
@@ -57,7 +55,7 @@ export class ExerciseDialogComponent implements OnInit {
       this.sheet.name = 'Neues Aufgabenblatt';
     }
 
-    if (this.sheet.id) {
+    if (this.sheet.name) {
       this.sheetService.addSheet(this.sheet)
         .subscribe(sheet => {
           console.log(sheet);
@@ -65,7 +63,7 @@ export class ExerciseDialogComponent implements OnInit {
         });
     }*/
 
-    this.router.navigateByUrl('/sheet/create');
+    this.router.navigateByUrl('/sheet/test/create');
     this.dialogRef.close();
   }
 

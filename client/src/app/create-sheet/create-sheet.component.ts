@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ViewEncapsulation } from '@angular/core';
-//import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
 
 import {Exercise} from '../exercise';
 import {Task} from '../task';
@@ -24,22 +23,17 @@ export class CreateSheetComponent implements OnInit {
   exercise: Exercise;
   task: Task;
   solution: Solution;
-  sheetId: number;
-  //addForm: FormGroup;
 
   constructor(
     private location: Location,
     private route: ActivatedRoute,
-    //private formBuilder: FormBuilder,
     private sheetService: SheetService,
     private exerciseService: ExerciseService
   ) { }
 
   ngOnInit() {
     // Todo: Test
-    /*this.sheetId = +this.route.snapshot.paramMap.get('id');
-
-    this.getSheet();
+    /*this.getSheet(+this.route.snapshot.paramMap.get('id'));
 
     if (!this.sheet.exercises) {
 
@@ -54,12 +48,6 @@ export class CreateSheetComponent implements OnInit {
       this.sheet.exercises = [];
       this.sheet.exercises.push(this.exercise);
     }*/
-
-    /*this.addForm = this.formBuilder.group({
-      regexEntry: this.formBuilder.array([
-        this.initRegex(),
-      ])
-    });*/
 
     // Testing -->
     this.sheet = new Sheet();
@@ -90,14 +78,8 @@ export class CreateSheetComponent implements OnInit {
     // <--
   }
 
-  /*initRegex() {
-    return this.formBuilder.group({
-      regex: ['']
-    });
-  }*/
-
-  getSheet(): void {
-    this.sheetService.getSheet(this.sheetId)
+  getSheet(sheetId: number): void {
+    this.sheetService.getSheet(sheetId)
       .subscribe(sheet => this.sheet = sheet);
   }
 
@@ -149,7 +131,10 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
-  addTask(exerciseIndex: number): void {
+  addTask(exercise: Exercise): void {
+
+    const exerciseIndex = this.getIndexOfExercise(exercise);
+
     const newTask = new Task();
     newTask.question = '';
     newTask.order = this.sheet.exercises[exerciseIndex].tasks.length;
@@ -163,31 +148,6 @@ export class CreateSheetComponent implements OnInit {
       .subscribe(sheet => {
         this.sheet = sheet;
       });*/
-  }
-
-  addRegex(exercise: Exercise, task: Task): void {
-
-    /*const control = <FormArray> this.addForm.controls['regexEntry'];
-    control. push(this.initRegex());*/
-
-    // Todo: update solution
-
-    const exerciseIndex = this.getIndexOfExercise(exercise);
-    const taskIndex = this.getIndexOfTask(exercise, task);
-
-    // Todo: Maybe use concat()
-    //console.log(this.sheet.exercises[exerciseIndex].tasks[taskIndex].solution.regex);
-  }
-
-  deleteRegex(exercise: Exercise, task: Task, i: number) {
-
-    /*const control = <FormArray> this.addForm.controls['regexEntry'];
-    control.removeAt(i);*/
-
-    const exerciseIndex = this.getIndexOfExercise(exercise);
-    const taskIndex = this.getIndexOfTask(exercise, task);
-
-    // Todo: Delete regex entry
   }
 
   saveProgress(): void {
