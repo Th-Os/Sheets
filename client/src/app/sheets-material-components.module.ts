@@ -23,7 +23,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
     MatInputModule, MatSnackBarModule,
     MatSelectModule, MatFormFieldModule,
     MatInputModule, MatRadioModule,
-    MatGridListModule
+    MatGridListModule,
     MatInputModule, MatSnackBarModule,
     MatProgressSpinnerModule
   ],
@@ -33,7 +33,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
     MatButtonModule, MatIconModule,
     MatDialogModule, MatFormFieldModule,
     MatInputModule, MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
     MatInputModule, MatSnackBarModule,
     MatSelectModule, MatFormFieldModule,
     MatInputModule, MatRadioModule,

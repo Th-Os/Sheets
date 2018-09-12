@@ -36,8 +36,8 @@ export class ExerciseDialogComponent implements OnInit {
   getCourse(): void {
     // Todo: Fix to get actual id
     const id = +this.route.snapshot.paramMap.get('id') + 1;
-    this.courseService.getCourse(id)
-      .subscribe(course => this.course = course );
+    //this.courseService.getCourse(id)
+      //.subscribe(course => this.course = course );
   }
 
   create(): void {

@@ -1,3 +1,4 @@
+
 import {Solution} from './solution';
 
 export class Task {
