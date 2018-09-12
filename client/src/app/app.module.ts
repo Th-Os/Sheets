@@ -3,9 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import {Form, FormsModule} from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SheetsMaterialComponentsModule } from './sheets-material-components.module';
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
-import { InMemoryDataService } from './in-memory-data.service';
+import { HttpClientModule }    from '@angular/common/http';
 
 
 import { AppComponent } from './app.component';
@@ -40,10 +38,7 @@ import { CreateSheetComponent } from './create-sheet/create-sheet.component';
     BrowserAnimationsModule,
     SheetsMaterialComponentsModule,
     HttpClientModule,
-    HttpClientInMemoryWebApiModule.forRoot(
-      InMemoryDataService, { dataEncapsulation: false }
-    ),
-    AppRoutingModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

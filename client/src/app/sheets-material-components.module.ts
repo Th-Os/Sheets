@@ -9,6 +9,7 @@ import { MatDialogModule, } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from "@angular/material";
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {MatSelectModule} from '@angular/material/select';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatGridListModule} from '@angular/material/grid-list';
@@ -23,12 +24,16 @@ import {MatGridListModule} from '@angular/material/grid-list';
     MatSelectModule, MatFormFieldModule,
     MatInputModule, MatRadioModule,
     MatGridListModule
+    MatInputModule, MatSnackBarModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     MatToolbarModule, MatCardModule,
     MatListModule, MatDividerModule,
     MatButtonModule, MatIconModule,
     MatDialogModule, MatFormFieldModule,
+    MatInputModule, MatSnackBarModule,
+    MatProgressSpinnerModule
     MatInputModule, MatSnackBarModule,
     MatSelectModule, MatFormFieldModule,
     MatInputModule, MatRadioModule,

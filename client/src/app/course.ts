@@ -1,10 +1,13 @@
 import {Sheet} from "./sheet";
 
 export class Course {
-  id: number;
-  name: string;
-  sheets: Sheet[];
-  faculty: string;
-  semester: string;
-  min_req_sheets: number;
+
+  constructor(
+    public _id: number,
+    public name: string,
+    public faculty: string,
+    public semester: string,
+    public min_req_sheets: number,
+    public sheets?: Sheet[],
+  ) {  }
 }
