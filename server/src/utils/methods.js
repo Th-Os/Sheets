@@ -96,7 +96,7 @@ function del(id, model) {
  * @param {*} model
  */
 function post(body, model) {
-    return Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         model.create(body, (err, docs) => {
             if (err) reject(new StatusError(400, err));
             if (docs === null || docs.length === 0) reject(new StatusError(404, model.modelName + ' not found.'));
@@ -115,7 +115,7 @@ function post(body, model) {
  * @param {*} isSingle
  */
 function deepPost(id, body, parent, child, isSingle) {
-    return Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         let dest = '';
         if (isSingle) dest = child.modelName.toLowerCase();
         else dest = child.modelName.toLowerCase() + 's';
