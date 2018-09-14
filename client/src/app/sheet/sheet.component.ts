@@ -3,7 +3,7 @@ import {ActivatedRoute} from "@angular/router";
 import {CourseService} from "../course.service";
 import {SheetService} from "../sheet.service";
 import {Location} from "@angular/common";
-import {Sheet} from "../sheet";
+import {Sheet} from "../models/sheet";
 import {Submission} from "../submission";
 import {Student} from "../student";
 import {Answer} from "../answer";

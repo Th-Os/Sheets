@@ -1,5 +1,5 @@
 import {Course} from "./course";
-import {Submission} from "./submission";
+import {Submission} from "../submission";
 
 
 export class Sheet {

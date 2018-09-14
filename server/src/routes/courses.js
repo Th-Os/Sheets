@@ -73,6 +73,7 @@ router.get('/:id/students', verify, function(req, res) {
 });
 
 router.get('/:id/sheets', verify, function(req, res) {
+    console.log('get sheets of course')
     methods.deepGet(req.params.id, Course, Sheet)
         .then((docs) => res.status(200).send(docs))
         .catch((err) => {

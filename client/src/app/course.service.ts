@@ -3,7 +3,8 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MessageSnackbarService } from './message-snackbar.service';
-import { Course } from "./course";
+import { Course } from "./models/course";
+import {Sheet} from "./models/sheet";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -27,11 +28,19 @@ export class CourseService {
       );
   }
 
-  /** GET hero by id. Will 404 if id not found */
+  /** GET course by id. Will 404 if id not found */
   getCourse(id: string): Observable<Course> {
     const url = `${this.coursesUrl}/${id}`;
     return this.http.get<Course>(url).pipe(
       catchError(this.handleError<Course>(`getCourse id=${id}`))
+    );
+  }
+
+  getCourseSheets(id: string): Observable<Sheet[]> {
+    const url = `${this.coursesUrl}/${id}/sheets`;
+    return this.http.get<Sheet[]>(url)
+      .pipe(
+      catchError(this.handleError(`getCourseSheets id=${id}`, []))
     );
   }
 

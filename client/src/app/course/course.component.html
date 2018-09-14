@@ -1,17 +1,23 @@
-<div class="container mt-5">
-  <button (click)="goBack()">
-    <i class="material-icons">arrow_back</i>
-  </button>
+<button mat-fab color="primary" class="position-absolute m-5" (click)="goBack()">
+  <i class="material-icons">arrow_back</i>
+</button>
+
+<div class="container mt-5 h-100">
   <h1 *ngIf="course">{{course.name}}</h1>
-  <div class="row">
+  <div class="row h-100">
     <div class="col-12 col-lg-4 col-md-4">
       <mat-card>
         <mat-card-title>Übungsblätter</mat-card-title>
         <mat-card-content>
-          <mat-list *ngIf="course" >
-            <mat-list-item *ngFor="let sheet of course.sheets" role="listitem" routerLink="/sheets/{{sheet.id}}">
+          <mat-progress-spinner *ngIf="loadingSheets"
+                                color="primary"
+                                mode="indeterminate"
+                                [diameter]="50">
+          </mat-progress-spinner>
+          <mat-list *ngIf="course && !loadingSheets" >
+            <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet.id}}">
               <h3 mat-line> {{ sheet.name }} </h3>
-              <button mat-icon-button (click)="delete(sheet)">
+              <button mat-icon-button (click)="deleteSheet(sheet)">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>
             </mat-list-item>

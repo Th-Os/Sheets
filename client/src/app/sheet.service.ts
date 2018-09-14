@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { MessageSnackbarService } from "./message-snackbar.service";
 import { Observable, of } from "rxjs";
-import { Sheet } from "./Sheet";
+import { Sheet } from "./models/sheet";
 import { catchError, tap } from "rxjs/operators";
+import {Course} from "./models/course";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -19,15 +20,9 @@ export class SheetService {
 
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService) { }
+              
 
-  getSheets (): Observable<Sheet[]> {
-    return this.http.get<Sheet[]>(this.sheetsUrl)
-      .pipe(
-        catchError(this.handleError('getSheets', []))
-      );
-  }
-
-  /** GET hero by id. Will 404 if id not found */
+  /** GET sheet by id. Will 404 if id not found */
   getSheet(id: number): Observable<Sheet> {
     const url = `${this.sheetsUrl}/${id}`;
     return this.http.get<Sheet>(url).pipe(
