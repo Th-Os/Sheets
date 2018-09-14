@@ -33,7 +33,7 @@ export class CoursesComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result: Course) => {
-      if (!course) return;
+      if (!result) return;
       if (create) {
         this.courses.push(result)
       } else {

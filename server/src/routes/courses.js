@@ -16,8 +16,12 @@ router.get('/', verify, function(req, res) {
 });
 
 router.post('/', verify, function(req, res) {
+    console.log('post');
     methods.post(req.body, Course)
-        .then((doc) => res.status(201).send(doc))
+        .then((doc) => {
+            console.log(doc);
+            res.status(201).send(doc)
+        })
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);
             else res.status(500).send(err);

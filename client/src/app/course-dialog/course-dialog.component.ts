@@ -22,7 +22,7 @@ export class CourseDialogComponent implements OnInit {
   }
 
   onClose(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(null);
   }
 
   onSubmit(): void {
