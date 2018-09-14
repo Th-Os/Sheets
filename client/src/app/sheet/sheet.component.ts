@@ -55,10 +55,10 @@ export class SheetComponent implements OnInit {
   }
 
   getSheet(): void {
-    const id = +this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
     this.sheetService.getSheet(id).subscribe(sheet => {
       this.sheet = sheet;
-      this.updateUI;
+      this.updateUI();
       console.log("done fetching sheet");
     });
   }

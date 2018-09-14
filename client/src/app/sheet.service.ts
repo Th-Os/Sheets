@@ -22,7 +22,7 @@ export class SheetService {
               
 
   /** GET sheet by id. Will 404 if id not found */
-  getSheet(id: number): Observable<Sheet> {
+  getSheet(id: string): Observable<Sheet> {
     const url = `${this.sheetsUrl}/${id}`;
     return this.http.get<Sheet>(url).pipe(
       catchError(this.handleError<Sheet>(`getSheet id=${id}`))
