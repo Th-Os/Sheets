@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material";
-import { Course } from "../course";
-import { CourseService } from "../course.service";
+import { Course } from "../classes/course";
+import { CourseService } from "../services/course.service";
 
 @Component({
   selector: 'app-course-dialog',
@@ -15,7 +15,7 @@ export class CourseDialogComponent implements OnInit {
   constructor(
     private courseService: CourseService,
     public dialogRef: MatDialogRef<CourseDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {create: boolean,course: Course}) { }
+    @Inject(MAT_DIALOG_DATA) public data: {create: boolean, course: Course}) { }
 
   ngOnInit() {
     this.course = this.data.course;
@@ -37,7 +37,7 @@ export class CourseDialogComponent implements OnInit {
       this.courseService.updateCourse(this.course)
         .subscribe(course => {
           this.dialogRef.close(course);
-          this.saving = false
+          this.saving = false;
         });
     }
   }

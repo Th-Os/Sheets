@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { MessageSnackbarService } from './message-snackbar.service';
-import { Course } from "./course";
+import { MessageSnackbarService } from '../message-snackbar.service';
+import { Course } from "../classes/course";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -37,7 +37,7 @@ export class CourseService {
 
   /** PUT: update the hero on the server */
   updateCourse (course: Course): Observable<any> {
-    return this.http.put(this.coursesUrl, course, httpOptions).pipe(
+    return this.http.put(this.coursesUrl + '/' + course._id, course, httpOptions).pipe(
       tap(_ => this.log(`updated course id=${course._id}`)),
       catchError(this.handleError<any>('updateCourse'))
     );

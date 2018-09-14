@@ -22,10 +22,8 @@ import {MatGridListModule} from '@angular/material/grid-list';
     MatDialogModule, MatFormFieldModule,
     MatInputModule, MatSnackBarModule,
     MatSelectModule, MatFormFieldModule,
-    MatInputModule, MatRadioModule,
-    MatGridListModule
-    MatInputModule, MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatRadioModule, MatGridListModule,
+    MatSnackBarModule, MatProgressSpinnerModule
   ],
   exports: [
     MatToolbarModule, MatCardModule,
@@ -33,11 +31,9 @@ import {MatGridListModule} from '@angular/material/grid-list';
     MatButtonModule, MatIconModule,
     MatDialogModule, MatFormFieldModule,
     MatInputModule, MatSnackBarModule,
-    MatProgressSpinnerModule
-    MatInputModule, MatSnackBarModule,
+    MatProgressSpinnerModule, MatSnackBarModule,
     MatSelectModule, MatFormFieldModule,
-    MatInputModule, MatRadioModule,
-    MatGridListModule
+    MatRadioModule, MatGridListModule
   ],
 })
 export class SheetsMaterialComponentsModule { }

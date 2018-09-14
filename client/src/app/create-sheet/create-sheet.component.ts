@@ -3,13 +3,14 @@ import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ViewEncapsulation } from '@angular/core';
 
-import {Exercise} from '../exercise';
-import {Task} from '../task';
-import {Sheet} from '../sheet';
-import {Solution} from '../solution';
-import {ExerciseService} from '../exercise.service';
-import {SheetService} from '../sheet.service';
-
+import {Sheet} from '../classes/sheet';
+import {Exercise} from '../classes/exercise';
+import {Task} from '../classes/task';
+import {Solution} from '../classes/solution';
+import {SheetService} from '../services/sheet.service';
+import {ExerciseService} from '../services/exercise.service';
+import {TaskService} from '../services/task.service';
+import {SolutionService} from '../services/solution.service';
 
 @Component({
   selector: 'app-create-sheet',
@@ -20,84 +21,80 @@ import {SheetService} from '../sheet.service';
 export class CreateSheetComponent implements OnInit {
 
   sheet: Sheet;
-  exercise: Exercise;
-  task: Task;
-  solution: Solution;
 
   constructor(
     private location: Location,
     private route: ActivatedRoute,
     private sheetService: SheetService,
-    private exerciseService: ExerciseService
+    private exerciseService: ExerciseService,
+    private taskService: TaskService,
+    private solutionService: SolutionService
   ) { }
 
   ngOnInit() {
-    // Todo: Test
-    /*this.getSheet(+this.route.snapshot.paramMap.get('id'));
-
-    if (!this.sheet.exercises) {
-
-      this.solution = new Solution();
-      this.task = new Task();
-      this.exercise = new Exercise();
-
-      this.task.solution = this.solution;
-      this.exercise.tasks = [];
-      this.exercise.tasks.push(this.task);
-
-      this.sheet.exercises = [];
-      this.sheet.exercises.push(this.exercise);
-    }*/
-
-    // Testing -->
     this.sheet = new Sheet();
-    this.exercise = new Exercise();
-    this.task = new Task();
-    this.solution = new Solution();
-
-    this.solution.type = 'number';
-    this.solution.number = 10;
-    this.solution.regex = '';
-
-    this.task.question = 'Blublub';
-    this.task.order = 0;
-    this.task.points = 10;
-    this.task.solution = this.solution;
-
-    this.exercise.name = 'Bla';
-    this.exercise.description = 'Blablabla';
-    this.exercise.order = 0;
-    this.exercise.tasks = [];
-
-    this.exercise.tasks.push(this.task);
-
-    this.sheet.exercises = [];
-    this.sheet.exercises.push(this.exercise);
-
-    this.sheet.name = 'Neues Aufgabenblatt';
-    // <--
+    this.getSheet(this.route.snapshot.paramMap.get('id'));
   }
 
-  getSheet(sheetId: number): void {
+  getSheet(sheetId: string): void {
     this.sheetService.getSheet(sheetId)
-      .subscribe(sheet => this.sheet = sheet);
+      .subscribe(sheet => {
+        this.sheet = sheet;
+
+        if (Array.isArray(this.sheet.exercises) && this.sheet.exercises.length > 0) {
+          this.getExercises(sheetId);
+        } else if (!Array.isArray(this.sheet.exercises)) {
+          this.sheet.exercises = [];
+        }
+      });
+  }
+
+  getExercises(sheetId: string): void {
+    this.exerciseService.getExercises(sheetId).subscribe(exercises => {
+      this.sheet.exercises = exercises;
+
+      this.sheet.exercises.forEach(ex => {
+        if (Array.isArray(ex.tasks) && ex.tasks.length > 0) {
+          this.getTasks(ex._id.toString(), ex);
+        } else if (!Array.isArray(ex.tasks)) {
+          ex.tasks = [];
+        }
+      });
+    });
+  }
+
+  getTasks(exerciseId: string, exercise: Exercise): void {
+    this.taskService.getTasks(exerciseId).subscribe(tasks => {
+      this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks = tasks;
+
+      this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks.forEach(task => {
+        if (task.solution) {
+          this.getSolution(task._id.toString(), exercise, task);
+        }
+      });
+    });
+  }
+
+  getSolution(taskId: string, exercise: Exercise, task: Task): void {
+    this.solutionService.getSolution(taskId).subscribe( solution => {
+      this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks[this.getIndexOfTask(exercise, task)].solution = solution[0];
+    });
   }
 
   addExercise(): void {
     const newExercise = new Exercise();
 
-    newExercise.name = '';
-    newExercise.description = '';
+    newExercise.name = 'Neue Aufgabe';
+    newExercise.description = 'Beschreibung';
     newExercise.order = this.sheet.exercises.length;
     newExercise.tasks = [];
+    newExercise.persistent = false;
 
-    this.sheet.exercises.push(newExercise);
-
-    // Todo: Probably only update exercises not whole sheet
-    /*this.sheetService.updateSheet(this.sheet)
-      .subscribe(sheet => {
-        this.sheet = sheet;
-      });*/
+    this.exerciseService.addExercise(this.route.snapshot.paramMap.get('id'), newExercise)
+      .subscribe(exercise => {
+        this.sheet.exercises.push(exercise[0]);
+        this.sheetService.updateSheet(this.sheet);
+      });
   }
 
   deleteExercise(exercise: Exercise): void {
@@ -105,28 +102,11 @@ export class CreateSheetComponent implements OnInit {
 
     if (window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
       if (index >= 0) {
-        this.sheet.exercises.splice(index, 1);
 
-        /* this.sheetService.updateSheet(this.sheet)
-           .subscribe(sheet => {
-             this.sheet = sheet;
-           });*/
-      }
-    }
-  }
-
-  deleteTask(exercise: Exercise, task: Task): void {
-    const exerciseIndex = this.getIndexOfExercise(exercise);
-    const taskIndex = this.getIndexOfTask(exercise, task);
-
-    if (window.confirm('Wollen Sie die Teilaufgabe wirklich löschen?')) {
-      if (taskIndex >= 0) {
-        this.sheet.exercises[exerciseIndex].tasks.splice(taskIndex, 1);
-
-        /*this.sheetService.updateSheet(this.sheet)
-          .subscribe(sheet => {
-            this.sheet = sheet;
-          });*/
+        this.exerciseService.deleteExercise(exercise).subscribe(res => {
+          this.sheet.exercises.splice(index, 1);
+          this.sheetService.updateSheet(this.sheet);
+        });
       }
     }
   }
@@ -136,29 +116,50 @@ export class CreateSheetComponent implements OnInit {
     const exerciseIndex = this.getIndexOfExercise(exercise);
 
     const newTask = new Task();
-    newTask.question = '';
+    newTask.question = 'Neue Unteraufgabe';
     newTask.order = this.sheet.exercises[exerciseIndex].tasks.length;
-    newTask.solution = new Solution();
-    newTask.solution.type = 'none';
+    newTask.points = 0;
 
-    this.sheet.exercises[exerciseIndex].tasks.push(newTask);
+    this.taskService.addTask(exercise._id.toString(), newTask)
+      .subscribe(task => {
+        const newSolution = new Solution();
+        newSolution.type = 'none';
+        this.solutionService.addSolution(task[0]._id.toString(), newSolution).subscribe(solution => {
+          task[0].solution = solution[0];
+          this.sheet.exercises[exerciseIndex].tasks.push(task[0]);
+          this.sheetService.updateSheet(this.sheet);
+        });
+      });
+  }
 
-    // Todo: Probably only update tasks not whole sheet
-    /*this.sheetService.updateSheet(this.sheet)
-      .subscribe(sheet => {
-        this.sheet = sheet;
-      });*/
+  deleteTask(exercise: Exercise, task: Task): void {
+    const exerciseIndex = this.getIndexOfExercise(exercise);
+    const taskIndex = this.getIndexOfTask(exercise, task);
+
+    if (window.confirm('Wollen Sie die Teilaufgabe wirklich löschen?')) {
+      if (taskIndex >= 0) {
+        this.taskService.deleteTask(task).subscribe(res => {
+          this.sheet.exercises[exerciseIndex].tasks.splice(taskIndex, 1);
+          this.sheetService.updateSheet(this.sheet);
+        });
+      }
+    }
   }
 
   saveProgress(): void {
-    /*this.sheetService.updateSheet(this.sheet)
-      .subscribe(sheet => {
-        this.sheet = sheet;
-      });*/
+    this.sheetService.updateSheet(this.sheet);
+    this.sheet.exercises.forEach(exercise => {
+      this.exerciseService.updateExercise(exercise);
+      exercise.tasks.forEach(task => {
+        this.taskService.updateTask(task);
+        this.solutionService.updateSolution(task.solution);
+      });
+    });
   }
 
   private getIndexOfExercise(exercise: Exercise): number {
     let exerciseIndex = -1;
+
     this.sheet.exercises.forEach(ex => {
       exerciseIndex = this.sheet.exercises.indexOf(exercise, 0);
     });
@@ -168,6 +169,7 @@ export class CreateSheetComponent implements OnInit {
   private getIndexOfTask(exercise: Exercise, task: Task): number {
     let exerciseIndex = -1;
     let taskIndex = -1;
+
     this.sheet.exercises.forEach(ex => {
       exerciseIndex = this.sheet.exercises.indexOf(exercise, 0);
     });

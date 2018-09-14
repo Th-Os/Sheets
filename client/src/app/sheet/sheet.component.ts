@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {CourseService} from "../course.service";
-import {SheetService} from "../sheet.service";
+import {CourseService} from "../services/course.service";
+import {SheetService} from "../services/sheet.service";
 import {Location} from "@angular/common";
-import {Sheet} from "../sheet";
-import {Submission} from "../submission";
-import {Student} from "../student";
+import {Sheet} from "../classes/sheet";
+import {Submission} from "../classes/submission";
+import {Student} from "../classes/student";
 import {Answer} from "../answer";
 import * as JSZip from 'jszip';
-//Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");" 
+//Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");"
 //durch "module.exports = require("readable-stream");" ersetzt werden!
 
 @Component({
@@ -34,10 +34,10 @@ export class SheetComponent implements OnInit {
   }
 
   getSheet(): void {
-    const id = +this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
     this.sheetService.getSheet(id);
     //TODO
-    this.sheet = new Sheet();
+    //this.sheet = new Sheet();
     this.sheet.submissions = [];
   }
 
@@ -48,7 +48,7 @@ export class SheetComponent implements OnInit {
   onFilesAdded(fileList: FileList): void {
     if(fileList.length <= 0){
       console.log("Error reading files: List <= 0")
-      return
+      return;
     }
 
     if(fileList.length == 1 && (fileList[0].type == "application/zip" || fileList[0].type =="application/octet-stream" || fileList[0].type =="application/x-zip-compressed" || fileList[0].type =="multipart/x-zip")){
@@ -83,7 +83,7 @@ export class SheetComponent implements OnInit {
 
           zip.files[filename].async('string').then((fileData) => {
                 //student.id = getStudentId(filename);
-                let answer = new Answer(); 
+                let answer = new Answer();
                 //answer.text = getAnswerText(fileData);
                 //console.log(fileData)
               })
@@ -101,7 +101,7 @@ export class SheetComponent implements OnInit {
     if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
-    let relevantFolderName: string = pathSlices[pathSlices.length - 2]; 
+    let relevantFolderName: string = pathSlices[pathSlices.length - 2];
     res = relevantFolderName.split("_")[0];
     return res;
   }

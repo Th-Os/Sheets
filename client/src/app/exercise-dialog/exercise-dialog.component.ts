@@ -1,13 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import {MatDialogRef} from '@angular/material';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
 import {Router} from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
 
-import {Course} from '../course';
-import {Sheet} from '../sheet';
-import { CourseService } from '../course.service';
-import {SheetService} from '../sheet.service';
+import {Course} from '../classes/course';
+import {Sheet} from '../classes/sheet';
+import { CourseService } from '../services/course.service';
+import {SheetService} from '../services/sheet.service';
 
 @Component({
   selector: 'app-exercise-dialog',
@@ -17,53 +16,59 @@ import {SheetService} from '../sheet.service';
 export class ExerciseDialogComponent implements OnInit {
 
   course: Course;
-  sheet: Sheet;
+  sheets = [];
   useTemplate: boolean;
   selectedSheetId: number;
 
   constructor(
     public dialogRef: MatDialogRef<CourseDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) private data: {courseId: string},
     private router: Router,
     private courseService: CourseService,
-    private sheetService: SheetService,
-    private route: ActivatedRoute
+    private sheetService: SheetService
   ) { }
 
   ngOnInit() {
-    this.getCourse();
+    this.getSheets(this.data.courseId);
   }
 
-  getCourse(): void {
-    // Todo: Fix to get actual id
-    const id = +this.route.snapshot.paramMap.get('id') + 1;
-    this.courseService.getCourse(id)
-      .subscribe(course => this.course = course );
+  getSheets(id: string): void {
+    this.sheetService.getSheets(id)
+      .subscribe(sheets => this.sheets = sheets );
   }
 
   create(): void {
-    // Todo: Test with API
-    this.sheet = new Sheet();
+    const newSheet = new Sheet();
 
-    /*if (this.useTemplate) {
-      this.sheetService.getSheet(this.selectedSheetId)
+    if (this.useTemplate) {
+      this.sheetService.getSheet(this.selectedSheetId.toString())
         .subscribe(sheet => {
-          console.log(sheet);
-          this.sheet = sheet;
-          this.sheet.name = 'Aufgabenblatt aus Vorlage: ' + sheet.name;
+          newSheet.exercises = sheet.exercises;
+          newSheet.submissiondate = '2018-05-18 10:00:00.000';
+          newSheet.name = 'Aufgabenblatt aus Vorlage: ' + sheet.name;
+          newSheet.min_req_points = 0;
+          newSheet.persistent = false;
+
+          this.sheetService.getSheets(this.data.courseId).subscribe(sheets => {
+            newSheet.order = sheets.length;
+            this.addSheet(newSheet);
+          });
         });
     } else {
-      this.sheet.name = 'Neues Aufgabenblatt';
+      newSheet.name = 'Neues Aufgabenblatt';
+      newSheet.submissiondate = '2018-05-18 10:00:00.000';
+      newSheet.min_req_points = 0;
+      newSheet.persistent = false;
+      this.sheetService.getSheets(this.data.courseId).subscribe(sheets => newSheet.order = sheets.length);
+
+      this.addSheet(newSheet);
     }
+  }
 
-    if (this.sheet.name) {
-      this.sheetService.addSheet(this.sheet)
-        .subscribe(sheet => {
-          console.log(sheet);
-          this.router.navigateByUrl('/sheet/' + sheet.id + '/create');
-        });
-    }*/
+  addSheet(newSheet: Sheet): void {
+    this.sheetService.addSheet(this.data.courseId, newSheet)
+      .subscribe(sheet => this.router.navigateByUrl('/sheet/' + sheet[0]._id + '/create'));
 
-    this.router.navigateByUrl('/sheet/test/create');
     this.dialogRef.close();
   }
 

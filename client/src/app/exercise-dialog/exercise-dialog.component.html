@@ -5,10 +5,10 @@
   <mat-radio-group [(ngModel)]="useTemplate">
     <mat-radio-button [value]="true">
       Aus Vorlage:<br>
-      <div *ngIf="course">
+      <div *ngIf="sheets.length > 0">
         <mat-form-field>
           <mat-select [(ngModel)]="selectedSheetId">
-            <mat-option *ngFor="let sheet of course.sheets" matInput value={{sheet.id}}>{{ sheet.name }}
+            <mat-option *ngFor="let sheet of sheets" matInput value={{sheet._id}}>{{ sheet.name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
