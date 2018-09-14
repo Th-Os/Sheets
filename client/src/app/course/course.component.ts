@@ -38,18 +38,16 @@ export class CourseComponent implements OnInit {
 
   getCourseSheets(): void {
     this.loadingSheets = true;
-    /*
     const id = this.route.snapshot.paramMap.get('id');
     this.courseService.getCourseSheets(id)
       .subscribe(sheets => {
         this.sheets = sheets;
         this.loadingSheets = false;
       });
-      */
   }
 
   deleteSheet(sheet: Sheet): void {
-    this.course.sheets = this.course.sheets.filter(s => s !== sheet);
+    this.sheets = this.sheets.filter(s => s !== sheet);
     this.sheetService.deleteSheet(sheet);
   }
 

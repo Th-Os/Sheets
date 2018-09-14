@@ -15,8 +15,8 @@
                                 [diameter]="50">
           </mat-progress-spinner>
           <mat-list *ngIf="course && !loadingSheets" >
-            <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet.id}}">
-              <h3 mat-line> {{ sheet.name }} </h3>
+            <mat-list-item *ngFor="let sheet of sheets" role="listitem">
+              <a mat-line routerLink="/sheets/{{sheet._id}}"> {{ sheet.name }} </a>
               <button mat-icon-button (click)="deleteSheet(sheet)">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>

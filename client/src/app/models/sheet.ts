@@ -3,7 +3,7 @@ import {Submission} from "../submission";
 
 
 export class Sheet {
-  id: number;
+  _id: number;
   name: string;
   course_id: number;
   submissions: Submission[];

@@ -4,7 +4,6 @@ import { MessageSnackbarService } from "./message-snackbar.service";
 import { Observable, of } from "rxjs";
 import { Sheet } from "./models/sheet";
 import { catchError, tap } from "rxjs/operators";
-import {Course} from "./models/course";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -30,29 +29,27 @@ export class SheetService {
     );
   }
 
-  /** PUT: update the hero on the server */
+  /** PUT: update the sheet on the server */
   updateSheet (sheet: Sheet): Observable<any> {
     return this.http.put(this.sheetsUrl, sheet, httpOptions).pipe(
-      tap(_ => this.log(`updated sheet id=${sheet.id}`)),
+      tap(_ => this.log(`updated sheet id=${sheet._id}`)),
       catchError(this.handleError<any>('updateSheet'))
     );
   }
 
-  /** POST: add a new hero to the server */
+  /** POST: add a new sheet to the server */
   addSheet (sheet: Sheet): Observable<Sheet> {
     return this.http.post<Sheet>(this.sheetsUrl, sheet, httpOptions).pipe(
-      tap(_ => this.log(`created sheet id=${sheet.id}`)),
+      tap(_ => this.log(`created sheet id=${sheet._id}`)),
       catchError(this.handleError<Sheet>('addSheet'))
     );
   }
 
-  /** DELETE: delete the hero from the server */
-  deleteSheet (sheet: Sheet | number): Observable<Sheet> {
-    const id = typeof sheet === 'number' ? sheet : sheet.id;
-    const url = `${this.sheetsUrl}/${id}`;
-
+  /** DELETE: delete the sheet from the server */
+  deleteSheet (sheet: Sheet): Observable<Sheet> {
+    const url = `${this.sheetsUrl}/${sheet._id}`;
     return this.http.delete<Sheet>(url, httpOptions).pipe(
-      tap(_ => this.log(`deleted Sheet id=${id}`)),
+      tap(_ => this.log(`deleted Sheet id=${sheet._id}`)),
       catchError(this.handleError<Sheet>('deleteSheet'))
     );
   }
