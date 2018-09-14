@@ -15,6 +15,15 @@ router.get('/', verify, function(req, res) {
     });
 });
 
+router.get('/:id', verify, function(req, res) {
+    methods.get(req.params.id, Course)
+        .then((doc) => res.status(200).send(doc))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
+});
+
 router.post('/', verify, function(req, res) {
     console.log('post');
     methods.post(req.body, Course)

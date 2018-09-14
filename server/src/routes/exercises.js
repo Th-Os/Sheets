@@ -25,7 +25,7 @@ router.delete('/:id', verify, function(req, res) {
 });
 
 router.get('/:id/tasks', verify, function(req, res) {
-    methods.get(req.params.id, Exercise)
+    methods.deepGet(req.params.id, Exercise, Task)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);

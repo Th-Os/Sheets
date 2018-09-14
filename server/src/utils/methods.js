@@ -38,6 +38,22 @@ function deepGet(id, parent, child, isSingle) {
     });
 }
 
+// Todo: Probably integrate in deepGet-Function above
+function deepGetSolution(id, parent, child) {
+    return new Promise((resolve, reject) => {
+        parent.findById(id, (err, doc) => {
+            if (err) reject(new StatusError(400, err));
+            if (doc === undefined || doc === null) reject(new StatusError(404, parent.modelName + ' not found.'));
+            child.find().where('_id').in(doc.solution).exec((err, docs) => {
+                if (err) reject(new StatusError(400, err));
+                if (docs === undefined || docs.length === 0) reject(new StatusError(404, child.modelName + ' not found.'));
+                else resolve(docs);
+            });
+        });
+    });
+}
+
+
 /**
  *
  * @param {*} model
@@ -115,7 +131,7 @@ function post(body, model) {
  * @param {*} isSingle
  */
 function deepPost(id, body, parent, child, isSingle) {
-    return Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         let dest = '';
         if (isSingle) dest = child.modelName.toLowerCase();
         else dest = child.modelName.toLowerCase() + 's';
@@ -148,4 +164,4 @@ function deepPost(id, body, parent, child, isSingle) {
     });
 }
 
-export {get, deepGet, getAll, put, del, post, deepPost};
+export {get, deepGet, getAll, put, del, post, deepPost, deepGetSolution};
