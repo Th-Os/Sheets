@@ -48,7 +48,7 @@ export class CoursesComponent implements OnInit {
   }
 
   add(): void {
-    this.showEditDialog(true, new Course(null, '','','',0));
+    this.showEditDialog(true, new Course('', '','',0));
   }
 
   delete(course: Course): void {
