@@ -57,29 +57,35 @@ router.get('/word/:id', verify, function(req, res) {
 
 // TODO Get submissions, answers, task and exercise.
 router.get('/csv/:id', verify, function(req, res) {
-    methods.get(req.params.id, Sheet).then((doc) => {
-        operations.populate(doc, 3, 'submissions').then((res) => console.log(res));
-    });
-    /*
-    let renderer = new CSVRenderer();
-    renderer.setHeader();
-    methods.get(req.params.id, Sheet).then((doc) => {
-        let maxPoints = 0;
-        let promises = [];
-        promises.push(doc.getMaxPoints().then((res) => {
-            maxPoints = res;
-        }));
-        promises.push(methods.deepGet(req.params.id, Sheet, Submission).then((submissions) => {
-            for (let submission of submissions) {
-                promises.push();
+    methods.get(req.params.id, Sheet).then((sheet) => {
+        sheet.populateObj().then(() => {
+            let promises = [];
+            for (let submission of sheet.submissions) {
+                promises.push(submission.populateObj());
             }
-
-            // TODO: implement for each submission.
-        }));
-        Promise.all(promises).then(() => res.send(renderer.export()));
+            Promise.all(promises).then(() => {
+                promises = [];
+                for (let s of sheet.submissions) {
+                    for (let a of s.answers) {
+                        promises.push(a.populateObj());
+                    }
+                }
+                Promise.all(promises).then(() => {
+                    let renderer = new CSVRenderer().addHeader();
+                    for (let s of sheet.submissions) {
+                        let maxPoints = 0;
+                        for (let a of s.answers) {
+                            maxPoints += a.task.points;
+                            a.task.exercise = 0;
+                        }
+                        renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints);
+                    }
+                    res.attachment('output.csv').type('text/csv').end(renderer.export());
+                    console.log(renderer.export());
+                }).catch((err) => console.error(err));
+            }).catch((err) => console.error(err));
+        }).catch((err) => console.error(err));
     });
-    res.send('not implemented yet');
-    */
 });
 
 router.get('/template/:id', verify, function(req, res) {

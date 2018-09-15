@@ -43,6 +43,7 @@ CSVRenderer.prototype.addHeader = function(header) {
     if (header === undefined || header.length === 0) this.csv += this.header;
     else this.csv += header;
     this.csv += '\n';
+    return this;
 };
 
 /**
@@ -52,26 +53,30 @@ CSVRenderer.prototype.addHeader = function(header) {
  * @param {*} requiredPoints
  * @param {*} maxPoints
  */
-CSVRenderer.prototype.addSubmission = function(submission, sheetOrder, requiredPoints, maxPoints) {
+CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder, requiredPoints, maxPoints) {
     let line = '';
     line += 'Teilnehmer/in' + submission.student.grips_id + ',' + hasPassed(submission, requiredPoints) + ',"nicht bestanden\nbestanden",,"\n';
     line += '<p> ' + getOverallFeedback(submission, requiredPoints, maxPoints) + ' </p>\n';
     let length = submission.answers.length;
     for (let i = 0; i < length; i++) {
         let answer = submission.answers[i];
-        if (i === length - 1) {
+
+        if (i === length - 1 && (answer.text === undefined || answer.text === '')) {
             line += '<p> Aufgabe ' + sheetOrder + '.' + answer.task.exercise.order;
             line += ' ist korrekt! </p>';
             break;
         }
-        line += '<p> Aufgabe ' + sheetOrder + '.' + answer.task.exercise.order + toAlphabeticOrder(answer.task.order) + '): ';
+        line += '<p> Aufgabe ' + sheetOrder + '.' + getExerciseOrder(exercises, answer.task._id) + toAlphabeticOrder(answer.task.order) + '): ';
         let txt = toCSVString(answer.text);
         if (txt.length !== 0) line += '(' + txt + ')';
         else line += 'fehlt.';
-        line += ' ' + answer.feedback + ' </p>';
+        let feedback = (answer.feedback !== undefined) ? answer.feedback : 'Kein Feedback angegeben.';
+        line += ' ' + feedback + ' </p>';
         line += '\n';
     }
-    line += '<p> Korrigiert von ' + submission.user.forename + ' ' + submission.user.lastname + ' </p>';
+    if (submission.user !== null) {
+        line += '<p> Korrigiert von ' + submission.user.forename + ' ' + submission.user.lastname + ' </p>';
+    }
     line += '"';
     this.csv += line;
 };
@@ -89,8 +94,19 @@ function hasPassed(submission, requiredPoints) {
     else return 'nicht bestanden';
 }
 
+function getExerciseOrder(exercises, taskId) {
+    for (let e of exercises) {
+        for (let t of e.tasks) {
+            if (t._id.equals(taskId)) {
+                return e.order;
+            }
+        }
+    }
+    return 0;
+}
+
 function getOverallFeedback(submission, requiredPoints, maxPoints) {
-    let points;
+    let points = 0;
     for (let answer of submission.answers) {
         points += answer.achieved_points;
     }
@@ -112,3 +128,5 @@ function toAlphabeticOrder(numerical) {
         return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
     }
 }
+
+export default CSVRenderer;
