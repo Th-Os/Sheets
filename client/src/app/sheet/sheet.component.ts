@@ -57,6 +57,11 @@ export class SheetComponent implements OnInit {
   getSheet(): void {
     const id = +this.route.snapshot.paramMap.get('id');
     this.sheetService.getSheet(id).subscribe(sheet => {
+
+      if(sheet == null){
+        sheet = new Sheet();
+      }
+
       this.sheet = sheet;
       this.updateUI;
       console.log("done fetching sheet");
@@ -140,7 +145,7 @@ export class SheetComponent implements OnInit {
             this.updateUI();
             console.log("validation ok")
             console.log(this.sheet)
-            this.uploadSubmissions();
+            this.uploadAndCorrectSubmissions();
           }else{
             this.displayValidationResults();
           }
@@ -151,8 +156,12 @@ export class SheetComponent implements OnInit {
     reader.readAsArrayBuffer(file);
   }
 
-  uploadSubmissions() {
-    this.sheetService.updateSheet(this.sheet);
+  uploadAndCorrectSubmissions() {
+    this.sheetService.updateSheet(this.sheet).subscribe(res =>
+      this.sheet.submissions.forEach((submission) => {
+        this.sheetService.autocorrectSubmission(submission);
+      })
+    );
   }
 
   displayValidationResults() {

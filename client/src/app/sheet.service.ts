@@ -4,6 +4,7 @@ import { MessageSnackbarService } from "./message-snackbar.service";
 import { Observable, of } from "rxjs";
 import { Sheet } from "./Sheet";
 import { catchError, tap } from "rxjs/operators";
+import {Submission} from "./submission";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -59,6 +60,14 @@ export class SheetService {
     return this.http.delete<Sheet>(url, httpOptions).pipe(
       tap(_ => this.log(`deleted Sheet id=${id}`)),
       catchError(this.handleError<Sheet>('deleteSheet'))
+    );
+  }
+
+  autocorrectSubmission(submission: Submission): Observable<any> {
+      const url = `${this.sheetsUrl}/correct/`
+      return this.http.post<Submission>(url, submission, httpOptions).pipe(
+      tap(_ => this.log(`submissions corrected`)),
+      catchError(this.handleError<Sheet>('autocorrectSubmissions'))
     );
   }
 
