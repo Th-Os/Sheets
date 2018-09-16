@@ -57,6 +57,21 @@ export class SheetService {
       );
   }
 
+  getSubmissionTemplate(id: String): Observable<any> {
+    const url = `${this.sheetsUrl}/${id}/template`;
+    return this.http.get(url).pipe(
+      catchError(this.handleError(`getTemplate id=${id}`))
+      );
+  }
+
+  deleteSubmissions (sheet: Sheet): Observable<any> {
+    const url = `${this.sheetsUrl}/${sheet._id}/submissions/`;
+    return this.http.delete(url, httpOptions).pipe(
+      tap(_ => this.log(`deleted Submissions of Sheet id=${sheet._id}`)),
+      catchError(this.handleError('deleteSubmissions'))
+      );
+  }
+
   autocorrectSubmission(submission: Submission): Observable<any> {
     const url = `${this.sheetsUrl}/correct/`
     return this.http.post<Submission>(url, submission, httpOptions).pipe(
@@ -65,14 +80,7 @@ export class SheetService {
       );
   }
 
-  updateSubmissions (sheet: Sheet): Observable<any> {
-    const url = `${this.sheetsUrl}/${sheet._id}/submissions/`;
-    console.log(sheet.submissions)
-    return this.http.post(url, sheet.submissions, httpOptions).pipe(
-      tap(_ => this.log(`updated sheet id=${sheet._id}`)),
-      catchError(this.handleError<any>('updateSheet'))
-      );
-  }
+
 
   /**
    * Handle Http operation that failed.
