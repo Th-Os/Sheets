@@ -59,6 +59,7 @@ export class SheetComponent implements OnInit {
     this.sheetService.getSheet(id).subscribe(sheet => {
       this.sheet = sheet;
       this.updateUI();
+      console.log(this.sheet)
       console.log("done fetching sheet");
     });
   }
@@ -110,10 +111,12 @@ export class SheetComponent implements OnInit {
           if(!filename.endsWith("/")) {
 
             let submission = new Submission();
+            let student = new Student();
             let name = this.readAuthorName(filename);
 
-            submission.author_name = name.split(" ")[0];
-            submission.author_lastname = name.split(" ")[name.split(" ").length - 1];
+            student.name = name.split(" ")[0];
+            student.lastname = name.split(" ")[name.split(" ").length - 1];
+            submission.student = student;
             submissions.push(submission);
 
             if(filename.includes(".txt")){
@@ -126,7 +129,7 @@ export class SheetComponent implements OnInit {
                   this.submissionValidationResults.push(new SubmissionValidationResult(filename));
                 }else{
                   submission.answers = answers;
-                  submission.student_id = student_id; 
+                  submission.student.mat_nr = student_id; 
                 }
               }));
             }
@@ -139,8 +142,7 @@ export class SheetComponent implements OnInit {
             this.sheet.submissions = submissions;
             this.updateUI();
             console.log("validation ok")
-            console.log(this.sheet)
-            this.uploadSubmissions();
+            this.uploadAndCorrectSubmissions();
           }else{
             this.displayValidationResults();
           }
@@ -151,8 +153,14 @@ export class SheetComponent implements OnInit {
     reader.readAsArrayBuffer(file);
   }
 
-  uploadSubmissions() {
-    this.sheetService.updateSheet(this.sheet);
+  uploadAndCorrectSubmissions() {
+    this.sheetService.updateSubmissions(this.sheet)
+    .subscribe(res =>
+      console.log(res)
+      //this.sheet.submissions.forEach((submission) => {
+        //this.sheetService.autocorrectSubmission(submission);
+      //})
+    );
   }
 
   displayValidationResults() {

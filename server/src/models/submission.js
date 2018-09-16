@@ -80,6 +80,10 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    lastname: {
+        type: String,
+        required: false
+    },
     mat_nr: {
         type: Number,
         required: true
