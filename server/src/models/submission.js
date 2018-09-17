@@ -3,21 +3,21 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const submissionSchema = new mongoose.Schema({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: false
-    },
     student: {
         type: Schema.Types.ObjectId,
         ref: 'Student',
-        required: true
+        required: false
     },
     answers: [{
         type: Schema.Types.ObjectId,
         ref: 'Answer',
-        required: true
-    }]
+        required: false
+    }],
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
+    }
 });
 
 submissionSchema.post('remove', function(doc) {
@@ -28,6 +28,20 @@ submissionSchema.post('remove', function(doc) {
         }
     });
 });
+
+submissionSchema.methods.hasPassed = function(requiredPoints) {
+    return new Promise((resolve, reject) => {
+        mongoose.model('Answer').find().where('_id').in(this.answers).exec((err, docs) => {
+            if (err) reject(err);
+            let points = 0;
+            for (let doc of docs) {
+                points += doc.achieved_points;
+            }
+            if (points >= requiredPoints) resolve(true);
+            else resolve(false);
+        });
+    });
+};
 
 const answerSchema = new mongoose.Schema({
     text: {
@@ -61,21 +75,20 @@ const answerSchema = new mongoose.Schema({
     }
 });
 
-// FIXME: This is a test for populating.
-answerSchema.pre('find', function(next) {
-    this.populate({
-        path: 'task',
-        model: 'Task'
-    });
-    next();
-});
-
 const studentSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
     },
+    lastname: {
+        type: String,
+        required: false
+    },
     mat_nr: {
+        type: Number,
+        required: true
+    },
+    grips_id: {
         type: Number,
         required: true
     }

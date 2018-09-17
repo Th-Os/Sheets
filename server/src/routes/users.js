@@ -1,12 +1,18 @@
 import express from 'express';
 import verify from '../auth/verify';
-import * as methods from './methods';
+import * as methods from '../utils/methods';
 import {User, Role} from '../models/user';
+import { StatusError } from '../utils/error';
 
 const router = express.Router();
 
 router.get('/', verify, function(req, res) {
-    methods.getAll(req, res, User);
+    methods.getAll(User)
+        .then((docs) => res.status(200).send(docs))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 // TODO: response is an empty array.
@@ -31,15 +37,30 @@ router.post('/', verify, function(req, res) {
 });
 
 router.get('/:id', verify, function(req, res) {
-    methods.get(req.params.id, res, User, 'role');
+    methods.get(req.params.id, User)
+        .then((doc) => res.status(200).send(doc))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.put('/:id', verify, function(req, res) {
-    methods.put(req.params.id, req.body, res, User);
+    methods.put(req.params.id, req.body, User)
+        .then((doc) => res.status(200).send(doc))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.delete('/:id', verify, function(req, res) {
-    methods.del(req.params.id, User);
+    methods.del(req.params.id, User)
+        .then((msg) => res.status(200).send(msg))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 export default router;

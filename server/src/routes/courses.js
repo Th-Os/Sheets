@@ -1,25 +1,54 @@
 import express from 'express';
 import verify from '../auth/verify';
-import * as methods from './methods';
+import * as methods from '../utils/methods';
+import {StatusError} from '../utils/error';
 import {Course} from '../models/course';
 import {Sheet} from '../models/sheet';
 import {Student, Submission} from '../models/submission';
 
 const router = express.Router();
 router.get('/', verify, function(req, res) {
-    methods.getAll(res, Course, 'sheets.sheet');
+    methods.getAll(Course).then((docs) => {
+        res.status(200).send(docs);
+    }).catch((err) => {
+        res.status(err.status).send(err.message);
+    });
+});
+
+router.get('/:id', verify, function(req, res) {
+    methods.get(req.params.id, Course)
+        .then((doc) => res.status(200).send(doc))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.post('/', verify, function(req, res) {
-    methods.post(req.body, res, Course);
+    methods.post(req.body, Course)
+        .then( (doc) => res.status(201).send(doc) )
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.put('/:id', verify, function(req, res) {
-    methods.put(req.params.id, req.body, res, Course);
+    methods.put(req.params.id, req.body, Course)
+        .then((doc) => res.status(200).send(doc))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.delete('/:id', verify, function(req, res) {
-    methods.del(req.params.id, res, Course);
+    methods.del(req.params.id, Course)
+        .then(() => res.status(204).send())
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.get('/:id/students', verify, function(req, res) {
@@ -44,11 +73,22 @@ router.get('/:id/students', verify, function(req, res) {
 });
 
 router.get('/:id/sheets', verify, function(req, res) {
-    methods.deepGet(req.params.id, res, Course, Sheet);
+    console.log('get sheets of course')
+    methods.deepGet(req.params.id, Course, Sheet)
+        .then((docs) => res.status(200).send(docs))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.post('/:id/sheets', verify, function(req, res) {
-    methods.deepPost(req.params.id, req.body, res, Course, Sheet);
+    methods.deepPost(req.params.id, req.body, Course, Sheet)
+        .then((docs) => res.status(200).send(docs))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 export default router;

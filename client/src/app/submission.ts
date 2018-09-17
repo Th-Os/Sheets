@@ -1,8 +1,12 @@
+import {Answer} from "./answer";
+import {Student} from "./student";
+
 export class Submission {
-	id: number;
+	_id: number;
 	user_id: number;
-	student_id: number;
-	answer: string;
-	//----
-	name:string;
+	student: Student;
+	answers: Answer[];
+	//ui
+	author_name:string;
+	author_lastname: string;
 }

@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 
 import { CourseService }  from '../course.service';
-import {Course} from "../course";
-import {Sheet} from "../sheet";
+import {Course} from "../models/course";
+import {Sheet} from "../models/sheet";
 import {SheetService} from "../sheet.service";
 
 @Component({
@@ -15,6 +15,8 @@ import {SheetService} from "../sheet.service";
 export class CourseComponent implements OnInit {
 
   course: Course;
+  sheets: Sheet[];
+  loadingSheets: boolean = false
 
   constructor(
     private route: ActivatedRoute,
@@ -25,16 +27,27 @@ export class CourseComponent implements OnInit {
 
   ngOnInit() {
     this.getCourse();
+    this.getCourseSheets();
   }
 
   getCourse(): void {
-    const id = +this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
     this.courseService.getCourse(id)
       .subscribe(course => this.course = course );
   }
 
-  delete(sheet: Sheet): void {
-    this.course.sheets = this.course.sheets.filter(s => s !== sheet);
+  getCourseSheets(): void {
+    this.loadingSheets = true;
+    const id = this.route.snapshot.paramMap.get('id');
+    this.courseService.getCourseSheets(id)
+      .subscribe(sheets => {
+        this.sheets = sheets;
+        this.loadingSheets = false;
+      });
+  }
+
+  deleteSheet(sheet: Sheet): void {
+    this.sheets = this.sheets.filter(s => s !== sheet);
     this.sheetService.deleteSheet(sheet);
   }
 

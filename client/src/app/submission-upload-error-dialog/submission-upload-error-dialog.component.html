@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>
+	Folgende Einreichungen verletzen die Abgabekriterien:
+</h2>
+<mat-dialog-content>
+	<mat-list>
+		<mat-list-item *ngFor="let result of results" role="listitem">
+			<p mat-line class="text-grayed">- {{ result.filename }}, [Zeile: {{result.errorLineNum}}] </p>
+		</mat-list-item>
+	</mat-list>
+</mat-dialog-content>
+<mat-dialog-actions>
+	<button mat-button (click)="onClose()">Schließen</button>
+</mat-dialog-actions>

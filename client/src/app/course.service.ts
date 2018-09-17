@@ -3,7 +3,8 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MessageSnackbarService } from './message-snackbar.service';
-import { Course } from "./course";
+import { Course } from "./models/course";
+import {Sheet} from "./models/sheet";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -15,7 +16,7 @@ const httpOptions = {
 
 export class CourseService {
 
-  private coursesUrl = 'api/courses';
+  private coursesUrl = 'http://localhost:3000/courses';
 
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService) { }
@@ -27,33 +28,42 @@ export class CourseService {
       );
   }
 
-  /** GET hero by id. Will 404 if id not found */
-  getCourse(id: number): Observable<Course> {
+  /** GET course by id. Will 404 if id not found */
+  getCourse(id: string): Observable<Course> {
     const url = `${this.coursesUrl}/${id}`;
     return this.http.get<Course>(url).pipe(
       catchError(this.handleError<Course>(`getCourse id=${id}`))
     );
   }
 
-  /** PUT: update the hero on the server */
+  getCourseSheets(id: string): Observable<Sheet[]> {
+    const url = `${this.coursesUrl}/${id}/sheets`;
+    return this.http.get<Sheet[]>(url)
+      .pipe(
+      catchError(this.handleError(`getCourseSheets id=${id}`, []))
+    );
+  }
+
+  /** PUT: update the course on the server */
   updateCourse (course: Course): Observable<any> {
-    return this.http.put(this.coursesUrl, course, httpOptions).pipe(
-      tap(_ => this.log(`updated course id=${course.id}`)),
+    const url = `${this.coursesUrl}/${course._id}`;
+    return this.http.put(url, course, httpOptions).pipe(
+      tap(_ => this.log(`updated course id=${course._id}`)),
       catchError(this.handleError<any>('updateCourse'))
     );
   }
 
-  /** POST: add a new hero to the server */
+  /** POST: add a new course to the server */
   addCourse (course: Course): Observable<Course> {
     return this.http.post<Course>(this.coursesUrl, course, httpOptions).pipe(
-      tap(_ => this.log(`created course id=${course.id}`)),
+      tap((course: Course) => this.log(`created course id=${course._id}`)),
       catchError(this.handleError<Course>('addCourse'))
     );
   }
 
-  /** DELETE: delete the hero from the server */
+  /** DELETE: delete the course from the server */
   deleteCourse (course: Course | number): Observable<Course> {
-    const id = typeof course === 'number' ? course : course.id;
+    const id = typeof course === 'number' ? course : course._id;
     const url = `${this.coursesUrl}/${id}`;
 
     return this.http.delete<Course>(url, httpOptions).pipe(
@@ -61,6 +71,7 @@ export class CourseService {
       catchError(this.handleError<Course>('deleteCourse'))
     );
   }
+
 
   /**
    * Handle Http operation that failed.
@@ -71,7 +82,6 @@ export class CourseService {
   private handleError<T> (operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
-      // TODO: send the error to remote logging infrastructure
       console.error(error); // log to console instead
 
       // Let the app keep running by returning an empty result.
