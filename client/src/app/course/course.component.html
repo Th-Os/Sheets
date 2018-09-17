@@ -17,13 +17,16 @@
           <mat-list *ngIf="course && !loadingSheets" >
             <mat-list-item *ngFor="let sheet of sheets" role="listitem">
               <a mat-line routerLink="/sheets/{{sheet._id}}"> {{ sheet.name }} </a>
-              <button mat-icon-button (click)="deleteSheet(sheet)">
+              <button mat-icon-button (click)="update(sheet)">
+                <mat-icon color="secondary">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="delete(sheet)">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
-        <button class="position-absolute" style="right: 10px;" mat-fab color="primary">
+        <button (click)="add()" class="position-absolute" style="right: 10px;" mat-fab color="primary">
           <mat-icon>add</mat-icon>
         </button>
       </mat-card>

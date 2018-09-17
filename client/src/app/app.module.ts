@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule} from "@angular/forms";
+import {Form, FormsModule} from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SheetsMaterialComponentsModule } from './sheets-material-components.module';
 import { HttpClientModule }    from '@angular/common/http';
+import {SheetsOtherComponentsModule} from './sheets-other-components.module';
 import { AppComponent } from './app.component';
 import { CoursesComponent } from './courses/courses.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -14,6 +15,10 @@ import { FileDropDirective } from './file-drop.directive';
 import { SubmissionUploadErrorDialogComponent } from './submission-upload-error-dialog/submission-upload-error-dialog.component';
 import { CorrectionComponent } from './correction/correction.component';
 import { CorrectionInterfaceComponent } from './correction-interface/correction-interface.component';
+import { ExerciseDialogComponent } from './exercise-dialog/exercise-dialog.component';
+import { CreateSheetComponent } from './create-sheet/create-sheet.component';
+import { MomentPipe } from './pipes/moment.pipe';
+import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
 
 @NgModule({
   declarations: [
@@ -26,16 +31,22 @@ import { CorrectionInterfaceComponent } from './correction-interface/correction-
     SubmissionUploadErrorDialogComponent,
     CorrectionComponent,
     CorrectionInterfaceComponent,
+    ExerciseDialogComponent,
+    CreateSheetComponent,
+    MomentPipe,
+    PointcalculationPipe,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,
-    CourseDialogComponent
+    CourseDialogComponent,
+    ExerciseDialogComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     BrowserAnimationsModule,
     SheetsMaterialComponentsModule,
+    SheetsOtherComponentsModule,
     HttpClientModule,
     AppRoutingModule
   ],
