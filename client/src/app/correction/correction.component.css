@@ -1,18 +1,18 @@
-.tasks-prev {
+.submissions-prev {
   left: 50%;
 }
 
-.tasks-next {
+.submissions-next {
   bottom: 0;
   left: 50%;
 }
 
-.submissions-prev {
+.tasks-prev {
   top: 50%;
   left: 0;
 }
 
-.submissions-next {
+.tasks-next {
   top: 50%;
   right: 0;
 }

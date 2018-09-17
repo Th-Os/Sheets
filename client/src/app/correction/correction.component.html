@@ -2,20 +2,20 @@
   <i class="material-icons">exit_to_app</i>
 </button>
 
-<button mat-fab color="primary" class="position-absolute tasks-prev mt-1">
+<button mat-fab color="primary" class="position-absolute submissions-prev mt-1">
   <mat-icon aria-label="Example icon-button with a heart icon">keyboard_arrow_up</mat-icon>
 </button>
 
-<button mat-fab color="primary"  class="position-absolute tasks-next mb-2">
-  <mat-icon aria-label="Example icon-button with a heart icon">keyboard_arrow_down</mat-icon>
+<button mat-fab color="primary"  class="position-absolute submissions-next mb-2" (click)="nextSubmission()" >
+  <mat-icon>keyboard_arrow_down</mat-icon>
 </button>
 
-<button mat-fab color="primary"  class="position-absolute submissions-prev ml-2">
+<button mat-fab color="primary"  class="position-absolute tasks-prev ml-2">
   <mat-icon aria-label="Example icon-button with a heart icon">keyboard_arrow_left</mat-icon>
 </button>
 
-<button mat-fab color="primary"  class="position-absolute submissions-next mr-2">
-  <mat-icon aria-label="Example icon-button with a heart icon">keyboard_arrow_right</mat-icon>
+<button mat-fab color="primary"  class="position-absolute tasks-next mr-2">
+  <mat-icon >keyboard_arrow_right</mat-icon>
 </button>
 
 <div class="container mt-5 h-100">
@@ -29,7 +29,7 @@
             <mat-list-item *ngFor="let submission of submissions" role="listitem" class="list-selectable"
                            [class.active]="submission._id === selected_submission"
                            (click)="selected_submission = submission._id">
-              {{ submission.student }}
+              {{ submission._id }}
             </mat-list-item>
           </mat-list>
         </mat-card-content>
@@ -48,8 +48,8 @@
               <h6 mat-line>{{exercise.name}}</h6>
               <mat-list mat-line>
                 <mat-list-item *ngFor="let task of exercise.tasks" role="listitem" class="list-selectable"
-                               [class.active]="task._id === selected_task" (click)="selected_task = task._id">
-                  {{task.question}}
+                               [class.active]="task === selected_task" (click)="selected_task = task">
+                  {{task}}
                 </mat-list-item>
               </mat-list>
             </mat-list-item>

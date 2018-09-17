@@ -3,7 +3,7 @@ import {Answer} from "./answer";
 import {Student} from "./student";
 
 export class Submission {
-	_id: number;
+	_id: string;
 	user_id: number;
 	student: Student;
 	answers: Answer[];
