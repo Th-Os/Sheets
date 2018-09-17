@@ -26,6 +26,7 @@
         "jsreport-handlebars": "^2.0.0",
         "moment": "^2.22.2",
         "mongoose": "^5.2.1",
+        "officegen": "^0.4.5",
         "passport": "^0.4.0",
         "passport-local": "^1.0.0",
         "puppeteer": "^1.7.0"
