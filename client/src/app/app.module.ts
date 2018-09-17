@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import {Form, FormsModule} from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SheetsMaterialComponentsModule } from './sheets-material-components.module';
-import { HttpClientModule }    from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import {SheetsOtherComponentsModule} from './sheets-other-components.module';
 import { AppComponent } from './app.component';
 import { CoursesComponent } from './courses/courses.component';
@@ -35,7 +35,6 @@ import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,
-    CourseDialogComponent
     CourseDialogComponent,
     ExerciseDialogComponent
   ],

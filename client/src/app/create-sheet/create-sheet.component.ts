@@ -3,10 +3,10 @@ import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ViewEncapsulation } from '@angular/core';
 
-import {Sheet} from '../classes/sheet';
-import {Exercise} from '../classes/exercise';
-import {Task} from '../classes/task';
-import {Solution} from '../classes/solution';
+import {Sheet} from '../models/sheet';
+import {Exercise} from '../models/exercise';
+import {Task} from '../models/task';
+import {Solution} from '../models/solution';
 import {SheetService} from '../services/sheet.service';
 import {ExerciseService} from '../services/exercise.service';
 import {TaskService} from '../services/task.service';

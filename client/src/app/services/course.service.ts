@@ -3,7 +3,8 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MessageSnackbarService } from '../message-snackbar.service';
-import { Course } from "../classes/course";
+import { Course } from "../models/course";
+import {Sheet} from '../models/sheet';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -33,6 +34,14 @@ export class CourseService {
     return this.http.get<Course>(url).pipe(
       catchError(this.handleError<Course>(`getCourse id=${id}`))
     );
+  }
+
+  getCourseSheets(id: string): Observable<Sheet[]> {
+    const url = `${this.coursesUrl}/${id}/sheets`;
+    return this.http.get<Sheet[]>(url)
+      .pipe(
+        catchError(this.handleError(`getCourseSheets id=${id}`, []))
+      );
   }
 
   /** PUT: update the hero on the server */

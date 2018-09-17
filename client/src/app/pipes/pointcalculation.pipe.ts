@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import {Exercise} from '../classes/exercise';
+import {Exercise} from '../models/exercise';
 import {TaskService} from '../services/task.service';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 
@@ -15,7 +15,7 @@ export class PointcalculationPipe implements PipeTransform {
 
   transform(exerciseId: string): number {
     let points = 0;
-     this.taskService.getTasks(exerciseId).subscribe(tasks => {
+     /*this.taskService.getTasks(exerciseId).subscribe(tasks => {
       if (tasks) {
         console.log('Berechnung: ' + exerciseId);
         tasks.forEach(task => {
@@ -23,7 +23,7 @@ export class PointcalculationPipe implements PipeTransform {
           console.log('Berechnete Punkte: ' + points);
         });
       }
-    });
+    });*/
     return points;
   }
 
