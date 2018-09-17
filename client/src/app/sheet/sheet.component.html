@@ -4,7 +4,7 @@
 
 <div class="container mt-5 h-100">
   <div class="row h-100">
-    <div flex class="col-12 col-lg-4 col-md-4">
+    <div class="col-12 col-lg-4 col-md-4">
       <mat-card>
         <mat-card-title>Abgaben</mat-card-title>
         <mat-card-content
@@ -18,7 +18,7 @@
         <mat-list id="submissionsList" *ngIf="sheet" >
           <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
             <h3 mat-line>{{submission.author_lastname }} {{submission.author_name }}</h3>
-            <p mat-line class="text-grayed"> {{ submission.student_id }} </p>
+            <p mat-line class="text-grayed"> {{ submission.student }} </p>
           </mat-list-item>
         </mat-list>
       </mat-card-content>
@@ -31,5 +31,14 @@
       <input id="fileToUpload" type="file" style="display:none;" (change)="handleFileSelection($event)" >
     </mat-card>
   </div>
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>Aufgaben</mat-card-title>
+        <mat-card-content></mat-card-content>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-4 col-md-4">
+      <button mat-raised-button color="primary" routerLink="/sheets/{{route.snapshot.paramMap.get('id')}}/correction">Starte Korrektur</button>
+    </div>
 </div>
 </div>

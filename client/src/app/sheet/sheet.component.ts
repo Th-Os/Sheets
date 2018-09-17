@@ -4,9 +4,9 @@ import {CourseService} from "../course.service";
 import {SheetService} from "../sheet.service";
 import {Location} from "@angular/common";
 import {Sheet} from "../models/sheet";
-import {Submission} from "../submission";
+import {Submission} from "../models/submission";
 import {SubmissionValidationResult} from "../submission-validation-result";
-import {Student} from "../student";
+import {Student} from "../models/student";
 import {Answer} from "../answer";
 import * as JSZip from 'jszip';
 //Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");" 
@@ -126,7 +126,7 @@ export class SheetComponent implements OnInit {
                   this.submissionValidationResults.push(new SubmissionValidationResult(filename));
                 }else{
                   submission.answers = answers;
-                  submission.student_id = student_id; 
+                  submission.student = student_id;
                 }
               }));
             }

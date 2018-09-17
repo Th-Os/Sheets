@@ -34,6 +34,22 @@ router.delete('/:id', verify, function(req, res) {
         });
 });
 
+router.get('/:id/tasks', verify, function(req, res) {
+    Sheet.findById(req.params.id, (err, doc) => {
+        if (err) reject(new StatusError(400, err));
+        else if (doc === undefined) reject(new StatusError(404, Sheet.modelName + ' not found.'));
+        else resolve(doc);
+    });
+    /*
+    methods.deepGet(req.params.id, Sheet, Exercise)
+        .then((docs) => res.status(200).send(docs))
+        .catch((err) => {
+            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
+        */
+});
+
 router.get('/:id/exercises', verify, function(req, res) {
     methods.deepGet(req.params.id, Sheet, Exercise)
         .then((docs) => res.status(200).send(docs))
@@ -62,8 +78,9 @@ router.post('/:id/submissions', verify, function(req, res) {
 });
 
 router.get('/:id/submissions', verify, function(req, res) {
+    console.log('get sheet submissions ' + req.params.id);
     methods.deepGet(req.params.id, Sheet, Submission)
-        .then((docs) => res.status(200).send(docs))
+        .then((docs) => { console.log(docs);res.status(200).send(docs) })
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);
             else res.status(500).send(err);

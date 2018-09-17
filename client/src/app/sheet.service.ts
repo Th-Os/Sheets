@@ -4,6 +4,9 @@ import { MessageSnackbarService } from "./message-snackbar.service";
 import { Observable, of } from "rxjs";
 import { Sheet } from "./models/sheet";
 import { catchError, tap } from "rxjs/operators";
+import {Submission} from "./models/submission";
+import {Task} from "./models/task";
+import {Exercise} from "./models/exercise";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -19,13 +22,37 @@ export class SheetService {
 
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService) { }
-              
+
 
   /** GET sheet by id. Will 404 if id not found */
   getSheet(id: string): Observable<Sheet> {
     const url = `${this.sheetsUrl}/${id}`;
     return this.http.get<Sheet>(url).pipe(
       catchError(this.handleError<Sheet>(`getSheet id=${id}`))
+    );
+  }
+
+  getSheetExercises(id: string): Observable<Exercise[]> {
+    const url = `${this.sheetsUrl}/${id}/exercises`;
+    return this.http.get<Exercise[]>(url)
+      .pipe(
+        catchError(this.handleError(`getSheetExercises id=${id}`, []))
+      );
+  }
+
+  getSheetTasks(id: string): Observable<Task[]> {
+    const url = `${this.sheetsUrl}/${id}/tasks`;
+    return this.http.get<Task[]>(url)
+      .pipe(
+        catchError(this.handleError(`getSheetTasks id=${id}`, []))
+      );
+  }
+
+  getSheetSubmissions(id: string): Observable<Submission[]> {
+    const url = `${this.sheetsUrl}/${id}/submissions`;
+    return this.http.get<Submission[]>(url)
+      .pipe(
+        catchError(this.handleError(`getSheetSubmissions id=${id}`, []))
     );
   }
 
@@ -71,7 +98,7 @@ export class SheetService {
     };
   }
 
-  /** Log a HeroService message with the MessageService */
+  /** Log a SheetService message with the MessageService */
   private log(message: string) {
     this.messageSnackbarService.show(`SheetService: ${message}`);
   }

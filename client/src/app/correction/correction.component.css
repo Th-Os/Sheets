@@ -1,0 +1,27 @@
+.tasks-prev {
+  left: 50%;
+}
+
+.tasks-next {
+  bottom: 0;
+  left: 50%;
+}
+
+.submissions-prev {
+  top: 50%;
+  left: 0;
+}
+
+.submissions-next {
+  top: 50%;
+  right: 0;
+}
+
+.list-selectable.active {
+  color: blue;
+}
+
+.list-selectable:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}

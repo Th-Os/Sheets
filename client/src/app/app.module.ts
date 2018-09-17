@@ -12,6 +12,8 @@ import { CourseComponent } from './course/course.component';
 import { SheetComponent } from './sheet/sheet.component';
 import { FileDropDirective } from './file-drop.directive';
 import { SubmissionUploadErrorDialogComponent } from './submission-upload-error-dialog/submission-upload-error-dialog.component';
+import { CorrectionComponent } from './correction/correction.component';
+import { CorrectionInterfaceComponent } from './correction-interface/correction-interface.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +24,8 @@ import { SubmissionUploadErrorDialogComponent } from './submission-upload-error-
     SheetComponent,
     FileDropDirective,
     SubmissionUploadErrorDialogComponent,
+    CorrectionComponent,
+    CorrectionInterfaceComponent,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,
