@@ -55,7 +55,6 @@ router.get('/word/:id', verify, function(req, res) {
     res.send('not implemented yet');
 });
 
-// TODO Get submissions, answers, task and exercise.
 router.get('/csv/:id', verify, function(req, res) {
     methods.get(req.params.id, Sheet).then((sheet) => {
         sheet.populateObj().then(() => {
@@ -81,7 +80,6 @@ router.get('/csv/:id', verify, function(req, res) {
                         renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints);
                     }
                     res.attachment('output.csv').type('text/csv').end(renderer.export());
-                    console.log(renderer.export());
                 }).catch((err) => console.error(err));
             }).catch((err) => console.error(err));
         }).catch((err) => console.error(err));
