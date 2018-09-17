@@ -6,6 +6,7 @@
     <mat-radio-button [value]="true">
       Aus Vorlage:<br>
       <div *ngIf="sheets.length > 0">
+        <!--Todo: Probably add sheets of all courses-->
         <mat-form-field>
           <mat-select [(ngModel)]="selectedSheetId">
             <mat-option *ngFor="let sheet of sheets" matInput value={{sheet._id}}>{{ sheet.name }}

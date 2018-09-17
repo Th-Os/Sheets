@@ -30,7 +30,7 @@ export class TaskService {
       );
   }
 
-  getTask(id: number): Observable<Task> {
+  getTask(id: any): Observable<Task> {
     const url = `${this.tasksUrl}/${id}`;
     return this.http.get<Task>(url).pipe(
       catchError(this.handleError<Task>(`getTask id=${id}`))

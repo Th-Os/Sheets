@@ -21,6 +21,10 @@ import {SolutionService} from '../services/solution.service';
 export class CreateSheetComponent implements OnInit {
 
   sheet: Sheet;
+  regexExpression = '';
+  // Todo: Use correct pattern
+  regexPattern = '[a-zA-Z0-9]+//+{b}';
+  regexValid = true;
 
   constructor(
     private location: Location,
@@ -77,7 +81,10 @@ export class CreateSheetComponent implements OnInit {
 
   getSolution(taskId: string, exercise: Exercise, task: Task): void {
     this.solutionService.getSolution(taskId).subscribe( solution => {
-      this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks[this.getIndexOfTask(exercise, task)].solution = solution[0];
+      if (solution[0].regex === undefined) {
+        solution[0].regex = '';
+      }
+        this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks[this.getIndexOfTask(exercise, task)].solution = solution[0];
     });
   }
 
@@ -143,6 +150,18 @@ export class CreateSheetComponent implements OnInit {
           this.sheetService.updateSheet(this.sheet);
         });
       }
+    }
+  }
+
+  checkAndAddRegex(exercise: Exercise, task: Task): void {
+    if (this.regexExpression.match(this.regexPattern)) {
+      this.regexValid = true;
+      this.sheet.exercises[this.getIndexOfExercise(exercise)]
+        .tasks[this.getIndexOfTask(exercise, task)]
+        .solution.regex += this.regexExpression;
+      this.regexExpression = '';
+    } else {
+      this.regexValid = false;
     }
   }
 
