@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {CourseService} from "../course.service";
-import {SheetService} from "../sheet.service";
+import {CourseService} from "../services/course.service";
+import {SheetService} from "../services/sheet.service";
 import {Location} from "@angular/common";
-import {Sheet} from "../models/sheet";
-import {Submission} from "../submission";
+import {Sheet} from "../classes/sheet";
+import {Submission} from "../classes/submission";
+import {Student} from "../classes/student";
 import {SubmissionValidationResult} from "../submission-validation-result";
-import {Student} from "../student";
 import {Answer} from "../answer";
 import * as JSZip from 'jszip';
-//Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");" 
+//Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");"
 //durch "module.exports = require("readable-stream");" ersetzt werden!
 import {MatSnackBar} from '@angular/material';
 import {Inject} from '@angular/core'; 
@@ -111,6 +111,10 @@ export class SheetComponent implements OnInit {
       console.log(template)
       });
       */
+  onFilesAdded(fileList: FileList): void {
+    if(fileList.length <= 0){
+      console.log("Error reading files: List <= 0")
+      return;
     }
 
     goBack(): void {
@@ -289,7 +293,7 @@ export class SheetComponent implements OnInit {
     if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
-    let relevantFolderName: string = pathSlices[pathSlices.length - 2]; 
+    let relevantFolderName: string = pathSlices[pathSlices.length - 2];
     res = relevantFolderName.split("_")[0];
     return res;
   }
