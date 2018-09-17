@@ -6,12 +6,12 @@ const submissionSchema = new mongoose.Schema({
     student: {
         type: Schema.Types.ObjectId,
         ref: 'Student',
-        required: true
+        required: false
     },
     answers: [{
         type: Schema.Types.ObjectId,
         ref: 'Answer',
-        required: true
+        required: false
     }],
     user: {
         type: Schema.Types.ObjectId,
@@ -79,6 +79,10 @@ const studentSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
+    },
+    lastname: {
+        type: String,
+        required: false
     },
     mat_nr: {
         type: Number,

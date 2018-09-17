@@ -88,6 +88,7 @@ router.get('/:id/submissions', verify, function(req, res) {
 });
 
 router.delete('/:id/submissions', verify, function(req, res) {
+    console.log("delete submissions")
     Sheet.findById(req.params.id, (err, sheet) => {
         if (err) res.status(400).send(err);
         Submission.find({'_id': {$in: sheet.submissions}}, (err, subs) => {

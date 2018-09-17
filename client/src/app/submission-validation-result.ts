@@ -1,6 +1,10 @@
+import {Answer} from './models/answer';
+
 export class SubmissionValidationResult {
 	filename: string
-	constructor(filename:string){
-		this.filename = filename;
+	answers: Answer[]
+	errorLineNum: number
+	constructor(){
+		
 	}
 }

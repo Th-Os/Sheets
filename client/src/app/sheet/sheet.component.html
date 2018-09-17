@@ -17,8 +17,8 @@
         </div>
         <mat-list id="submissionsList" *ngIf="sheet" >
           <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
-            <h3 mat-line>{{submission.author_lastname }} {{submission.author_name }}</h3>
-            <p mat-line class="text-grayed"> {{ submission.student }} </p>
+            <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
+            <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
           </mat-list-item>
         </mat-list>
       </mat-card-content>
