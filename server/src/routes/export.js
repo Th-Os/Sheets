@@ -2,11 +2,15 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
+import * as methods from '../utils/methods';
+import * as operations from '../database/operations';
 import {RouteError} from '../utils/error';
 import verify from '../auth/verify';
-import PDF from '../export/pdf';
+import PDFRenderer from '../export/pdf';
+import CSVRenderer from '../export/csv';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
+import { Submission } from '../models/submission';
 
 const router = express.Router();
 moment.locale('de');
@@ -39,7 +43,7 @@ router.get('/pdf/:id', verify, function(req, res) {
                     Promise.all(promises).then(() => {
                         obj.date = toReadableDate(obj.sheet.submissiondate);
                         obj.template = getTemplate(sheet, 'html');
-                        new PDF().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).send(res);
+                        new PDFRenderer().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).send(res);
                     });
                 });
             });
@@ -52,7 +56,34 @@ router.get('/word/:id', verify, function(req, res) {
 });
 
 router.get('/csv/:id', verify, function(req, res) {
-    res.send('not implemented yet');
+    methods.get(req.params.id, Sheet).then((sheet) => {
+        sheet.populateObj().then(() => {
+            let promises = [];
+            for (let submission of sheet.submissions) {
+                promises.push(submission.populateObj());
+            }
+            Promise.all(promises).then(() => {
+                promises = [];
+                for (let s of sheet.submissions) {
+                    for (let a of s.answers) {
+                        promises.push(a.populateObj());
+                    }
+                }
+                Promise.all(promises).then(() => {
+                    let renderer = new CSVRenderer().addHeader();
+                    for (let s of sheet.submissions) {
+                        let maxPoints = 0;
+                        for (let a of s.answers) {
+                            maxPoints += a.task.points;
+                            a.task.exercise = 0;
+                        }
+                        renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints);
+                    }
+                    res.attachment('output.csv').type('text/csv').end(renderer.export());
+                }).catch((err) => console.error(err));
+            }).catch((err) => console.error(err));
+        }).catch((err) => console.error(err));
+    });
 });
 
 router.get('/template/:id', verify, function(req, res) {
