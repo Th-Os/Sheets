@@ -41,6 +41,7 @@
 |/sheets/:id/submissions		|DELETE	|	|:id	|200	|403, 404	|
 |**Answers**		|	|	|	|	|	|
 |/submissions/:id/answers		|GET	|	|:id	|200, [Answers]	|400, 401, 404	|
+|/submissions/:id/answers/search?q=task={TaskID}		|GET	|	| answers with taskId	|200, [Answers]	|400, 401, 404	|
 |/answers/:id		|PUT	|	|:id, {Answers}	|200, {Answers}	|400, 401, 404	|
 |**Users**		|	|	|	|	|	|
 |/users		|GET	|	|	|200, [Users]	|400, 401, 404	|
