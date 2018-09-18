@@ -1,7 +1,7 @@
 import {Solution} from './solution';
 
 export class Task {
-  _id: number;
+  _id: string;
   question: string;
   points = 0;
   order: number;

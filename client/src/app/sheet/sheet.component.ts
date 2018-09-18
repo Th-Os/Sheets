@@ -3,11 +3,11 @@ import {ActivatedRoute} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
 import {CourseService} from '../services/course.service';
 import {Location} from "@angular/common";
-import {Sheet} from '../models/sheet';
-import {Submission} from "../models/submission";
+import {Sheet} from '../classes/sheet';
+import {Submission} from "../classes/submission";
 import {SubmissionValidationResult} from "../submission-validation-result";
-import {Student} from "../models/student";
-import {Answer} from "../models/answer";
+import {Student} from "../classes/student";
+import {Answer} from "../classes/answer";
 import * as JSZip from 'jszip';
 //Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");"
 //durch "module.exports = require("readable-stream");" ersetzt werden!
@@ -16,6 +16,7 @@ import {Inject} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 import {SubmissionUploadErrorDialogComponent} from "../submission-upload-error-dialog/submission-upload-error-dialog.component";
+import {Exercise} from "../classes/exercise";
 
 
 @Component({
@@ -34,6 +35,9 @@ export class SheetComponent implements OnInit {
   submissionTemplate: String;
   selectedFile = null;
 
+  exercises: Exercise[];
+  loadingExercisesWithTasks: boolean = false;
+
   submissionsAvaliable:boolean = false;
   submissionValidationResults: SubmissionValidationResult[];
 
@@ -51,6 +55,16 @@ export class SheetComponent implements OnInit {
   ngOnInit() {
     this.getSheet();
     this.getSubmissionTemplate();
+    this.getExercisesWithTasks();
+  }
+
+  getExercisesWithTasks() {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.sheetService.getSheetExercises(this.route.snapshot.paramMap.get('id'))
+      .subscribe( exercises => this.exercises = exercises)
+      .add( () => {
+        this.loadingExercisesWithTasks = false;
+      })
   }
 
   displayMessage(text: string) {

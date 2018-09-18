@@ -1,5 +1,5 @@
 
-import {Answer} from "./answer";
+import {Answer} from "../classes/answer";
 import {Student} from "./student";
 
 export class Submission {

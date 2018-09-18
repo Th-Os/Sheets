@@ -34,7 +34,19 @@
     <div class="col-12 col-lg-4 col-md-4">
       <mat-card>
         <mat-card-title>Aufgaben</mat-card-title>
-        <mat-card-content></mat-card-content>
+        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+          <mat-spinner *ngIf="loadingExercisesWithTasks"></mat-spinner>
+          <mat-list *ngIf="!loadingExercisesWithTasks">
+            <mat-list-item *ngFor="let exercise of exercises" role="listitem">
+              <h6 mat-line>{{exercise.name}}</h6>
+              <mat-list mat-line>
+                <mat-list-item *ngFor="let task of exercise.tasks" role="listitem" class="list-selectable">
+                  {{task.question}}
+                </mat-list-item>
+              </mat-list>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
       </mat-card>
     </div>
     <div class="col-12 col-lg-4 col-md-4">

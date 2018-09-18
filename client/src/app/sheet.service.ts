@@ -40,6 +40,7 @@ export class SheetService {
       );
   }
 
+  /*
   getSheetTasks(id: string): Observable<Task[]> {
     const url = `${this.sheetsUrl}/${id}/tasks`;
     return this.http.get<Task[]>(url)
@@ -47,6 +48,7 @@ export class SheetService {
         catchError(this.handleError(`getSheetTasks id=${id}`, []))
       );
   }
+  */
 
   getSheetSubmissions(id: string): Observable<Submission[]> {
     const url = `${this.sheetsUrl}/${id}/submissions`;

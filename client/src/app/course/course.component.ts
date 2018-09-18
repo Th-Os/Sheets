@@ -32,7 +32,6 @@ export class CourseComponent implements OnInit {
   ngOnInit() {
     this.getCourse();
     this.getCourseSheets();
-    this.getSheets();
   }
 
   getCourse(): void {
@@ -41,29 +40,13 @@ export class CourseComponent implements OnInit {
       .subscribe(course => this.course = course);
   }
 
-  getSheets(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    this.sheetService.getSheets(id)
-      .subscribe(sheets => this.course.sheets = sheets);
-  }
-
-  // Todo: Fix: Switches to sheets site (routing problem?) when deleting sheet
-  delete(sheet: Sheet): void {
-     //this.course.sheets = this.course.sheets.filter(s => s !== sheet);
-
-    const sheetIndex = this.course.sheets.indexOf(sheet);
-    this.sheetService.deleteSheet(sheet).subscribe(_ => {
-      this.course.sheets.splice(sheetIndex, 1);
-      this.courseService.updateCourse(this.course);
-    });
   getCourseSheets(): void {
     this.loadingSheets = true;
     const id = this.route.snapshot.paramMap.get('id');
-    this.courseService.getCourseSheets(id)
+    this.sheetService.getSheets(id)
       .subscribe(sheets => {
         this.sheets = sheets;
-        this.loadingSheets = false;
-      });
+      }).add( () => this.loadingSheets = false );
   }
 
   deleteSheet(sheet: Sheet): void {
