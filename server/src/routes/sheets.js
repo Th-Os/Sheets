@@ -25,6 +25,7 @@ router.put('/:id', verify, function(req, res) {
         });
 });
 
+// TODO: delete from course.
 router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, Sheet)
         .then((doc) => res.status(200).send(doc))
@@ -70,14 +71,14 @@ router.get('/:id/submissions', verify, function(req, res) {
         });
 });
 
-// TODO: delete all submissions.
 router.delete('/:id/submissions', verify, function(req, res) {
-    console.log('delete submissions');
     Sheet.findById(req.params.id, (err, sheet) => {
         if (err) res.status(400).send(err);
-        Submission.find({'_id': {$in: sheet.submissions}}, (err, subs) => {
+        Submission.find().where('_id').in(sheet.submissions).exec((err, subs) => {
             if (err) res.status(400).send(err);
             for (let s of subs) s.remove();
+            sheet.submissions = [];
+            sheet.save();
             res.send(subs);
         });
     });
