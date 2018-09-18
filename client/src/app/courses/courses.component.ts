@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {CourseService} from "../course.service";
+import {CourseService} from "../services/course.service";
 import {Course} from "../models/course";
 import {MatDialog} from "@angular/material";
 import {CourseDialogComponent} from "../course-dialog/course-dialog.component";

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { MessageSnackbarService } from './message-snackbar.service';
-import { Course } from "./models/course";
-import {Sheet} from "./models/sheet";
+import { MessageSnackbarService } from '../message-snackbar.service';
+import { Course } from "../models/course";
+import {Sheet} from '../models/sheet';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -28,7 +28,7 @@ export class CourseService {
       );
   }
 
-  /** GET course by id. Will 404 if id not found */
+  /** GET hero by id. Will 404 if id not found */
   getCourse(id: string): Observable<Course> {
     const url = `${this.coursesUrl}/${id}`;
     return this.http.get<Course>(url).pipe(
@@ -40,20 +40,19 @@ export class CourseService {
     const url = `${this.coursesUrl}/${id}/sheets`;
     return this.http.get<Sheet[]>(url)
       .pipe(
-      catchError(this.handleError(`getCourseSheets id=${id}`, []))
-    );
+        catchError(this.handleError(`getCourseSheets id=${id}`, []))
+      );
   }
 
-  /** PUT: update the course on the server */
+  /** PUT: update the hero on the server */
   updateCourse (course: Course): Observable<any> {
-    const url = `${this.coursesUrl}/${course._id}`;
-    return this.http.put(url, course, httpOptions).pipe(
+    return this.http.put(this.coursesUrl + '/' + course._id, course, httpOptions).pipe(
       tap(_ => this.log(`updated course id=${course._id}`)),
       catchError(this.handleError<any>('updateCourse'))
     );
   }
 
-  /** POST: add a new course to the server */
+  /** POST: add a new hero to the server */
   addCourse (course: Course): Observable<Course> {
     return this.http.post<Course>(this.coursesUrl, course, httpOptions).pipe(
       tap((course: Course) => this.log(`created course id=${course._id}`)),
