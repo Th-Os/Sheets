@@ -24,4 +24,29 @@ router.post('/:id/answers', verify, function(req, res) {
         });
 });
 
+router.get('/:id/answers/search', verify, function(req, res) {
+    let taskId = req.query.q.split('=')[1];
+    methods.get(req.params.id, Submission).then((doc) => {
+        let promises = [];
+        let answers = [];
+        for (let answerId of doc.answers) {
+            promises.push(Answer.findById(answerId).exec().then((answer) => {
+                if (answer.task.equals(taskId)) {
+                    answers.push(answer);
+                }
+            }).catch((err) => {
+                res.status(500).send(err);
+            }));
+        }
+        Promise.all(promises).then(() => {
+            res.status(200).send(answers);
+        }).catch((err) => {
+            res.status(500).send(err);
+        });
+    }).catch((err) => {
+        if (err instanceof StatusError) res.status(err.status).send(err.message);
+        else res.status(500).send(err);
+    });
+});
+
 export default router;
