@@ -1,9 +1,8 @@
-
-import {Answer} from "../classes/answer";
+import {Answer} from "./answer";
 import {Student} from "./student";
 
 export class Submission {
-	_id: string;
+	_id: number;
 	user_id: number;
 	student: Student;
 	answers: Answer[];

@@ -42,7 +42,7 @@ router.get('/:id', verify, function(req, res) {
 
 router.post('/', verify, function(req, res) {
     methods.post(req.body, Course)
-        .then( (doc) => res.status(201).send(doc) )
+        .then((doc) => res.status(201).send(doc))
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);
             else res.status(500).send(err);

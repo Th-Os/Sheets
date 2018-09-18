@@ -4,9 +4,9 @@ import { MessageSnackbarService } from "./message-snackbar.service";
 import { Observable, of } from "rxjs";
 import { Sheet } from "./models/sheet";
 import { catchError, tap } from "rxjs/operators";
-import {Submission} from "./models/submission";
-import {Exercise} from "./models/exercise";
-import {Task} from './models/task';
+import { Submission } from "./models/submission";
+import { Exercise } from "./models/exercise";
+import { Task } from './models/task';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })

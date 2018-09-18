@@ -3,8 +3,8 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
 import {Router} from '@angular/router';
 
-import {Course} from '../classes/course';
-import {Sheet} from '../classes/sheet';
+import {Course} from '../models/course';
+import {Sheet} from '../models/sheet';
 import { CourseService } from '../services/course.service';
 import {SheetService} from '../services/sheet.service';
 

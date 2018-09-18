@@ -7,7 +7,7 @@ import {Submission} from '../models/submission';
 
 const router = express.Router();
 
-router.get('/:id', verify, function (req, res) {
+router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Sheet)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
@@ -87,8 +87,9 @@ router.get('/:id/submissions', verify, function(req, res) {
         });
 });
 
+// TODO: delete all submissions.
 router.delete('/:id/submissions', verify, function(req, res) {
-    console.log("delete submissions")
+    console.log('delete submissions');
     Sheet.findById(req.params.id, (err, sheet) => {
         if (err) res.status(400).send(err);
         Submission.find({'_id': {$in: sheet.submissions}}, (err, subs) => {

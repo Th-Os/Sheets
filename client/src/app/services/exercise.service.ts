@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MessageSnackbarService } from '../message-snackbar.service';
 import { Observable, of } from 'rxjs';
-import {Exercise} from '../classes/exercise';
+import {Exercise} from '../models/exercise';
 import { catchError, tap } from 'rxjs/operators';
-import {Sheet} from '../classes/sheet';
+import {Sheet} from '../models/sheet';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })

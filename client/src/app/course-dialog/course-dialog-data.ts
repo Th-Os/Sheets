@@ -1,4 +1,4 @@
-import {Course} from "../classes/course";
+import {Course} from "../models/course";
 
 export interface CourseDialogData {
   create: boolean;
