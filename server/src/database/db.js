@@ -3,16 +3,24 @@
 var mongoose = require('mongoose');
 require('dotenv').config();
 var gracefulShutdown;
-
-/*
-var dbURI = config.development.database.URI;
-if (process.env.NODE_ENV === 'production') {
-    dbURI = config.production.database.URI;
-}
-*/
+let uri = '';
 mongoose.Promise = Promise;
 function connect(callback) {
-    mongoose.connect(process.env.DB_URI, {
+    switch (process.env.MODE) {
+        case 'production':
+            uri = process.env.DB_URI_PROD;
+            break;
+        case 'client':
+            uri = process.env.DB_URI_CLIENT;
+            break;
+        case 'server':
+            uri = process.env.DB_URI_SERVER;
+            break;
+        default:
+            uri = process.env.DB_URI_SERVER;
+            break;
+    }
+    mongoose.connect(uri, {
         useNewUrlParser: true
     }, function() {
         if (callback !== undefined) callback();
@@ -25,7 +33,7 @@ function disconnect() {
 
 // CONNECTION EVENTS
 mongoose.connection.on('connected', function() {
-    console.log('Mongoose connected to ' + process.env.DB_URI);
+    console.log('Mongoose connected to ' + uri);
 });
 mongoose.connection.on('error', function(err) {
     console.log('Mongoose connection error: ' + err);
