@@ -164,6 +164,12 @@ function deepPost(id, body, parent, child, isSingle) {
 }
 
 // ISSUE 10: Implement a way to post multi level objects.
+/**
+ * @param {*} id ID of a sheet.
+ * @param {*} body of structure: [ submission: student, answers (with task: taskId)]
+ * @param {*} parentModel model of parent.
+ * @param {*} model model of the documents in question.
+ */
 function bulkPost(id, body, parentModel, model) {
     return new Promise((resolve, reject) => {
         parentModel.findById(id).exec().then((parent) => {
