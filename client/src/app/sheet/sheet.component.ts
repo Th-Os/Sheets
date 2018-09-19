@@ -278,7 +278,6 @@ export class SheetComponent implements OnInit {
   }
 
   readAnswers(text: string): SubmissionValidationResult {
-
     let answers = [];
     let template = this.submissionTemplate;
 
@@ -293,6 +292,8 @@ export class SheetComponent implements OnInit {
         nextTask = template.tasks[i + 1];
         tagTaskEnd = "Aufgabe " + nextTask.name;
       }
+
+      console.log(text)
       
       if(text.includes(tagTaskStart)) {
         let textTask = "";
@@ -302,8 +303,6 @@ export class SheetComponent implements OnInit {
         }else{
           textTask = text.slice(text.search(tagTaskStart), text.search(tagTaskEnd));
         }
-
-        console.log(textTask)
 
         for (var j = 0; j < task.subtasks; ++j) {
           let tagSubTaskStart = String.fromCharCode(j + 97);
@@ -315,14 +314,15 @@ export class SheetComponent implements OnInit {
             let answer = new Answer();
             let answerTextWOIndicator = textSubTask.replace(this.formatRegExp("[a-z]{1}\\\)"), "");
             let answerTextWOLineBreak = answerTextWOIndicator.replace(this.formatRegExp("\n"), "");
-            answer.text = answerTextWOLineBreak;
+            let answerTextWOLeadingSpace = answerTextWOLineBreak.replace(this.formatRegExp(" "), "");
+            answer.text = answerTextWOLeadingSpace;
             answer.task_id = parseInt(task.num.toString() + j.toString()); 
             answers.push(answer);
           }else{
             //Kriterien verletzt
             //console.log("Validation Error at: " + tagTaskStart + " " + tagSubTaskStart)
             let res = new SubmissionValidationResult();
-            res.errorLineNum = parseInt(task.num.toString() + j.toString());
+            res.errorTaskNum = parseInt(task.num.toString() + j.toString());
             return res;
           }
         }
@@ -330,7 +330,7 @@ export class SheetComponent implements OnInit {
               //Kriterien verletzt
               //console.log("Validation Error at: " + tagTaskStart)
               let res = new SubmissionValidationResult();
-              res.errorLineNum = task.num;
+              res.errorTaskNum = task.num;
               return res;
             }
           }
@@ -341,15 +341,15 @@ export class SheetComponent implements OnInit {
           return res;
         }
 
-        formatRegExp(str) {
-          return new RegExp(str);
-        }
+ formatRegExp(str) {
+  return new RegExp(str);
+ }
 
-        readAuthorName(fileName): string {
-          let res = null;
-          let pathSlices = fileName.split("/");
+ readAuthorName(fileName): string {
+    let res = null;
+    let pathSlices = fileName.split("/");
 
-          if(pathSlices.length < 2) return null;
+    if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
     let relevantFolderName: string = pathSlices[pathSlices.length - 2];
