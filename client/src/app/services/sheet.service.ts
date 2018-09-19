@@ -45,6 +45,13 @@ export class SheetService {
     );
   }
 
+  getSheetComplete(id: string): Observable<Sheet> {
+    const url = `${this.sheetsUrl}/${id}/_aggregate`;
+    return this.http.get<Sheet>(url).pipe(
+      catchError(this.handleError<Sheet>(`getSheet id=${id}`))
+    );
+  }
+
   /** PUT: update the hero on the server */
   /*updateSheet (sheet: Sheet): Observable<any> {
     console.log('Service: update sheet: ' + sheet.name);

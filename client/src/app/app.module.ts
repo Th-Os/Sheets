@@ -47,7 +47,10 @@ import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
     HttpClientModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    MomentPipe,
+    PointcalculationPipe
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

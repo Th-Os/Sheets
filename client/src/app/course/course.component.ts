@@ -36,6 +36,7 @@ export class CourseComponent implements OnInit {
   }
 
   getCourse(): void {
+    this.course = new Course('', '', '', 0);
     const id = this.route.snapshot.paramMap.get('id');
     this.courseService.getCourse(id)
       .subscribe(course => this.course = course);
@@ -47,7 +48,7 @@ export class CourseComponent implements OnInit {
       .subscribe(sheets => this.course.sheets = sheets);
   }
 
-  // Todo: Fix: Switches to sheets site (routing problem?) when deleting sheet
+  // Todo: Fix: sheet still shows after deletion (disappears after page reload)
   delete(sheet: Sheet): void {
     //this.course.sheets = this.course.sheets.filter(s => s !== sheet);
 

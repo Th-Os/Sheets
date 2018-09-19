@@ -23,8 +23,11 @@ export class CreateSheetComponent implements OnInit {
   sheet: Sheet;
   regexExpression = '';
   // Todo: Use correct pattern
-  regexPattern = '[a-zA-Z0-9]+//+{b}';
+  regexPattern = '[a-zA-Z0-9]+//+b$';
   regexValid = true;
+  rangeInput = '';
+  rangePattern = '[0-9],[0-9]';
+  rangeValid = true;
 
   constructor(
     private location: Location,
@@ -37,10 +40,11 @@ export class CreateSheetComponent implements OnInit {
 
   ngOnInit() {
     this.sheet = new Sheet();
-    this.getSheet(this.route.snapshot.paramMap.get('id'));
+    this.sheetService.getSheetComplete(this.route.snapshot.paramMap.get('id')).subscribe(sheet => this.sheet = sheet);
+    // this.getSheet(this.route.snapshot.paramMap.get('id'));
   }
 
-  getSheet(sheetId: string): void {
+  /*getSheet(sheetId: string): void {
     this.sheetService.getSheet(sheetId)
       .subscribe(sheet => {
         this.sheet = sheet;
@@ -86,7 +90,7 @@ export class CreateSheetComponent implements OnInit {
       }
         this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks[this.getIndexOfTask(exercise, task)].solution = solution[0];
     });
-  }
+  }*/
 
   addExercise(): void {
     const newExercise = new Exercise();
@@ -109,7 +113,6 @@ export class CreateSheetComponent implements OnInit {
 
     if (window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
       if (index >= 0) {
-
         this.exerciseService.deleteExercise(exercise).subscribe(res => {
           this.sheet.exercises.splice(index, 1);
           this.sheetService.updateSheet(this.sheet);
@@ -153,6 +156,18 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
+  saveProgress(): void {
+    console.log('Sheet: ' + this.sheet.persistent);
+    this.sheetService.updateSheet(this.sheet);
+    this.sheet.exercises.forEach(exercise => {
+      this.exerciseService.updateExercise(exercise);
+      exercise.tasks.forEach(task => {
+        this.taskService.updateTask(task);
+        this.solutionService.updateSolution(task.solution);
+      });
+    });
+  }
+
   checkAndAddRegex(exercise: Exercise, task: Task): void {
     if (this.regexExpression.match(this.regexPattern)) {
       this.regexValid = true;
@@ -165,15 +180,16 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
-  saveProgress(): void {
-    this.sheetService.updateSheet(this.sheet);
-    this.sheet.exercises.forEach(exercise => {
-      this.exerciseService.updateExercise(exercise);
-      exercise.tasks.forEach(task => {
-        this.taskService.updateTask(task);
-        this.solutionService.updateSolution(task.solution);
-      });
-    });
+  checkRange(exercise: Exercise, task: Task): void {
+    if (this.rangeInput.match(this.rangePattern)) {
+      this.rangeValid = true;
+      this.sheet.exercises[this.getIndexOfExercise(exercise)]
+        .tasks[this.getIndexOfTask(exercise, task)]
+        .solution.range = this.rangeInput;
+    } else {
+      this.rangeValid = false;
+    }
+
   }
 
   private getIndexOfExercise(exercise: Exercise): number {
