@@ -39,6 +39,7 @@
 |/sheets/:id/submissions		|POST	|	|:id, {Submissions}	|200, {Submissions}	|400, 401, 404	|
 |/sheets/:id/submissions		|GET	|	|:id	|200, [Submissions]	|400, 401, 404	|
 |/sheets/:id/submissions		|DELETE	|	|:id	|200	|403, 404	|
+|/sheets/:id/submissions/_bulk		|POST|	| array with submissions + answers (with task: taskIds) and student |200, [Submissions]	|400, 401, 404	|
 |**Answers**		|	|	|	|	|	|
 |/submissions/:id/answers		|GET	|	|:id	|200, [Answers]	|400, 401, 404	|
 |/submissions/:id/answers/search?q=task={TaskID}		|GET	|	| answers with taskId	|200, [Answers]	|400, 401, 404	|
