@@ -182,7 +182,7 @@ function bulkPost(id, body, parentModel, model) {
                                     promises.push(grandChildModel.create(item).then((doc) => {
                                         child[key] = child[key].filter(e => e !== item);
                                         child[key].push(doc._id);
-                                    }));
+                                    }).catch((err) => reject(err)));
                                 }
                             }
                         } catch (err) {
@@ -193,15 +193,15 @@ function bulkPost(id, body, parentModel, model) {
                         grandChildModel = mongoose.model(grandChildModel);
                         promises.push(grandChildModel.create(child[key]).then((doc) => {
                             child[key] = doc._id;
-                        }));
+                        }).catch((err) => reject(err)));
                     }
                 }
             }
             Promise.all(promises).then(() => {
                 model.create(body).then((doc) => {
                     resolve(doc);
-                });
-            });
+                }).catch((err) => reject(err));
+            }).catch((err) => reject(err));
         });
     });
 }
