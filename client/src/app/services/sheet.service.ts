@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { MessageSnackbarService } from "../message-snackbar.service";
 import { Observable, of } from "rxjs";
-import { Sheet } from "../classes/sheet";
+import { Sheet } from "../models/sheet";
+import {Submission} from '../models/submission';
 import { catchError, tap } from "rxjs/operators";
 
 const httpOptions = {
@@ -80,6 +81,30 @@ export class SheetService {
     return this.http.delete<Sheet>(url, httpOptions).pipe(
       tap(_ => this.log(`deleted Sheet id=${id}`)),
       catchError(this.handleError<Sheet>('deleteSheet'))
+    );
+  }
+
+  getSubmissionTemplate(id: String): Observable<any> {
+    const url = `${this.sheetsUrl}/${id}/template`;
+    return this.http.get(url).pipe(
+      catchError(this.handleError(`getTemplate id=${id}`))
+    );
+  }
+
+  deleteSubmissions (sheet: Sheet): Observable<any> {
+    const url = `${this.sheetsUrl}/${sheet._id}/submissions/`;
+    return this.http.delete(url, httpOptions).pipe(
+      tap(_ => this.log(`deleted Submissions of Sheet id=${sheet._id}`)),
+      catchError(this.handleError('deleteSubmissions'))
+    );
+  }
+
+
+  autocorrectSubmission(submission: Submission): Observable<any> {
+    const url = `${this.sheetsUrl}/correct/`
+    return this.http.post<Submission>(url, submission, httpOptions).pipe(
+      tap(_ => this.log(`submissions corrected`)),
+      catchError(this.handleError<Sheet>('autocorrectSubmissions'))
     );
   }
 

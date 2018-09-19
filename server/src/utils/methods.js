@@ -116,8 +116,7 @@ function post(body, model) {
         model.create(body, (err, docs) => {
             if (err) reject(new StatusError(400, err));
             if (docs === null || docs.length === 0) reject(new StatusError(404, model.modelName + ' not found.'));
-            if (!(docs instanceof Array)) docs = [docs];
-            else resolve(docs);
+            resolve(docs);
         });
     });
 }

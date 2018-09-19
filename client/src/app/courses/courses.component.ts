@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {CourseService} from "../services/course.service";
-import {Course} from "../classes/course";
+import {Course} from "../models/course";
 import {MatDialog} from "@angular/material";
 import {CourseDialogComponent} from "../course-dialog/course-dialog.component";
 
@@ -33,7 +33,7 @@ export class CoursesComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result: Course) => {
-      if (!course) return;
+      if (!result) return;
       if (create) {
         this.courses.push(result)
       } else {
@@ -48,7 +48,7 @@ export class CoursesComponent implements OnInit {
   }
 
   add(): void {
-    this.showEditDialog(true, new Course(null, '','','',0));
+    this.showEditDialog(true, new Course('', '','',0));
   }
 
   delete(course: Course): void {

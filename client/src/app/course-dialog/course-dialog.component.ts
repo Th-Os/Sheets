@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material";
-import { Course } from "../classes/course";
+import { Course } from "../models/course";
 import { CourseService } from "../services/course.service";
 
 @Component({
@@ -22,7 +22,7 @@ export class CourseDialogComponent implements OnInit {
   }
 
   onClose(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(null);
   }
 
   onSubmit(): void {

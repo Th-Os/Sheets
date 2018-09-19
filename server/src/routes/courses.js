@@ -17,7 +17,23 @@ router.get('/', verify, function(req, res) {
 
 router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Course)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            let sheetsNameAndId = [];
+            let promises = [];
+            for (let sheetId of doc.sheets) {
+                promises.push(Sheet.findById(sheetId).exec().then((sheet) => {
+                    sheetsNameAndId.push({id: sheetId, name: sheet.name});
+                }).catch((err) => console.error(err)));
+            }
+            Promise.all(promises).then(() => {
+                let obj = JSON.parse(JSON.stringify(doc));
+                obj.sheets = sheetsNameAndId;
+                res.status(200).send(obj);
+            }).catch((err) => {
+                if (err instanceof StatusError) res.status(err.status).send(err.message);
+                else res.status(500).send(err);
+            });
+        })
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);
             else res.status(500).send(err);
@@ -26,7 +42,7 @@ router.get('/:id', verify, function(req, res) {
 
 router.post('/', verify, function(req, res) {
     methods.post(req.body, Course)
-        .then((doc) => res.status(201).send(doc))
+        .then( (doc) => res.status(201).send(doc) )
         .catch((err) => {
             if (err instanceof StatusError) res.status(err.status).send(err.message);
             else res.status(500).send(err);
@@ -73,6 +89,7 @@ router.get('/:id/students', verify, function(req, res) {
 });
 
 router.get('/:id/sheets', verify, function(req, res) {
+    console.log('get sheets of course')
     methods.deepGet(req.params.id, Course, Sheet)
         .then((docs) => res.status(200).send(docs))
         .catch((err) => {

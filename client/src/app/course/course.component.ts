@@ -3,8 +3,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { Location } from '@angular/common';
 
 import { CourseService } from '../services/course.service';
-import {Course} from '../classes/course';
-import {Sheet} from '../classes/sheet';
+import {Course} from '../models/course';
+import {Sheet} from '../models/sheet';
 import {SheetService} from '../services/sheet.service';
 import {ExerciseDialogComponent} from '../exercise-dialog/exercise-dialog.component';
 import {MatDialog} from '@angular/material';
@@ -17,6 +17,8 @@ import {MatDialog} from '@angular/material';
 export class CourseComponent implements OnInit {
 
   course: Course;
+  sheets: Sheet[];
+  loadingSheets: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -29,6 +31,7 @@ export class CourseComponent implements OnInit {
 
   ngOnInit() {
     this.getCourse();
+    this.getCourseSheets();
     this.getSheets();
   }
 
@@ -46,13 +49,28 @@ export class CourseComponent implements OnInit {
 
   // Todo: Fix: Switches to sheets site (routing problem?) when deleting sheet
   delete(sheet: Sheet): void {
-     //this.course.sheets = this.course.sheets.filter(s => s !== sheet);
+    //this.course.sheets = this.course.sheets.filter(s => s !== sheet);
 
     const sheetIndex = this.course.sheets.indexOf(sheet);
     this.sheetService.deleteSheet(sheet).subscribe(_ => {
       this.course.sheets.splice(sheetIndex, 1);
       this.courseService.updateCourse(this.course);
     });
+  }
+
+  getCourseSheets(): void {
+    this.loadingSheets = true;
+    const id = this.route.snapshot.paramMap.get('id');
+    this.courseService.getCourseSheets(id)
+      .subscribe(sheets => {
+        this.sheets = sheets;
+        this.loadingSheets = false;
+      });
+  }
+
+  deleteSheet(sheet: Sheet): void {
+    this.sheets = this.sheets.filter(s => s !== sheet);
+    this.sheetService.deleteSheet(sheet);
   }
 
   update(sheet: Sheet): void {

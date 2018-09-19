@@ -2,3 +2,8 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 @import "./assets/material-icons/material-icons.css";
 @import "~ng-pick-datetime/assets/style/picker.min.css";
+
+html, body {
+    height: 100%;
+    margin:0; padding:0;
+}
