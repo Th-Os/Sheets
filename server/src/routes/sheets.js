@@ -61,6 +61,10 @@ router.post('/:id/submissions', verify, function(req, res) {
         });
 });
 
+router.post('/:id/submissions/_bulk', verify, function(req, res) {
+    methods.bulkPost(req.params.id, req.body, res, Sheet, Submission);
+});
+
 router.get('/:id/submissions', verify, function(req, res) {
     methods.deepGet(req.params.id, Sheet, Submission)
         .then((docs) => res.status(200).send(docs))

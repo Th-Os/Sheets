@@ -162,4 +162,11 @@ function deepPost(id, body, parent, child, isSingle) {
     });
 }
 
-export {get, deepGet, getAll, put, del, post, deepPost, deepGetSolution};
+// ISSUE 10: Implement a way to post multi level objects.
+function bulkPost(id, body, res, parentModel, model) {
+    parentModel.findById(id).exec().then((parent) => {
+        console.log(parent);
+    });
+}
+
+export {get, deepGet, deepGetSolution, getAll, put, del, post, deepPost, bulkPost};
