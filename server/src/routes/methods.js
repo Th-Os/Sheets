@@ -78,8 +78,10 @@ function post(body, res, model) {
 }
 
 // ISSUE 10: Implement a way to post multi level objects.
-function multiLevelPost(id, body, res, levels) {
-    // TODO: Implement a multiple object post.
+function multiLevelPost(id, body, res, parentModel, model) {
+    parentModel.findById(id).exec().then((parent) => {
+        console.log(parent);
+    });
 }
 
 // only second level posting
