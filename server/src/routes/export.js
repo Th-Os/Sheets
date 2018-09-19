@@ -3,14 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
 import * as methods from '../utils/methods';
-import * as operations from '../database/operations';
 import {RouteError} from '../utils/error';
 import verify from '../auth/verify';
 import PDFRenderer from '../export/pdf';
 import CSVRenderer from '../export/csv';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
-import { Submission } from '../models/submission';
 
 const router = express.Router();
 moment.locale('de');

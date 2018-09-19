@@ -27,6 +27,12 @@ submissionSchema.post('remove', function(doc) {
             doc.remove();
         }
     });
+    mongoose.model('Sheet').find({submissions: doc._id}).exec((err, sheets) => {
+        if (err) throw err;
+        let sheet = (sheets instanceof Array) ? sheets[0] : sheets;
+        sheet.submissions = sheet.submissions.filter(e => !(e.equals(doc._id)));
+        sheet.save();
+    });
 });
 
 submissionSchema.methods.populateObj = function() {
