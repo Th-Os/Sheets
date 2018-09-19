@@ -53,7 +53,6 @@ function deepGetSolution(id, parent, child) {
     });
 }
 
-
 /**
  *
  * @param {*} model
@@ -78,7 +77,7 @@ function put(id, body, model) {
     return new Promise((resolve, reject) => {
         model.findById(id, (err, doc) => {
             if (err) reject(new StatusError(400, err));
-            if (doc === null) reject(new StatusError(404, 'No ' + model.modeName + ' with ' + id + ' was found.'));
+            if (doc === null) reject(new StatusError(404, 'No ' + model.modelName + ' with ' + id + ' was found.'));
             doc.set(body);
             doc.save((err, res) => {
                 if (err) reject(new StatusError(500, err));
@@ -97,7 +96,7 @@ function del(id, model) {
     return new Promise((resolve, reject) => {
         model.findByIdAndRemove(id, (err, doc) => {
             if (err) reject(new StatusError(400, err));
-            if (doc === null) reject(new StatusError(404, 'No ' + model.modeName + ' with ' + id + ' was found.'));
+            if (doc === null) reject(new StatusError(404, 'No ' + model.modelName + ' with ' + id + ' was found.'));
             else {
                 doc.remove();
                 resolve();

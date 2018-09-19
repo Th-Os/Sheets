@@ -30,12 +30,12 @@ router.get('/:id', verify, function(req, res) {
                 obj.sheets = sheetsNameAndId;
                 res.status(200).send(obj);
             }).catch((err) => {
-                if (err instanceof StatusError) res.status(err.status).send(err.message);
+                if (err.name === StatusError.name) res.status(err.status).send(err.message);
                 else res.status(500).send(err);
             });
         })
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -44,7 +44,7 @@ router.post('/', verify, function(req, res) {
     methods.post(req.body, Course)
         .then((doc) => res.status(201).send(doc))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -53,7 +53,7 @@ router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Course)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -62,7 +62,7 @@ router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, Course)
         .then(() => res.status(204).send())
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -89,11 +89,10 @@ router.get('/:id/students', verify, function(req, res) {
 });
 
 router.get('/:id/sheets', verify, function(req, res) {
-    console.log('get sheets of course')
     methods.deepGet(req.params.id, Course, Sheet)
         .then((docs) => res.status(200).send(docs))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -102,7 +101,7 @@ router.post('/:id/sheets', verify, function(req, res) {
     methods.deepPost(req.params.id, req.body, Course, Sheet)
         .then((docs) => res.status(200).send(docs))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
