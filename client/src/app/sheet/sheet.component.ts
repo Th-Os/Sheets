@@ -16,6 +16,8 @@ import {Inject} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 import {SubmissionUploadErrorDialogComponent} from "../submission-upload-error-dialog/submission-upload-error-dialog.component";
+import {Template} from "../template";
+import {TemplateTask} from "../template-task";
 
 
 @Component({
@@ -31,7 +33,7 @@ export class SheetComponent implements OnInit {
 
 
   sheet: Sheet;
-  submissionTemplate: String;
+  submissionTemplate: Template;
   selectedFile = null;
 
   submissionsAvaliable:boolean = false;
@@ -46,7 +48,7 @@ export class SheetComponent implements OnInit {
     private route: ActivatedRoute,
     private sheetService: SheetService,
     private location: Location
-  ) {}
+    ) {}
 
   ngOnInit() {
     this.getSheet();
@@ -71,7 +73,7 @@ export class SheetComponent implements OnInit {
 
   getSubmissionTemplate() {
 
-    this.submissionTemplate = `<Matrikelnummer>
+    let templateString = `<Matrikelnummer>
     Aufgabe 1.1:
     a) /.+/ # 2
     b) /.+/ # 2
@@ -102,8 +104,7 @@ export class SheetComponent implements OnInit {
     e) /.*(Hypothes|Forschung|Abstract|Zusammenfassung|Ausblick|Grenzen|Limitations).*/ # 1
     Aufgabe 1.6:
     a) /.*(lehr).*/ # 2
-    b) /.*(phil).*/ # 2
-    `;
+    b) /.*(phil).*/ # 2`;
 
 
 
@@ -112,106 +113,111 @@ export class SheetComponent implements OnInit {
       console.log(template)
       });
       */
-  }
 
-  goBack(): void {
-    this.location.back();
-  }
+      this.submissionTemplate = this.parseTemplate(templateString);
 
-  updateUI(): void {
-    this.submissionsAvaliable = this.submissionsAvailable();
-  }
-
-  submissionsAvailable(): boolean {
-    if(this.sheet == null) return false;
-    if(this.sheet.submissions == null) return false;
-    if(this.sheet.submissions.length <= 0) return false;
-    return true;
-  }
-
-  onFilesAdded(fileList: FileList): void {
-    if(fileList.length <= 0){
-      this.displayMessage(this.uploadErrorMsg);
-      return;
     }
 
-    if(this.submissionTemplate == null){
-      this.displayMessage(this.noTemplateErrorMsg);
-      return;
+    goBack(): void {
+      this.location.back();
     }
 
-    if(fileList.length == 1 && this.isZip(fileList[0])){
-      this.submissionValidationResults = [];
-      this.readZipFolder(fileList[0]);
-    }else{
-      this.displayMessage(this.uploadErrorMsg);
+    updateUI(): void {
+      this.submissionsAvaliable = this.submissionsAvailable();
     }
 
-    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
-  }
 
-  isZip(file): boolean {
-    return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
-  }
 
-  readZipFolder(file): void {
-    let submissions = [];
-    var reader = new FileReader();
-    reader.onload = (e) => {
-      var zip = new JSZip();
-      zip.loadAsync(file).then((zip) => {
-        let promises = [];
-        Object.keys(zip.files).forEach((filename) => {
-          if(filename.split("/").length < 3) return;
-          if(!filename.endsWith("/")) {
+    submissionsAvailable(): boolean {
+      if(this.sheet == null) return false;
+      if(this.sheet.submissions == null) return false;
+      if(this.sheet.submissions.length <= 0) return false;
+      return true;
+    }
 
-            let submission = new Submission();
-            let student = new Student();
-            let name = this.readAuthorName(filename);
+    onFilesAdded(fileList: FileList): void {
+      if(fileList.length <= 0){
+        this.displayMessage(this.uploadErrorMsg);
+        return;
+      }
 
-            student.name = name.split(" ")[0];
-            student.lastname = name.split(" ")[name.split(" ").length - 1];
-            submission.student = student;
-            submissions.push(submission);
+      if(this.submissionTemplate == null){
+        this.displayMessage(this.noTemplateErrorMsg);
+        return;
+      }
 
-            if(filename.includes(".txt")){
-              promises.push(zip.files[filename].async('string').then((fileData) => {
+      if(fileList.length == 1 && this.isZip(fileList[0])){
+        this.submissionValidationResults = [];
+        this.readZipFolder(fileList[0]);
+      }else{
+        this.displayMessage(this.uploadErrorMsg);
+      }
 
-                let validationResult = this.readAnswers(fileData);
+      (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
+    }
 
-                let answers = validationResult.answers;
-                let student_id = this.readStudentId(fileData);
+    isZip(file): boolean {
+      return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
+    }
 
-                if(answers == null || student_id == null || student_id == NaN){
-                  validationResult.filename = filename;
-                  this.submissionValidationResults.push(validationResult);
-                }else{
-                  submission.answers = answers;
-                  submission.student.mat_nr = student_id;
-                }
-              }));
+    readZipFolder(file): void {
+      let submissions = [];
+      var reader = new FileReader();
+      reader.onload = (e) => {
+        var zip = new JSZip();
+        zip.loadAsync(file).then((zip) => {
+          let promises = [];
+          Object.keys(zip.files).forEach((filename) => {
+            if(filename.split("/").length < 3) return;
+            if(!filename.endsWith("/")) {
+
+              let submission = new Submission();
+              let student = new Student();
+              let name = this.readAuthorName(filename);
+
+              student.name = name.split(" ")[0];
+              student.lastname = name.split(" ")[name.split(" ").length - 1];
+              submission.student = student;
+              submissions.push(submission);
+
+              if(filename.includes(".txt")){
+                promises.push(zip.files[filename].async('string').then((fileData) => {
+
+                  let validationResult = this.readAnswers(fileData);
+
+                  let answers = validationResult.answers;
+                  let student_id = this.readStudentId(fileData);
+
+                  if(answers == null || student_id == null || student_id == NaN){
+                    validationResult.filename = filename;
+                    this.submissionValidationResults.push(validationResult);
+                  }else{
+                    submission.answers = answers;
+                    submission.student.mat_nr = student_id;
+                  }
+                }));
+              }
             }
-          }
+          });
+
+          Promise.all(promises).then(() => {
+            console.log("done reading zip");
+            if(this.submissionValidationResults.length <= 0){
+              this.sheet.submissions = submissions;
+              this.updateUI();
+              console.log("validation ok")
+              this.uploadAndCorrectSubmissions();
+            }else{
+              this.displayValidationResults();
+            }
+          });
         });
+      };
 
-        Promise.all(promises).then(() => {
-          console.log("done reading zip");
-          if(this.submissionValidationResults.length <= 0){
-            this.sheet.submissions = submissions;
-            this.updateUI();
-            console.log("validation ok")
-            this.uploadAndCorrectSubmissions();
-          }else{
-            this.displayValidationResults();
-          }
-        });
-      });
-    };
+      reader.readAsArrayBuffer(file);
+    }
 
-    reader.readAsArrayBuffer(file);
-  }
-
-  uploadAndCorrectSubmissions() {
+    uploadAndCorrectSubmissions() {
     //this.sheetService.updateSubmissions(this.sheet)
     //.subscribe(res =>
     //console.log(res)
@@ -237,57 +243,113 @@ export class SheetComponent implements OnInit {
     return NaN;
   }
 
-  readAnswers(text: string): SubmissionValidationResult {
-    let lines = text.split("\n");
-    let linesTemplate = this.submissionTemplate.split("\n");
-    let answers = [];
+  parseTemplate(text: string): Template {
+    let result = new Template();
 
     let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
-    let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?.*");
+    let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
 
-    let taskNum = 1;
-    let subtaskNum = 0;
+    let linesTemplate = text.split("\n");
+    let task: TemplateTask = null;
 
-    for (var i = 0; i < lines.length; ++i) {
+    for (var i = 0; i < linesTemplate.length; ++i) {
       if(i == 0) continue; //Matrikelnummer
-      let lineSubmission = lines[i];
 
-      if(lineSubmission.match(regexTask) != null) {
-        taskNum = parseInt(lineSubmission.match(this.formatRegExp("\\\d+.\\\d+"))[0].replace(".", ""));
-        subtaskNum = 0;
+      let line = linesTemplate[i];
+
+      if(line.match(regexTask) != null) {
+        let taskNum = line.match(this.formatRegExp("\\\d+.\\\d+"))[0];
+        task = new TemplateTask(taskNum);
+        result.tasks.push(task);
         continue;
       }
 
-      if(lineSubmission.match(regexText) != null) {
-        let answer = new Answer();
-        answer.text = lineSubmission.replace(this.formatRegExp("[a-z]{1}\\\)\\\s"), "");
-        answer.task_id = parseInt(taskNum.toString() + subtaskNum.toString());
-        answers.push(answer);
-        subtaskNum++;
+      if(line.match(regexText) != null) {
+        task.subtasks++;
         continue
       }
 
       //Kriterien verletzt
-      console.log(lineSubmission)
-      let res = new SubmissionValidationResult();
-      res.errorLineNum = i;
-      return res;
+      console.log("Error parsing Template at line: " + i + " --> " + line)
     }
 
-    let res = new SubmissionValidationResult();
-    res.answers = answers;
-    return res;
+    console.log(result)
+    return result;
   }
 
-  formatRegExp(str) {
-    return new RegExp(str);
-  }
+  readAnswers(text: string): SubmissionValidationResult {
 
-  readAuthorName(fileName): string {
-    let res = null;
-    let pathSlices = fileName.split("/");
+    let answers = [];
+    let template = this.submissionTemplate;
 
-    if(pathSlices.length < 2) return null;
+    for (var i = 0; i < template.tasks.length; ++i) {
+      let task: TemplateTask = template.tasks[i];
+      let nextTask: TemplateTask = null;
+
+      let tagTaskStart = "Aufgabe " + task.name;
+      let tagTaskEnd = "";
+
+      if(i < template.tasks.length -1){
+        nextTask = template.tasks[i + 1];
+        tagTaskEnd = "Aufgabe " + nextTask.name;
+      }
+      
+      if(text.includes(tagTaskStart)) {
+        let textTask = "";
+
+        if(tagTaskEnd == ""){
+          textTask = text.slice(text.search(tagTaskStart));
+        }else{
+          textTask = text.slice(text.search(tagTaskStart), text.search(tagTaskEnd));
+        }
+
+        console.log(textTask)
+
+        for (var j = 0; j < task.subtasks; ++j) {
+          let tagSubTaskStart = String.fromCharCode(j + 97);
+          let tagSubTaskEnd = String.fromCharCode(j + 98);
+
+          if(textTask.match(new RegExp(tagSubTaskStart + "\\\)")) != null){
+            let textSubTask = textTask.slice(textTask.search(new RegExp(tagSubTaskStart + "\\\)")), textTask.search(new RegExp(tagSubTaskEnd + "\\\)")));
+
+            let answer = new Answer();
+            let answerTextWOIndicator = textSubTask.replace(this.formatRegExp("[a-z]{1}\\\)"), "");
+            let answerTextWOLineBreak = answerTextWOIndicator.replace(this.formatRegExp("\n"), "");
+            answer.text = answerTextWOLineBreak;
+            answer.task_id = parseInt(task.num.toString() + j.toString()); 
+            answers.push(answer);
+          }else{
+            //Kriterien verletzt
+            //console.log("Validation Error at: " + tagTaskStart + " " + tagSubTaskStart)
+            let res = new SubmissionValidationResult();
+            res.errorLineNum = parseInt(task.num.toString() + j.toString());
+            return res;
+          }
+        }
+      }else{
+              //Kriterien verletzt
+              //console.log("Validation Error at: " + tagTaskStart)
+              let res = new SubmissionValidationResult();
+              res.errorLineNum = task.num;
+              return res;
+            }
+          }
+
+          let res = new SubmissionValidationResult();
+          res.answers = answers;
+          console.log(answers)
+          return res;
+        }
+
+        formatRegExp(str) {
+          return new RegExp(str);
+        }
+
+        readAuthorName(fileName): string {
+          let res = null;
+          let pathSlices = fileName.split("/");
+
+          if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
     let relevantFolderName: string = pathSlices[pathSlices.length - 2];
