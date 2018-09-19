@@ -62,7 +62,12 @@ router.post('/:id/submissions', verify, function(req, res) {
 });
 
 router.post('/:id/submissions/_bulk', verify, function(req, res) {
-    methods.bulkPost(req.params.id, req.body, res, Sheet, Submission);
+    methods.bulkPost(req.params.id, req.body, Sheet, Submission)
+        .then((docs) => res.status(200).send(docs))
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
 });
 
 router.get('/:id/submissions', verify, function(req, res) {

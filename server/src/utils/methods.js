@@ -1,4 +1,5 @@
 import {StatusError} from '../utils/error';
+import mongoose from 'mongoose';
 
 /**
  * @param {*} id
@@ -163,9 +164,45 @@ function deepPost(id, body, parent, child, isSingle) {
 }
 
 // ISSUE 10: Implement a way to post multi level objects.
-function bulkPost(id, body, res, parentModel, model) {
-    parentModel.findById(id).exec().then((parent) => {
-        console.log(parent);
+function bulkPost(id, body, parentModel, model) {
+    return new Promise((resolve, reject) => {
+        parentModel.findById(id).exec().then((parent) => {
+            if (!(body instanceof Array)) body = [body];
+            let grandChildModel;
+            let promises = [];
+            for (let child of body) {
+                for (let key in child) {
+                    if (child[key] instanceof Array) {
+                        grandChildModel = key.substring(0, key.length - 1);
+                        grandChildModel = grandChildModel.charAt(0).toUpperCase() + grandChildModel.slice(1);
+                        try {
+                            grandChildModel = mongoose.model(grandChildModel);
+                            for (let item of child[key]) {
+                                if (item instanceof Object) {
+                                    promises.push(grandChildModel.create(item).then((doc) => {
+                                        child[key] = child[key].filter(e => e !== item);
+                                        child[key].push(doc._id);
+                                    }));
+                                }
+                            }
+                        } catch (err) {
+                            continue;
+                        }
+                    } else if (child[key] instanceof Object) {
+                        grandChildModel = key.charAt(0).toUpperCase() + key.slice(1);
+                        grandChildModel = mongoose.model(grandChildModel);
+                        promises.push(grandChildModel.create(child[key]).then((doc) => {
+                            child[key] = doc._id;
+                        }));
+                    }
+                }
+            }
+            Promise.all(promises).then(() => {
+                model.create(body).then((doc) => {
+                    resolve(doc);
+                });
+            });
+        });
     });
 }
 

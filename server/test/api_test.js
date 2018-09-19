@@ -129,6 +129,54 @@ describe('API Test', () => {
         });
     });
 
+    let submissions = [
+        {
+            student: {
+                name: 'Bernd',
+                mat_nr: 123,
+                grips_id: 456
+
+            },
+            answers: [
+                {
+                    text: 'one',
+                    task: 'taskId'
+                },
+                {
+                    text: 'two',
+                    task: 'taskId'
+                }
+            ]
+        },
+        {
+            student: {
+                name: 'Kunibert',
+                mat_nr: 789,
+                grips_id: 101112
+
+            },
+            answers: [
+                {
+                    text: 'three',
+                    task: 'taskId'
+                },
+                {
+                    text: 'four',
+                    task: 'taskId'
+                }
+            ]
+        }
+    ];
+
+    it('POST bulk submissions', (done) => {
+        chai.request(app).post('/sheets/' + sheetId + '/submissions/_bulk').send(submissions).end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            console.log(res.body);
+            done();
+        });
+    });
+
     let answer = {
         text: 'text',
         task: undefined
