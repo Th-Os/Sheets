@@ -18,6 +18,7 @@
 |/courses/:id/sheets		|GET	|	|:id	|200, [Sheets]	|400, 401, 404	|
 |/courses/:id/sheets		|POST	|	|:id, {Sheets}	|200, {Sheets}	|400, 401, 404	|
 |/sheets/:id		|GET	|	|	|200, {Sheets}	|401, 404, 400	|
+|/sheets/:id/_aggregate		|GET	|	|	|200, {fully populated Sheet}	|500	|
 |/sheets/:id		|DELETE	|	|:id	|200	|403, 404	|
 |/sheets/:id		|PUT	|	|:id, {Sheets}	|200, {Sheets}	|400, 401, 404	|
 |/sheets/:id/exercises		|GET	|	|:id	|200, {Exercises}	|400, 401, 404	|
