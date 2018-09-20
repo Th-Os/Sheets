@@ -55,13 +55,10 @@ export class SheetService {
   }*/
 
   /** .subscribe necessary, otherwise put request wont be sent */
-  updateSheet (sheet: Sheet): Sheet {
-    let updatedSheet = new Sheet();
-    this.http.put<Sheet>(this.sheetsUrl + '/' + sheet._id, sheet, httpOptions).pipe(
+  updateSheet (sheet: Sheet): Observable<Sheet> {
+    return this.http.put<Sheet>(this.sheetsUrl + '/' + sheet._id, sheet, httpOptions).pipe(
       tap(_ => this.log(`updated sheet id=${sheet._id}`)),
       catchError(this.handleError<any>('updateSheet')))
-      .subscribe(res => updatedSheet = res);
-    return updatedSheet;
   }
 
   /** POST: add a new hero to the server */
@@ -85,10 +82,6 @@ export class SheetService {
   }
 
   getSubmissionTemplate(id: String): Observable<any> {
-    let options = {
-      headers: new HttpHeaders({ 'Content-Type': 'text/plain; charset=utf-8' })
-    };
-
     const url = `${this.sheetsUrl}/${id}/template`;
     return this.http.get(url, {responseType: 'text'}).pipe(
       catchError(this.handleError(`getTemplate id=${id}`))
@@ -123,13 +116,15 @@ export class SheetService {
     );
   }
 
-
-  autocorrectSubmission(submission: Submission): Observable<any> {
+  autocorrectSubmissions(sheet: Sheet): Promise<any> {
     const url = `${this.sheetsUrl}/correct/`
-    return this.http.post<Submission>(url, submission, httpOptions).pipe(
-      tap(_ => this.log(`submissions corrected`)),
-      catchError(this.handleError<Sheet>('autocorrectSubmissions'))
-    );
+
+    let promises = [];
+    sheet.submissions.forEach(sub => {
+      promises.push(this.http.post<Submission>(url, sub, httpOptions))
+    })
+
+    return Promise.all(promises);
   }
 
   /**

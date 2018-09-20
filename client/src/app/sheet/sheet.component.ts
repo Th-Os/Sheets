@@ -63,16 +63,19 @@ export class SheetComponent implements OnInit {
 
   getSheet(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    this.sheet = new Sheet();
 
     this.sheetService.getSheet(id).subscribe(sheet => {
       console.log(sheet);
 
+      this.sheet = new Sheet();
       this.sheet._id = sheet._id;
       this.sheet.name = sheet.name;
-      //this.sheetService.getSubmissions(this.sheet).subscribe(res => {
-      //  console.log(res)
-      //})
+
+      this.sheetService.getSubmissions(this.sheet).subscribe(res => {
+        
+
+        console.log(res)
+      })
 
 
 
@@ -207,11 +210,16 @@ export class SheetComponent implements OnInit {
     uploadAndCorrectSubmissions() {
       this.sheetService.uploadSubmissions(this.sheet)
       .subscribe(res => {
-        console.log(res)
-      //this.sheetService.updateSubmissions(this.sheet, res).subscribe(res => console.log(res))
-      this.updateUI();
-    }
-    );
+        let tempSheet = null;
+        this.sheetService.getSheet(this.sheet._id.toString()).subscribe(sheet => {
+          tempSheet = sheet;
+          res.map(sub => tempSheet.submissions.push(sub._id))
+          this.sheetService.updateSheet(tempSheet).subscribe(res => {
+            this.sheetService.autocorrectSubmissions(res).then( () => this.displayMessage("Abgaben erfolgreich hochgeladen"))})
+          this.updateUI();
+        });
+      }
+      );
     }
 
     displayValidationResults() {
@@ -373,7 +381,7 @@ export class SheetComponent implements OnInit {
   }
 
   testTemplate(): Template{
-        let templateString = `<Matrikelnummer>
+    let templateString = `<Matrikelnummer>
     Aufgabe 1.1:
     a) /.+/ # 2
     b) /.+/ # 2
