@@ -6,12 +6,12 @@ const submissionSchema = new mongoose.Schema({
     student: {
         type: Schema.Types.ObjectId,
         ref: 'Student',
-        required: false
+        required: true
     },
     answers: [{
         type: Schema.Types.ObjectId,
         ref: 'Answer',
-        required: false
+        required: true
     }],
     user: {
         type: Schema.Types.ObjectId,
@@ -74,7 +74,7 @@ const answerSchema = new mongoose.Schema({
     task: {
         type: Schema.Types.ObjectId,
         ref: 'Task',
-        required: true
+        required: false
     },
     feedback: {
         type: String,
@@ -119,7 +119,7 @@ const studentSchema = new mongoose.Schema({
     },
     grips_id: {
         type: Number,
-        required: true
+        required: false
     }
 });
 

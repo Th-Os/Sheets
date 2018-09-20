@@ -63,70 +63,49 @@ export class SheetComponent implements OnInit {
 
   getSheet(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    this.sheet = new Sheet();
+
     this.sheetService.getSheet(id).subscribe(sheet => {
-      this.sheet = sheet;
-      this.updateUI();
-      console.log(this.sheet);
+      console.log(sheet);
+
+      this.sheet._id = sheet._id;
+      this.sheet.name = sheet.name;
+      //this.sheetService.getSubmissions(this.sheet).subscribe(res => {
+      //  console.log(res)
+      //})
+
+
+
+
+
+
+
+      //this.sheet = sheet;
+      //this.updateUI();
       console.log("done fetching sheet");
     });
   }
 
   getSubmissionTemplate() {
-
-    let templateString = `<Matrikelnummer>
-    Aufgabe 1.1:
-    a) /.+/ # 2
-    b) /.+/ # 2
-    c) /.+/ # 2
-    d) /.+/ # 2
-    Aufgabe 1.2:
-    a) /.*(bachelor).*/ # 1
-    b) /.*(proceeding|tagung).*/ # 1
-    c) /.*(workshop|tagung|proceeding).*/ # 1
-    d) /.*(journal|zeitschrift).*/ # 1
-    Aufgabe 1.3:
-    a) /.*(sentiment).*/ # 2
-    b) /.*((Ü|ü)berblick).*/ # 2
-    c) /.*(twitter).*/ # 2
-    d) /.*(speziell).*/ # 2
-    e) /.*(sentiment|twitter).*/ # 2
-    f) /.*(Sentiment Analysis: A Perspective on its Past, Present and Future).*/ # 3
-    Aufgabe 1.4:
-    a) /.*(behavioral).*/ # 1
-    b) /.+/ # 2
-    c) /.*(tagung|hohe qualität).*/ # 2
-    d) /.*(folgt nicht|teilweise).*/ # 2
-    Aufgabe 1.5:
-    a) /.*(gemessen).*/ # 1
-    b) /.*(wiederhol|genauigkeit|verlässlichkeit).*/ # 1
-    c) /.+/ # 1
-    d) /.+/ # 1
-    e) /.*(Hypothes|Forschung|Abstract|Zusammenfassung|Ausblick|Grenzen|Limitations).*/ # 1
-    Aufgabe 1.6:
-    a) /.*(lehr).*/ # 2
-    b) /.*(phil).*/ # 2`;
-
-
-
-    /*const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
     this.sheetService.getSubmissionTemplate(id).subscribe(template =>{
-      console.log(template)
-      });
+      //console.log(template)
+      this.submissionTemplate = this.parseTemplate(template);
+    });
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
+
+  updateUI(): void {
+    this.submissionsAvaliable = this.submissionsAvailable();
+/*
+      this.sheetService.getSubmissions(this.sheet).subscribe(res => {
+        console.log(res)
+      })
       */
-
-      this.submissionTemplate = this.parseTemplate(templateString);
-
     }
-
-    goBack(): void {
-      this.location.back();
-    }
-
-    updateUI(): void {
-      this.submissionsAvaliable = this.submissionsAvailable();
-    }
-
-
 
     submissionsAvailable(): boolean {
       if(this.sheet == null) return false;
@@ -178,7 +157,6 @@ export class SheetComponent implements OnInit {
               student.name = name.split(" ")[0];
               student.lastname = name.split(" ")[name.split(" ").length - 1];
               submission.student = student;
-              submissions.push(submission);
 
               if(filename.includes(".txt")){
                 promises.push(zip.files[filename].async('string').then((fileData) => {
@@ -194,6 +172,7 @@ export class SheetComponent implements OnInit {
                   }else{
                     submission.answers = answers;
                     submission.student.mat_nr = student_id;
+                    submissions.push(submission);
                   }
                 }));
               }
@@ -202,6 +181,13 @@ export class SheetComponent implements OnInit {
 
           Promise.all(promises).then(() => {
             console.log("done reading zip");
+
+            this.sheet.submissions = submissions;
+            this.updateUI();
+            console.log("validation ok")
+            this.uploadAndCorrectSubmissions();
+
+            /*
             if(this.submissionValidationResults.length <= 0){
               this.sheet.submissions = submissions;
               this.updateUI();
@@ -210,6 +196,7 @@ export class SheetComponent implements OnInit {
             }else{
               this.displayValidationResults();
             }
+            */
           });
         });
       };
@@ -218,41 +205,41 @@ export class SheetComponent implements OnInit {
     }
 
     uploadAndCorrectSubmissions() {
-    //this.sheetService.updateSubmissions(this.sheet)
-    //.subscribe(res =>
-    //console.log(res)
-    //this.sheet.submissions.forEach((submission) => {
-    //this.sheetService.autocorrectSubmission(submission);
-    //})
-    //);
-  }
-
-  displayValidationResults() {
-    this.dialog.open(SubmissionUploadErrorDialogComponent, {
-      data: this.submissionValidationResults
-    });
-  }
-
-  readStudentId(text: string): number {
-    let lines = text.split("\n");
-
-    if (lines.length > 0){
-      return parseInt(lines[0]);
+      this.sheetService.uploadSubmissions(this.sheet)
+      .subscribe(res => {
+        console.log(res)
+      //this.sheetService.updateSubmissions(this.sheet, res).subscribe(res => console.log(res))
+      this.updateUI();
+    }
+    );
     }
 
-    return NaN;
-  }
+    displayValidationResults() {
+      this.dialog.open(SubmissionUploadErrorDialogComponent, {
+        data: this.submissionValidationResults
+      });
+    }
 
-  parseTemplate(text: string): Template {
-    let result = new Template();
+    readStudentId(text: string): number {
+      let lines = text.split("\n");
 
-    let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
-    let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
+      if (lines.length > 0){
+        return parseInt(lines[0]);
+      }
 
-    let linesTemplate = text.split("\n");
-    let task: TemplateTask = null;
+      return NaN;
+    }
 
-    for (var i = 0; i < linesTemplate.length; ++i) {
+    parseTemplate(text: string): Template {
+      let result = new Template();
+
+      let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
+      let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
+
+      let linesTemplate = text.split("\n");
+      let task: TemplateTask = null;
+
+      for (var i = 0; i < linesTemplate.length; ++i) {
       if(i == 0) continue; //Matrikelnummer
 
       let line = linesTemplate[i];
@@ -273,13 +260,14 @@ export class SheetComponent implements OnInit {
       console.log("Error parsing Template at line: " + i + " --> " + line)
     }
 
-    console.log(result)
+    //console.log(result)
     return result;
   }
 
   readAnswers(text: string): SubmissionValidationResult {
     let answers = [];
-    let template = this.submissionTemplate;
+    //let template = this.submissionTemplate;
+    let template = this.testTemplate();
 
     for (var i = 0; i < template.tasks.length; ++i) {
       let task: TemplateTask = template.tasks[i];
@@ -293,7 +281,7 @@ export class SheetComponent implements OnInit {
         tagTaskEnd = "Aufgabe " + nextTask.name;
       }
 
-      console.log(text)
+      //console.log(text)
       
       if(text.includes(tagTaskStart)) {
         let textTask = "";
@@ -315,6 +303,11 @@ export class SheetComponent implements OnInit {
             let answerTextWOIndicator = textSubTask.replace(this.formatRegExp("[a-z]{1}\\\)"), "");
             let answerTextWOLineBreak = answerTextWOIndicator.replace(this.formatRegExp("\n"), "");
             let answerTextWOLeadingSpace = answerTextWOLineBreak.replace(this.formatRegExp(" "), "");
+
+            if(answerTextWOLeadingSpace == ""){
+              answerTextWOLeadingSpace += "-"
+            }
+
             answer.text = answerTextWOLeadingSpace;
             answer.task_id = parseInt(task.num.toString() + j.toString()); 
             answers.push(answer);
@@ -337,19 +330,19 @@ export class SheetComponent implements OnInit {
 
           let res = new SubmissionValidationResult();
           res.answers = answers;
-          console.log(answers)
+          //console.log(answers)
           return res;
         }
 
- formatRegExp(str) {
-  return new RegExp(str);
- }
+        formatRegExp(str) {
+          return new RegExp(str);
+        }
 
- readAuthorName(fileName): string {
-    let res = null;
-    let pathSlices = fileName.split("/");
+        readAuthorName(fileName): string {
+          let res = null;
+          let pathSlices = fileName.split("/");
 
-    if(pathSlices.length < 2) return null;
+          if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
     let relevantFolderName: string = pathSlices[pathSlices.length - 2];
@@ -362,9 +355,9 @@ export class SheetComponent implements OnInit {
   }
 
   clearSubmissions() {
-    this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => console.log(res))
-    //this.sheet.submissions = [];
-    this.updateUI();
+    this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
+      this.updateUI();
+      console.log(res)})
   }
 
   handleFileSelection(event): void {
@@ -377,5 +370,41 @@ export class SheetComponent implements OnInit {
 
   dropzoneState($event: boolean): void {
     this.dropzoneActive = $event;
+  }
+
+  testTemplate(): Template{
+        let templateString = `<Matrikelnummer>
+    Aufgabe 1.1:
+    a) /.+/ # 2
+    b) /.+/ # 2
+    c) /.+/ # 2
+    d) /.+/ # 2
+    Aufgabe 1.2:
+    a) /.*(bachelor).*/ # 1
+    b) /.*(proceeding|tagung).*/ # 1
+    c) /.*(workshop|tagung|proceeding).*/ # 1
+    d) /.*(journal|zeitschrift).*/ # 1
+    Aufgabe 1.3:
+    a) /.*(sentiment).*/ # 2
+    b) /.*((Ü|ü)berblick).*/ # 2
+    c) /.*(twitter).*/ # 2
+    d) /.*(speziell).*/ # 2
+    e) /.*(sentiment|twitter).*/ # 2
+    f) /.*(Sentiment Analysis: A Perspective on its Past, Present and Future).*/ # 3
+    Aufgabe 1.4:
+    a) /.*(behavioral).*/ # 1
+    b) /.+/ # 2
+    c) /.*(tagung|hohe qualität).*/ # 2
+    d) /.*(folgt nicht|teilweise).*/ # 2
+    Aufgabe 1.5:
+    a) /.*(gemessen).*/ # 1
+    b) /.*(wiederhol|genauigkeit|verlässlichkeit).*/ # 1
+    c) /.+/ # 1
+    d) /.+/ # 1
+    e) /.*(Hypothes|Forschung|Abstract|Zusammenfassung|Ausblick|Grenzen|Limitations).*/ # 1
+    Aufgabe 1.6:
+    a) /.*(lehr).*/ # 2
+    b) /.*(phil).*/ # 2`;
+    return this.parseTemplate(templateString);
   }
 }

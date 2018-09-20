@@ -85,8 +85,12 @@ export class SheetService {
   }
 
   getSubmissionTemplate(id: String): Observable<any> {
+    let options = {
+      headers: new HttpHeaders({ 'Content-Type': 'text/plain; charset=utf-8' })
+    };
+
     const url = `${this.sheetsUrl}/${id}/template`;
-    return this.http.get(url).pipe(
+    return this.http.get(url, {responseType: 'text'}).pipe(
       catchError(this.handleError(`getTemplate id=${id}`))
     );
   }
@@ -95,6 +99,26 @@ export class SheetService {
     const url = `${this.sheetsUrl}/${sheet._id}/submissions/`;
     return this.http.delete(url, httpOptions).pipe(
       tap(_ => this.log(`deleted Submissions of Sheet id=${sheet._id}`)),
+      catchError(this.handleError('deleteSubmissions'))
+    );
+  }
+
+  uploadSubmissions (sheet: Sheet): Observable<any> {
+    return this.http.post(this.sheetsUrl + '/' + sheet._id + "/submissions/_bulk" , sheet.submissions , httpOptions).pipe(
+      tap(_ => this.log(`uploaded submissions id=${sheet._id}`)),
+      catchError(this.handleError<any>('uploadSubmissions')))
+  }
+
+  updateSubmissions (sheet: Sheet, submissions: Submission[]): Observable<any> {
+    return this.http.post(this.sheetsUrl + '/' + sheet._id + "/submissions" , submissions , httpOptions).pipe(
+      tap(_ => this.log(`uploaded submissions id=${sheet._id}`)),
+      catchError(this.handleError<any>('uploadSubmissions')))
+  }
+
+  getSubmissions (sheet: Sheet): Observable<any> {
+    const url = `${this.sheetsUrl}/${sheet._id}/submissions/`;
+    return this.http.get(url, httpOptions).pipe(
+      tap(_ => this.log(`fetched Submissions of Sheet id=${sheet._id}`)),
       catchError(this.handleError('deleteSubmissions'))
     );
   }
