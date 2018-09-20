@@ -76,7 +76,6 @@ export class SheetComponent implements OnInit {
 
         if(res == null) return;
 
-
         res.forEach(sub => {
           let submission = new Submission();
           submission._id = res._id;
@@ -105,11 +104,6 @@ export class SheetComponent implements OnInit {
 
   updateUI(): void {
     this.submissionsAvaliable = this.submissionsAvailable();
-/*
-      this.sheetService.getSubmissions(this.sheet).subscribe(res => {
-        console.log(res)
-      })
-      */
     }
 
     submissionsAvailable(): boolean {
@@ -190,7 +184,7 @@ export class SheetComponent implements OnInit {
             this.submissionsAvaliable = true;
             this.updateUI();
             console.log("validation ok")
-            this.uploadAndCorrectSubmissions();
+              this.uploadAndCorrectSubmissions();
 
             /*
             if(this.submissionValidationResults.length <= 0){
