@@ -22,3 +22,8 @@ mat-card-content {
 .flex-fill {
     flex:1;
 }
+
+.uploadProgressIndicator{
+	width: 200px
+	height 50px;
+}

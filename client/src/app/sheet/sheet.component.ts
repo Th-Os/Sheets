@@ -40,6 +40,7 @@ export class SheetComponent implements OnInit {
   submissionValidationResults: SubmissionValidationResult[];
 
   dropzoneActive:boolean = false;
+  uploadInProgress:boolean = false;
 
   constructor(
     private dialog: MatDialog,
@@ -71,21 +72,22 @@ export class SheetComponent implements OnInit {
       this.sheet._id = sheet._id;
       this.sheet.name = sheet.name;
 
-      this.sheetService.getSubmissions(this.sheet).subscribe(res => {
-        
+      this.sheetService.getSubmissions(this.sheet).subscribe(res => {   
 
-        console.log(res)
+        if(res == null) return;
+
+
+        res.forEach(sub => {
+          let submission = new Submission();
+          submission._id = res._id;
+          this.sheet.submissions.push(submission);
+
+          this.sheetService.getStudent(sub).subscribe(student => submission.student = student)
+        })
+
+        this.updateUI();
+        console.log("done fetching sheet");
       })
-
-
-
-
-
-
-
-      //this.sheet = sheet;
-      //this.updateUI();
-      console.log("done fetching sheet");
     });
   }
 
@@ -184,18 +186,15 @@ export class SheetComponent implements OnInit {
 
           Promise.all(promises).then(() => {
             console.log("done reading zip");
-
             this.sheet.submissions = submissions;
+            this.submissionsAvaliable = true;
             this.updateUI();
             console.log("validation ok")
             this.uploadAndCorrectSubmissions();
 
             /*
             if(this.submissionValidationResults.length <= 0){
-              this.sheet.submissions = submissions;
-              this.updateUI();
-              console.log("validation ok")
-              this.uploadAndCorrectSubmissions();
+              //TODO ----> code für ok einfügen
             }else{
               this.displayValidationResults();
             }
@@ -208,6 +207,7 @@ export class SheetComponent implements OnInit {
     }
 
     uploadAndCorrectSubmissions() {
+      this.uploadInProgress = true;
       this.sheetService.uploadSubmissions(this.sheet)
       .subscribe(res => {
         let tempSheet = null;
@@ -215,7 +215,9 @@ export class SheetComponent implements OnInit {
           tempSheet = sheet;
           res.map(sub => tempSheet.submissions.push(sub._id))
           this.sheetService.updateSheet(tempSheet).subscribe(res => {
-            this.sheetService.autocorrectSubmissions(res).then( () => this.displayMessage("Abgaben erfolgreich hochgeladen"))})
+            this.sheetService.autocorrectSubmissions(res).then( () => {
+              this.uploadInProgress = false;
+              this.displayMessage("Abgaben erfolgreich hochgeladen")})})
           this.updateUI();
         });
       }
@@ -364,8 +366,7 @@ export class SheetComponent implements OnInit {
 
   clearSubmissions() {
     this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
-      this.updateUI();
-      console.log(res)})
+      this.getSheet();})
   }
 
   handleFileSelection(event): void {
