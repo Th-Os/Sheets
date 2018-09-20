@@ -40,7 +40,7 @@ export class SheetComponent implements OnInit {
   submissionValidationResults: SubmissionValidationResult[];
 
   dropzoneActive:boolean = false;
-  uploadInProgress:boolean = false;
+  loadInProgress:boolean = false;
 
   constructor(
     private dialog: MatDialog,
@@ -201,7 +201,7 @@ export class SheetComponent implements OnInit {
     }
 
     uploadAndCorrectSubmissions() {
-      this.uploadInProgress = true;
+      this.loadInProgress = true;
       this.sheetService.uploadSubmissions(this.sheet)
       .subscribe(res => {
         let tempSheet = null;
@@ -210,7 +210,7 @@ export class SheetComponent implements OnInit {
           res.map(sub => tempSheet.submissions.push(sub._id))
           this.sheetService.updateSheet(tempSheet).subscribe(res => {
             this.sheetService.autocorrectSubmissions(res).then( () => {
-              this.uploadInProgress = false;
+              this.loadInProgress = false;
               this.displayMessage("Abgaben erfolgreich hochgeladen")})})
           this.updateUI();
         });

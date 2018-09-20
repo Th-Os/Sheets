@@ -16,7 +16,7 @@
           Abgaben hinzufügen
         </div>
 
-        <mat-progress-bar *ngIf="uploadInProgress" mode="indeterminate"></mat-progress-bar>
+        <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
 
         <mat-list id="submissionsList" *ngIf="sheet && !uploadInProgress" >
           <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
