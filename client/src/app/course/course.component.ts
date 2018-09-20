@@ -40,14 +40,6 @@ export class CourseComponent implements OnInit {
       .subscribe(course => this.course = course);
   }
 
-<<<<<<< HEAD
-=======
-  getSheets(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    this.sheetService.getSheets(id)
-      .subscribe(sheets => this.course.sheets = sheets);
-  }
-
   // Todo: Fix: Switches to sheets site (routing problem?) when deleting sheet
   delete(sheet: Sheet): void {
     //this.course.sheets = this.course.sheets.filter(s => s !== sheet);
@@ -59,7 +51,6 @@ export class CourseComponent implements OnInit {
     });
   }
 
->>>>>>> dev
   getCourseSheets(): void {
     this.loadingSheets = true;
     const id = this.route.snapshot.paramMap.get('id');

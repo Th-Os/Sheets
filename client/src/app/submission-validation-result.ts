@@ -1,4 +1,4 @@
-import {Answer} from './classes/answer';
+import {Answer} from './models/answer';
 
 export class SubmissionValidationResult {
 	filename: string;

@@ -25,12 +25,6 @@ export class SheetService {
               private taskService: TaskService,
               private messageSnackbarService: MessageSnackbarService) { }
 
-  /*getSheets (): Observable<Sheet[]> {
-    return this.http.get<Sheet[]>(this.sheetsUrl)
-      .pipe(
-        catchError(this.handleError('getSheets', []))
-      );
-  }*/
 
   getSheets(id: string): Observable<Sheet[]> {
     const url = `${this.coursesUrl}/${id}/sheets`;
@@ -63,10 +57,11 @@ export class SheetService {
         tap( exercises => {
           exercises.forEach((exercise, index) => {
             if (exercise.tasks.length > 0) {
-              this.taskService.getTasks(exercise._id).subscribe( tasks => {
-                exercise.tasks = tasks;
-              });
-              exercises[index] = exercise;
+              this.taskService.getTasks(exercise._id).subscribe(
+                tasks => exercise.tasks = tasks,
+                error => console.error( error ),
+                () => exercises[index] = exercise
+              );
             }
           })
         }),

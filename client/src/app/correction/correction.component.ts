@@ -1,13 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
-import {Location} from "@angular/common";
 import {Task} from '../models/task';
 import {Submission} from "../models/submission";
-import {Observable} from "rxjs";
 import {Exercise} from "../models/exercise";
-import {ExerciseService} from "../exercise.service";
-import {tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-correction',
@@ -27,38 +23,36 @@ export class CorrectionComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sheetService: SheetService,
-    private exerciseService: ExerciseService,
-    private location: Location) { }
+    private sheetService: SheetService
+  ) { }
 
   ngOnInit() {
-    this.selected_task = this.route.snapshot.paramMap.get('task_id');
-    this.selected_submission = this.route.snapshot.paramMap.get('submission_id');
-    console.log(this.selected_task);
-    console.log(this.selected_submission);
     this.getExercisesWithTasks();
     this.getSubmissions();
   }
 
   getExercisesWithTasks() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.sheetService.getSheetExercises(this.route.snapshot.paramMap.get('id'))
-      .subscribe( exercises => this.exercises = exercises)
-      .add( () => {
-        this.loadingExercisesWithTasks = false;
-        if (this.selected_task === null) this.selected_task = this.exercises[0].tasks[0]._id
-      })
+    this.sheetService.getSheetExercises(id)
+      .subscribe(
+        exercises => this.exercises = exercises,
+        error => console.error( error ),
+        () => {
+          if (this.selected_task === null) this.selected_task = this.exercises[0].tasks[0]._id;
+          this.loadingExercisesWithTasks = false;
+        });
   }
 
   getSubmissions() {
     this.loadingSubmissions = true;
     const id = this.route.snapshot.paramMap.get('id');
-    this.sheetService.getSheetSubmissions(id).subscribe( submissions => {
-      this.submissions = submissions;
-    }).add( () => {
-      if (this.selected_submission === null) this.selected_submission = this.submissions[0]._id;
-      this.loadingSubmissions = false;
-    });
+    this.sheetService.getSheetSubmissions(id).subscribe(
+      submissions => this.submissions = submissions,
+      error => console.error( error ),
+      () => {
+        if (this.selected_submission === null) this.selected_submission = this.submissions[0]._id;
+        this.loadingSubmissions = false;
+      });
   }
 
   navigateSubmissions(change: number): void {
@@ -78,20 +72,22 @@ export class CorrectionComponent implements OnInit {
     let currentTaIndex = this.exercises[currentExIndex].tasks.findIndex(t => t._id === this.selected_task);
     let newTaIndex = currentTaIndex + change;
     if (newTaIndex < 0) {
-      let newExIndex = currentExIndex--;
+      let newExIndex = currentExIndex - 1;
       if (newExIndex < 0) {
         let tasks = this.exercises[this.exercises.length - 1].tasks;
         this.selected_task = this.exercises[this.exercises.length - 1].tasks[tasks.length -1]._id;
       } else {
         this.selected_task = this.exercises[newExIndex].tasks[this.exercises[newExIndex].tasks.length -1]._id;
       }
-    } else if (newTaIndex >this.exercises[currentExIndex].tasks.length -1) {
-      let newExIndex = currentExIndex++;
+    } else if (newTaIndex > this.exercises[currentExIndex].tasks.length -1) {
+      let newExIndex = currentExIndex + 1;
       if (newExIndex > this.exercises.length - 1) {
         this.selected_task = this.exercises[0].tasks[0]._id;
       } else {
         this.selected_task = this.exercises[newExIndex].tasks[0]._id;
       }
+    } else {
+      this.selected_task = this.exercises[currentExIndex].tasks[newTaIndex]._id;
     }
   }
 
