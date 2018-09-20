@@ -12,7 +12,7 @@ router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Student)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -21,7 +21,7 @@ router.post('/', verify, function(req, res) {
     methods.post(req.body, Student)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -30,7 +30,7 @@ router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Student)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -39,7 +39,7 @@ router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, res, Student)
         .then((msg) => res.status(200).send(msg))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });

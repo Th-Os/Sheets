@@ -4,7 +4,7 @@
 <mat-dialog-content>
 	<mat-list>
 		<mat-list-item *ngFor="let result of results" role="listitem">
-			<p mat-line class="text-grayed">- {{ result.filename }}, [Zeile: {{result.errorLineNum}}] </p>
+			<p mat-line class="text-grayed">- {{ result.filename }}, {{result.errorString()}} </p>
 		</mat-list-item>
 	</mat-list>
 </mat-dialog-content>

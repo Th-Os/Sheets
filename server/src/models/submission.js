@@ -6,12 +6,12 @@ const submissionSchema = new mongoose.Schema({
     student: {
         type: Schema.Types.ObjectId,
         ref: 'Student',
-        required: false
+        required: true
     },
     answers: [{
         type: Schema.Types.ObjectId,
         ref: 'Answer',
-        required: false
+        required: true
     }],
     user: {
         type: Schema.Types.ObjectId,
@@ -26,6 +26,12 @@ submissionSchema.post('remove', function(doc) {
         for (let doc of docs) {
             doc.remove();
         }
+    });
+    mongoose.model('Sheet').find({submissions: doc._id}).exec((err, sheets) => {
+        if (err) throw err;
+        let sheet = (sheets instanceof Array) ? sheets[0] : sheets;
+        sheet.submissions = sheet.submissions.filter(e => !(e.equals(doc._id)));
+        sheet.save();
     });
 });
 
@@ -68,7 +74,7 @@ const answerSchema = new mongoose.Schema({
     task: {
         type: Schema.Types.ObjectId,
         ref: 'Task',
-        required: true
+        required: false
     },
     feedback: {
         type: String,
@@ -113,7 +119,7 @@ const studentSchema = new mongoose.Schema({
     },
     grips_id: {
         type: Number,
-        required: true
+        required: false
     }
 });
 
