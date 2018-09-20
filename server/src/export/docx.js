@@ -1,10 +1,10 @@
-import report from 'jsreport-core';
+/* import report from 'jsreport-core';
 import docx from 'jsreport-html-embedded-in-docx';
 
 function DOCXRenderer() {
     this.docx = {
         template: {
-            content: 'localhost:' + process.env.PORT + '/resources/pdf.html',
+            content: 'localhost:' + process.env.PORT + '/resources/template.html',
             engine: 'handlebars',
             recipe: 'html',
             helpers: String(calcPoints)
@@ -37,33 +37,46 @@ function calcPoints(exercise) {
 }
 
 DOCXRenderer.prototype.html = function(html) {
-    this.pdf.template.content = html;
+    this.docx.template.content = html;
     return this;
 };
 
 DOCXRenderer.prototype.data = function(data) {
-    this.pdf.data = data;
+    this.docx.data = data;
     return this;
 };
 
 DOCXRenderer.prototype.name = function(name) {
-    this.pdf.name = name;
+    this.docx.name = name;
     return this;
 };
 
 DOCXRenderer.prototype.addHelper = function(helper) {
-    this.pdf.template.helpers += String(helper);
+    this.docx.template.helpers += String(helper);
     return this;
 };
 
 DOCXRenderer.prototype.send = function(res) {
     this.renderer.init().then(() => {
         this.renderer.render({
-            template: this.pdf.template,
-            data: this.pdf.data
+            template: this.docx.template,
+            data: this.docx.data
         }).then((response) => {
-            res.writeHead(200, {'Content-Type': 'html'});
-            res.end(response.content, 'binary');
+            let jsreport = report();
+            jsreport.use(docx());
+
+            jsreport.init().then(() => {
+                jsreport.render({
+                    template: {
+                        content: response.content.toString('utf8'),
+                        recipe: 'html-embedded-in-docx',
+                        engine: 'none'
+                    }
+                }).then((response) => {
+                    res.writeHead(200, {'Content-Type': 'application/vnd.openxmlformats-officedocument. wordprocessingml.document'});
+                    res.end(response.content, 'binary');
+                });
+            });
         }).catch((e) => {
             console.error(e);
         });
@@ -71,8 +84,8 @@ DOCXRenderer.prototype.send = function(res) {
         console.error(e);
     });
 };
-
-/* import officegen from 'officegen';
+*/
+import officegen from 'officegen';
 
 function DOCXRenderer() {
     this.docx = officegen({
@@ -83,11 +96,31 @@ function DOCXRenderer() {
         'keywords': '',
         'description': ''
     });
+
+    this.docx.on('finalize', function(written) {
+        console.log('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
+    });
+    this.docx.on('error', function(err) {
+        console.log(err);
+    });
 }
 
 DOCXRenderer.prototype.addHeader = function() {
-    let header = this.docx.getHeader().createP();
-    header.addText('This is the header');
+    this.docx.getHeader().createP().addText('This is the header');
+    return this;
 };
-*/
+
+DOCXRenderer.prototype.add = function() {
+    this.docx.createP().addText('hello');
+    return this;
+};
+
+DOCXRenderer.prototype.send = function(res) {
+    res.writeHead(200, {
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.documentml.document',
+        'Content-disposition': 'attachment; filename=test.docx'
+    });
+    this.docx.generate(res);
+};
+
 export default DOCXRenderer;
