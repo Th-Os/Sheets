@@ -1,7 +1,15 @@
 .mat-grid-tile .mat-figure { justify-content: left !important; }
 
-#title {
+#titleInput {
   width:90% !important;
+}
+
+.rangeInput {
+  width:60px !important;
+}
+
+.regexInput {
+  width:160px !important;
 }
 
 .mat-grid-tile-custom {

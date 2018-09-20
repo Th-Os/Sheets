@@ -17,6 +17,7 @@ import { ExerciseDialogComponent } from './exercise-dialog/exercise-dialog.compo
 import { CreateSheetComponent } from './create-sheet/create-sheet.component';
 import { MomentPipe } from './pipes/moment.pipe';
 import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
+import { RegexFormatPipe } from './pipes/regex-format.pipe';
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
     CreateSheetComponent,
     MomentPipe,
     PointcalculationPipe,
+    RegexFormatPipe,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,

@@ -7,6 +7,7 @@ import {Sheet} from '../models/sheet';
 import {Exercise} from '../models/exercise';
 import {Task} from '../models/task';
 import {Solution} from '../models/solution';
+import {SolutionRange} from '../models/solutionRange';
 import {SheetService} from '../services/sheet.service';
 import {ExerciseService} from '../services/exercise.service';
 import {TaskService} from '../services/task.service';
@@ -21,13 +22,12 @@ import {SolutionService} from '../services/solution.service';
 export class CreateSheetComponent implements OnInit {
 
   sheet: Sheet;
-  regexExpression = '';
+  regexToAdd = '';
+  regexToDelete = '';
   // Todo: Use correct pattern
-  regexPattern = '[a-zA-Z0-9]+//+b$';
-  regexValid = true;
-  rangeInput = '';
-  rangePattern = '[0-9],[0-9]';
-  rangeValid = true;
+  regexPattern = '[a-zA-Z0-9]+/+b$';
+  regexValidToAdd = true;
+  regexValidToDelete = true;
 
   constructor(
     private location: Location,
@@ -134,6 +134,9 @@ export class CreateSheetComponent implements OnInit {
       .subscribe(task => {
         const newSolution = new Solution();
         newSolution.type = 'none';
+        newSolution.range = new SolutionRange(0, 0);
+        newSolution.regex = '';
+        newSolution.hint = '';
         this.solutionService.addSolution(task[0]._id.toString(), newSolution).subscribe(solution => {
           task[0].solution = solution[0];
           this.sheet.exercises[exerciseIndex].tasks.push(task[0]);
@@ -157,7 +160,6 @@ export class CreateSheetComponent implements OnInit {
   }
 
   saveProgress(): void {
-    console.log('Sheet: ' + this.sheet.persistent);
     this.sheetService.updateSheet(this.sheet);
     this.sheet.exercises.forEach(exercise => {
       this.exerciseService.updateExercise(exercise);
@@ -168,28 +170,24 @@ export class CreateSheetComponent implements OnInit {
     });
   }
 
-  checkAndAddRegex(exercise: Exercise, task: Task): void {
-    if (this.regexExpression.match(this.regexPattern)) {
-      this.regexValid = true;
-      this.sheet.exercises[this.getIndexOfExercise(exercise)]
-        .tasks[this.getIndexOfTask(exercise, task)]
-        .solution.regex += this.regexExpression;
-      this.regexExpression = '';
+  checkAndAddRegex(task: Task): void {
+    if (this.regexToAdd.match(this.regexPattern)) {
+      this.regexValidToAdd = true;
+      task.solution.regex += this.regexToAdd;
+      this.regexToAdd = '';
     } else {
-      this.regexValid = false;
+      this.regexValidToAdd = false;
     }
   }
 
-  checkRange(exercise: Exercise, task: Task): void {
-    if (this.rangeInput.match(this.rangePattern)) {
-      this.rangeValid = true;
-      this.sheet.exercises[this.getIndexOfExercise(exercise)]
-        .tasks[this.getIndexOfTask(exercise, task)]
-        .solution.range = this.rangeInput;
+  deleteRegexFromString(task: Task): void {
+    if ((task.solution.regex.search(this.regexToDelete) !== -1) && this.regexToDelete.match(this.regexPattern)) {
+      task.solution.regex = task.solution.regex.replace(this.regexToDelete, '');
+      this.regexValidToDelete = true;
+      this.regexToDelete = '';
     } else {
-      this.rangeValid = false;
+      this.regexValidToDelete = false;
     }
-
   }
 
   private getIndexOfExercise(exercise: Exercise): number {

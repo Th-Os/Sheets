@@ -4,12 +4,12 @@
 
 <div class="container mt-5">
   <h3>
-    <mat-form-field id="title" *ngIf="sheet">
+    <mat-form-field id="titleInput" *ngIf="sheet">
       <input matInput type="text" [(ngModel)]="sheet.name">
      </mat-form-field>
   </h3>
   <div class="input-wrapper">
-    <label style="font-weight: bold">Abgabedatum wählen: </label>
+    <label style="font-weight: bold">Abgabedatum wählen:&nbsp;</label>
     <input [(ngModel)]="sheet.submissiondate"
            [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
     <owl-date-time #dtPicker1></owl-date-time>
@@ -43,7 +43,7 @@
                     <li *ngFor="let task of exercise.tasks">
                       <label style="float: right">{{task.points}} Punkte</label>
                       <label class="alignLabel">{{task.question}}</label>
-                      <p>{{task.choices}}</p>
+                      <p class="alignLabel">{{task.choices}}</p>
                     </li>
                   </ol>
                 </div>
@@ -129,26 +129,41 @@
                                     </mat-form-field>
                                   </div>
                                   <div *ngIf="tasks.solution.type === 'range'">
-                                    <!--Todo: Fix range validation-->
-                                    <mat-form-field>
-                                      <input matInput type="text" placeholder="Von,Bis" [(ngModel)]="tasks.solution.range" (blur)="checkRange(exercises, tasks)">
+                                    <label>Von:&nbsp;</label>
+                                    <mat-form-field class="rangeInput">
+                                      <input matInput type="number" [(ngModel)]="tasks.solution.range.from">
                                     </mat-form-field>
-                                    <label *ngIf="!rangeValid" style="color: red">Falsches Format!</label>
+                                    <label>&nbsp;Bis:&nbsp;</label>
+                                    <mat-form-field class="rangeInput">
+                                      <input matInput type="number" [(ngModel)]="tasks.solution.range.to">
+                                    </mat-form-field>
                                   </div>
                                   <div *ngIf="tasks.solution.type === 'regex'">
-                                    <!--Todo: Maybe use multiple input fields instead of one?-->
-                                    <!--Todo: Add Input field to delete expression-->
-                                    <mat-form-field>
-                                       <input matInput type="text" placeholder="Regex..." [(ngModel)]="regexExpression"><br>
+                                    <mat-form-field class="regexInput">
+                                       <input matInput type="text" placeholder="Regex hinzufügen" [(ngModel)]="regexToAdd"><br>
                                     </mat-form-field>
-                                    <label *ngIf="!regexValid" style="color: red">Falsches Format!</label>
-                                    <button mat-icon-button title="RegEx hinzufügen" style="float: right" (click)="checkAndAddRegex(exercises, tasks)">
+                                    <label *ngIf="!regexValidToAdd" style="color: red">Falsches Format!</label>
+                                    <button mat-icon-button title="RegEx hinzufügen" style="float: right" (click)="checkAndAddRegex(tasks)">
                                       <mat-icon color="secondary">add</mat-icon>
                                     </button>
                                     <br>
-                                    <label>{{tasks.solution.regex}}</label>
+                                    <mat-form-field class="regexInput">
+                                      <input matInput type="text" placeholder="Regex löschen" [(ngModel)]="regexToDelete"><br>
+                                    </mat-form-field>
+                                    <label *ngIf="!regexValidToDelete" style="color: red">Eintrag nicht gefunden!</label>
+                                    <button mat-icon-button title="RegEx entfernen" style="float: right" (click)="deleteRegexFromString(tasks)">
+                                      <mat-icon color="secondary">delete</mat-icon>
+                                    </button>
                                   </div>
                                 </mat-grid-tile>
+                                <div *ngIf="tasks.solution.type === 'regex'">
+                                  <mat-grid-tile>
+                                    <label>Gespeicherte Regex-Einträge:</label>
+                                  </mat-grid-tile>
+                                  <mat-grid-tile>
+                                    <label>{{tasks.solution.regex | regexFormatPipe}}</label>
+                                  </mat-grid-tile>
+                                </div>
                               </div>
                               <mat-grid-tile>
                                 <label>Punkte:</label>
@@ -177,6 +192,7 @@
                               </mat-grid-tile>
                             </mat-grid-list>
                           </div>
+                          <br>
                         </li>
                       </ol>
                     </div>

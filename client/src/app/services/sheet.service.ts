@@ -22,13 +22,7 @@ export class SheetService {
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService) { }
 
-  /*getSheets (): Observable<Sheet[]> {
-    return this.http.get<Sheet[]>(this.sheetsUrl)
-      .pipe(
-        catchError(this.handleError('getSheets', []))
-      );
-  }*/
-
+  // Same function as getCourseSheets in course-service
   getSheets(id: string): Observable<Sheet[]> {
     const url = `${this.coursesUrl}/${id}/sheets`;
     return this.http.get<Sheet[]>(url)

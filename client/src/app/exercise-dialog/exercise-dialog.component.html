@@ -3,18 +3,19 @@
 </h2>
 <mat-dialog-content>
   <mat-radio-group [(ngModel)]="useTemplate">
-    <mat-radio-button [value]="true">
-      Aus Vorlage:<br>
-      <div *ngIf="sheets.length > 0">
-        <!--Todo: Probably add sheets of all courses-->
+    <div *ngIf="courses && courses.length > 0">
+      <mat-radio-button [value]="true">
+        Aus Vorlage:<br>
         <mat-form-field>
           <mat-select [(ngModel)]="selectedSheetId">
-            <mat-option *ngFor="let sheet of sheets" matInput value={{sheet._id}}>{{ sheet.name }}
-            </mat-option>
+            <mat-optgroup *ngFor="let course of courses" [label]="course.name">
+              <mat-option *ngFor="let sheet of course.sheets" matInput value={{sheet._id}}>{{ sheet.name }}
+              </mat-option>
+            </mat-optgroup>
           </mat-select>
         </mat-form-field>
-      </div>
-    </mat-radio-button>
+      </mat-radio-button>
+    </div>
     <mat-divider></mat-divider>
     <br>
     <mat-radio-button [value]="false">

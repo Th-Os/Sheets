@@ -14,8 +14,7 @@ import {SolutionService} from '../services/solution.service';
 import {Exercise} from '../models/exercise';
 import {Task} from '../models/task';
 import {Solution} from '../models/solution';
-import {timeout} from 'rxjs/internal/operators';
-import {reject} from 'q';
+import {SolutionRange} from '../models/solutionRange';
 
 @Component({
   selector: 'app-exercise-dialog',
@@ -24,9 +23,10 @@ import {reject} from 'q';
 })
 export class ExerciseDialogComponent implements OnInit {
 
-  course: Course;
+  courses: Course[];
   sheets = [];
   useTemplate: boolean;
+  selectedCourseId: number;
   selectedSheetId: number;
   fetchedSheet: Sheet;
 
@@ -42,18 +42,44 @@ export class ExerciseDialogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.getSheets(this.data.courseId);
+    this.getCourses().then(courses => {
+      this.getSheets(courses);
+    });
   }
 
-  getSheets(id: string): void {
-    this.sheetService.getSheets(id)
-      .subscribe(sheets => this.sheets = sheets );
+  getCourses(): Promise<Course[]> {
+    return new Promise<Course[]>((resolve, reject) => {
+      this.courseService.getCourses().subscribe(courses => {
+        if (courses.length > 0) {
+          this.courses = courses;
+          resolve(courses);
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  getSheets(courses: Course[]): void {
+    courses.forEach(course => {
+      this.sheetService.getSheets(course._id.toString())
+        .subscribe(sheets => course.sheets = sheets );
+    });
+  }
+
+  findCourseIdOfSheet(courses: Course[], sheetId: number): void {
+    courses.forEach(course => {
+      course.sheets.forEach(sheet => {
+        if (sheet._id === sheetId) {
+          this.selectedCourseId = course._id;
+        }
+      });
+    });
   }
 
   create(): void {
     const newSheet = new Sheet();
-    const currentTime = moment().toISOString();
-    newSheet.submissiondate = currentTime;
+    newSheet.submissiondate = moment().toISOString();
     newSheet.min_req_points = 0;
     newSheet.persistent = false;
     newSheet.exercises = [];
@@ -61,7 +87,7 @@ export class ExerciseDialogComponent implements OnInit {
     if (this.useTemplate) {
       this.fetchSheet(this.selectedSheetId.toString()).then(fetchedSheet => {
         newSheet.name = 'Vorlage: ' + fetchedSheet.name;
-        this.sheetService.getSheets(this.data.courseId).subscribe(sheets => newSheet.order = sheets.length);
+        this.sheetService.getSheets(this.selectedCourseId.toString()).subscribe(sheets => newSheet.order = sheets.length);
         this.fillSheet(newSheet).then(sheet => {
           this.router.navigateByUrl('/sheet/' + sheet._id + '/create');
           this.dialogRef.close();
@@ -69,7 +95,7 @@ export class ExerciseDialogComponent implements OnInit {
       });
     } else {
       newSheet.name = 'Neues Aufgabenblatt';
-      this.sheetService.getSheets(this.data.courseId).subscribe(sheets => newSheet.order = sheets.length);
+      this.sheetService.getSheets(this.selectedCourseId.toString()).subscribe(sheets => newSheet.order = sheets.length);
       this.sheetService.addSheet(this.data.courseId, newSheet)
         .subscribe(sheet => this.router.navigateByUrl('/sheet/' + sheet[0]._id + '/create'));
       this.dialogRef.close();
@@ -98,8 +124,37 @@ export class ExerciseDialogComponent implements OnInit {
               newTask.choices = this.fetchedSheet.exercises[i].tasks[j].choices;
 
               this.taskService.addTask(exercise[0]._id.toString(), newTask).subscribe(task => {
-                this.solutionService.addSolution(task[0]._id.toString(), newTask.solution);
-                resolve(newSheet);
+                const newSolution = new Solution();
+                newSolution.type = this.fetchedSheet.exercises[i].tasks[j].solution.type;
+                newSolution.range = new SolutionRange(0, 0);
+                newSolution.regex = '';
+                switch (newSolution.type) {
+                  case 'none': {
+                    break;
+                  }
+                  case 'freetext': {
+                    newSolution.default_free_text = this.fetchedSheet.exercises[i].tasks[j].solution.default_free_text;
+                    break;
+                  }
+                  case 'number': {
+                    newSolution.number = this.fetchedSheet.exercises[i].tasks[j].solution.number;
+                    break;
+                  }
+                  case 'range': {
+                    newSolution.range.from = this.fetchedSheet.exercises[i].tasks[j].solution.range.from;
+                    newSolution.range.to = this.fetchedSheet.exercises[i].tasks[j].solution.range.to;
+                    break;
+                  }
+                  case 'regex': {
+                    newSolution.regex = this.fetchedSheet.exercises[i].tasks[j].solution.regex;
+                  }
+                }
+                if (this.fetchedSheet.exercises[i].tasks[j].solution.hint) {
+                  newSolution.hint = this.fetchedSheet.exercises[i].tasks[j].solution.hint;
+                } else {
+                  newSolution.hint = '';
+                }
+                this.solutionService.addSolution(task[0]._id.toString(), newSolution).subscribe(_ => resolve(newSheet));
               });
             }
           });
@@ -191,6 +246,7 @@ export class ExerciseDialogComponent implements OnInit {
 
   onClose(create: boolean): void {
     if (create) {
+      this.findCourseIdOfSheet(this.courses, this.selectedSheetId);
       this.create();
     } else { this.dialogRef.close(); }
   }
