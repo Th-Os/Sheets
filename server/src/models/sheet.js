@@ -29,12 +29,13 @@ var sheetSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    perstistent: {
+    persistent: {
         type: Boolean,
         default: false
     }
 });
 
+// TODO: Test
 sheetSchema.post('remove', (doc) => {
     mongoose.model('Exercise').find().where('_id').in(doc.exercises).exec((err, docs) => {
         if (err) throw err;
@@ -47,6 +48,12 @@ sheetSchema.post('remove', (doc) => {
         for (let doc of docs) {
             doc.remove();
         }
+    });
+    mongoose.model('Course').find({sheets: doc._id}).exec((err, courses) => {
+        if (err) throw err;
+        let course = (courses instanceof Array) ? courses[0] : courses;
+        course.sheets = course.sheets.filter(e => !(e.equals(doc._id)));
+        course.save();
     });
 });
 
@@ -125,6 +132,13 @@ exerciseSchema.post('remove', (doc) => {
         if (err) throw err;
         for (let doc of docs) {
             doc.remove();
+        }
+    });
+    mongoose.model('Sheet').find({exercises: doc._id}).exec((err, sheets) => {
+        if (err) throw err;
+        for (let sheet of sheets) {
+            sheet.exercises = sheet.exercises.filter(e => !(e.equals(doc._id)));
+            sheet.save();
         }
     });
 });

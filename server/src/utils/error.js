@@ -3,6 +3,7 @@
 class RouteError extends Error {
     constructor(status, msg, res, ...params) {
         super(...params);
+        this.name = 'RouteError';
         this.status = status;
         this.message = msg;
 
@@ -17,11 +18,12 @@ class RouteError extends Error {
 class StatusError extends Error {
     constructor(status, msg, ...params) {
         super(...params);
+        this.name = 'StatusError';
         this.status = status;
         this.message = msg;
 
         if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, RouteError);
+            Error.captureStackTrace(this, StatusError);
         }
     }
 }

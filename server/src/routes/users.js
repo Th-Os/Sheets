@@ -10,12 +10,11 @@ router.get('/', verify, function(req, res) {
     methods.getAll(User)
         .then((docs) => res.status(200).send(docs))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
 
-// TODO: response is an empty array.
 router.post('/', verify, function(req, res) {
     let data = req.body;
     if (!(data instanceof Array)) data = [data];
@@ -40,7 +39,7 @@ router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, User)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -49,7 +48,7 @@ router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, User)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });
@@ -58,7 +57,7 @@ router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, User)
         .then((msg) => res.status(200).send(msg))
         .catch((err) => {
-            if (err instanceof StatusError) res.status(err.status).send(err.message);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
 });

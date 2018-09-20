@@ -6,12 +6,12 @@ const submissionSchema = new mongoose.Schema({
     student: {
         type: Schema.Types.ObjectId,
         ref: 'Student',
-        required: true
+        required: false
     },
     answers: [{
         type: Schema.Types.ObjectId,
         ref: 'Answer',
-        required: true
+        required: false
     }],
     user: {
         type: Schema.Types.ObjectId,
@@ -26,6 +26,12 @@ submissionSchema.post('remove', function(doc) {
         for (let doc of docs) {
             doc.remove();
         }
+    });
+    mongoose.model('Sheet').find({submissions: doc._id}).exec((err, sheets) => {
+        if (err) throw err;
+        let sheet = (sheets instanceof Array) ? sheets[0] : sheets;
+        sheet.submissions = sheet.submissions.filter(e => !(e.equals(doc._id)));
+        sheet.save();
     });
 });
 
@@ -102,6 +108,10 @@ const studentSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
+    },
+    lastname: {
+        type: String,
+        required: false
     },
     mat_nr: {
         type: Number,
