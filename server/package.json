@@ -24,6 +24,7 @@
         "jsreport-chrome-pdf": "^1.1.5",
         "jsreport-core": "^2.1.2",
         "jsreport-handlebars": "^2.0.0",
+        "jsreport-html-embedded-in-docx": "^1.0.0",
         "moment": "^2.22.2",
         "mongoose": "^5.2.1",
         "officegen": "^0.4.5",
