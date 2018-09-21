@@ -85,6 +85,6 @@ export class SolutionService {
 
   /** Log a HeroService message with the MessageService */
   private log(message: string) {
-    this.messageSnackbarService.show(`ExerciseService: ${message}`);
+    this.messageSnackbarService.show(`SolutionService: ${message}`);
   }
 }

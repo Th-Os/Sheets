@@ -18,6 +18,9 @@ import { CreateSheetComponent } from './create-sheet/create-sheet.component';
 import { MomentPipe } from './pipes/moment.pipe';
 import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
 import { RegexFormatPipe } from './pipes/regex-format.pipe';
+import { LoginComponent } from './login/login.component';
+import { UserprofileComponent } from './userprofile/userprofile.component';
+import { UserDialogComponent } from './user-dialog/user-dialog.component';
 
 
 @NgModule({
@@ -34,11 +37,15 @@ import { RegexFormatPipe } from './pipes/regex-format.pipe';
     MomentPipe,
     PointcalculationPipe,
     RegexFormatPipe,
+    LoginComponent,
+    UserprofileComponent,
+    UserDialogComponent,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,
     CourseDialogComponent,
-    ExerciseDialogComponent
+    ExerciseDialogComponent,
+    UserDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +58,8 @@ import { RegexFormatPipe } from './pipes/regex-format.pipe';
   ],
   providers: [
     MomentPipe,
-    PointcalculationPipe
+    PointcalculationPipe,
+    RegexFormatPipe
   ],
   bootstrap: [AppComponent]
 })

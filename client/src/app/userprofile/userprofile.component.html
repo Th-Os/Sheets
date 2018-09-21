@@ -1,0 +1,78 @@
+<button mat-fab color="primary" class="position-absolute m-5" (click)="goBack()">
+  <i class="material-icons">arrow_back</i>
+</button>
+<!--Todo: Probably add button or sth to toggle managementview and own profile view-->
+<div class="container mt-5 h-100" *ngIf="loggedInUser === ('admin' || 'courseadmin')">
+  <h1>Profil</h1>
+  <div class="row h-100">
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>Tutorenmanagement</mat-card-title>
+        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+          <mat-progress-spinner *ngIf="loadingUsers"
+                                color="primary"
+                                mode="indeterminate"
+                                [diameter]="50">
+          </mat-progress-spinner>
+          <mat-list *ngIf="tutors && tutors.length > 0">
+            <mat-list-item *ngFor="let tutor of tutors" role="listitem">
+              <a mat-line style="cursor: pointer" (click)="addCourseTutor(tutor)">{{ tutor.forename }}&nbsp;{{tutor.lastname}} </a>
+              <button mat-icon-button (click)="update(tutor)">
+                <mat-icon color="secondary">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="delete(tutor)">
+                <mat-icon color="secondary">delete</mat-icon>
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+        <button (click)="add()" class="position-absolute" style="right: 10px;" mat-fab color="primary">
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>Korrekturfortschritt</mat-card-title>
+        <mat-card-content>
+          <mat-list *ngIf="tutors && tutors.length > 0">
+            <mat-list-item *ngFor="let tutor of tutors" role="listitem">
+              <a mat-line>{{ tutor.forename }}&nbsp;{{tutor.lastname}} </a>
+              <mat-progress-bar mode="determinate" [value]="correctionProgress"></mat-progress-bar>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-5 h-100" *ngIf="loggedInUser === 'tutor'">
+  <h1>Profil</h1>
+  <div class="row h-100">
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>
+          Eigene Daten
+          <button mat-icon-button id="editIcon" (click)="updateOwnData()">
+            <mat-icon color="secondary">edit</mat-icon>
+          </button>
+        </mat-card-title>
+        <!--Todo: Fill with storage data-->
+        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+          Eigene Daten hier
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-4 col-md-4">
+      <mat-card>
+        <mat-card-title>Eigener Korrekturfortschritt</mat-card-title>
+        <!--Todo: Fill with own progression data-->
+        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+          Eigener Fortschritt hier
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+
