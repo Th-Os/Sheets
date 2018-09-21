@@ -42,6 +42,7 @@ export class ExerciseDialogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.courses = [];
     this.getCourses().then(courses => {
       this.getSheets(courses);
     });
@@ -51,12 +52,23 @@ export class ExerciseDialogComponent implements OnInit {
     return new Promise<Course[]>((resolve, reject) => {
       this.courseService.getCourses().subscribe(courses => {
         if (courses.length > 0) {
-          this.courses = courses;
-          resolve(courses);
+          this.checkIfCourseHasSheets(courses).then(checkedCourses => resolve(checkedCourses));
         } else {
           resolve([]);
         }
       });
+    });
+  }
+
+  checkIfCourseHasSheets(courses: Course[]): Promise<Course[]> {
+    const checkedCourses = [];
+    return new Promise<Course[]>((resolve, reject) => {
+      courses.forEach(course => {
+        if (course.sheets.length > 0) {
+          checkedCourses.push(course);
+        }
+      });
+      resolve(checkedCourses);
     });
   }
 
@@ -65,6 +77,7 @@ export class ExerciseDialogComponent implements OnInit {
       this.sheetService.getSheets(course._id.toString())
         .subscribe(sheets => course.sheets = sheets );
     });
+    this.courses = courses;
   }
 
   findCourseIdOfSheet(courses: Course[], sheetId: number): void {

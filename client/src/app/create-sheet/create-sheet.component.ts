@@ -28,6 +28,7 @@ export class CreateSheetComponent implements OnInit {
   regexPattern = '[a-zA-Z0-9]+/+b$';
   regexValidToAdd = true;
   regexValidToDelete = true;
+  loadingSheet = false;
 
   constructor(
     private location: Location,
@@ -39,8 +40,12 @@ export class CreateSheetComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loadingSheet = true;
     this.sheet = new Sheet();
-    this.sheetService.getSheetComplete(this.route.snapshot.paramMap.get('id')).subscribe(sheet => this.sheet = sheet);
+    this.sheetService.getSheetComplete(this.route.snapshot.paramMap.get('id')).subscribe(sheet => {
+      this.sheet = sheet;
+      this.loadingSheet = false;
+    });
     // this.getSheet(this.route.snapshot.paramMap.get('id'));
   }
 

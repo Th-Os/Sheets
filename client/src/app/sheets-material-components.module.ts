@@ -28,8 +28,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatSelectModule, MatFormFieldModule,
     MatRadioModule, MatGridListModule,
     MatSnackBarModule, MatProgressSpinnerModule,
-    MatDatepickerModule, MatNativeDateModule, MatProgressBarModule
-    MatCheckboxModule
+    MatDatepickerModule, MatNativeDateModule,
+    MatProgressBarModule, MatCheckboxModule
   ],
   exports: [
     MatToolbarModule, MatCardModule,
@@ -40,8 +40,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatProgressSpinnerModule, MatSnackBarModule,
     MatSelectModule, MatFormFieldModule,
     MatRadioModule, MatGridListModule,
-    MatDatepickerModule, MatNativeDateModule, MatProgressBarModule
-    MatCheckboxModule
+    MatDatepickerModule, MatNativeDateModule,
+    MatProgressBarModule, MatCheckboxModule
   ],
 })
 export class SheetsMaterialComponentsModule { }

@@ -26,13 +26,19 @@
         <mat-card-content>
           <mat-divider></mat-divider>
           <br>
-          <div *ngIf="sheet">
-            <h4 style="text-align: center">{{sheet.name}}</h4>
-            <br>
-            <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
-            <br>
-          </div>
+          <mat-progress-spinner *ngIf="loadingSheet"
+                                color="primary"
+                                mode="indeterminate"
+                                [diameter]="100"
+                                style="margin:0 auto;">
+          </mat-progress-spinner>
           <div *ngIf="sheet.exercises">
+            <div *ngIf="sheet">
+              <h4 style="text-align: center">{{sheet.name}}</h4>
+              <br>
+              <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
+              <br>
+            </div>
             <ol class="listHeader">
               <li *ngFor="let exercise of sheet.exercises">
                 <!--Todo: Find way to update points dynamically-->
@@ -60,6 +66,12 @@
         <mat-card-title>Erstellen</mat-card-title>
         <mat-card-content>
           <mat-divider></mat-divider><br>
+          <mat-progress-spinner *ngIf="loadingSheet"
+                                color="primary"
+                                mode="indeterminate"
+                                [diameter]="100"
+                                style="margin:0 auto;">
+          </mat-progress-spinner>
           <div *ngIf="sheet.exercises">
             <ol>
               <li *ngFor="let exercises of sheet.exercises">
@@ -208,13 +220,13 @@
                 <br>
               </li>
             </ol>
+            <button mat-icon-button title="Aufgabe hinzufügen" (click)="addExercise()">
+              <mat-icon color="secondary">add</mat-icon>
+            </button>
+            <button style="float: right" (click)="saveProgress()">
+              Save
+            </button>
           </div>
-          <button mat-icon-button title="Aufgabe hinzufügen" (click)="addExercise()">
-            <mat-icon color="secondary">add</mat-icon>
-          </button>
-          <button style="float: right" (click)="saveProgress()">
-            Save
-          </button>
         </mat-card-content>
       </mat-card>
     </div>
