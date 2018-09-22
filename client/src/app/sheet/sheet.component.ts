@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
 import {TaskService} from "../services/task.service";
-import {CourseService} from '../services/course.service';
 import {Location} from "@angular/common";
 import {Sheet} from '../models/sheet';
 import {Submission} from "../models/submission";
@@ -21,6 +20,7 @@ import {Exercise} from "../models/exercise";
 import {Task} from "../models/task";
 import {Template} from "../template";
 import {TemplateTask} from "../template-task";
+import {StudentService} from "../services/student.service";
 
 
 @Component({
@@ -35,18 +35,21 @@ export class SheetComponent implements OnInit {
   noTemplateErrorMsg = "Dem Aufgabenblatt ist keine Vorlage hinterlegt. Abgaben können nicht validiert werden";
 
 
-  sheet: Sheet;
   submissionTemplate: Template;
   selectedFile = null;
 
-  exercises: Exercise[];
-  loadingExercisesWithTasks: boolean = false;
-
-  submissionsAvaliable:boolean = false;
   submissionValidationResults: SubmissionValidationResult[];
 
   dropzoneActive:boolean = false;
   loadInProgress:boolean = false;
+
+  loadingSheet: boolean = false;
+  sheet: Sheet;
+
+  loadingSubmissions: boolean = false;
+
+  loadingExercisesWithTasks: boolean = false;
+  exercises: Exercise[];
 
   constructor(
     private dialog: MatDialog,
@@ -54,42 +57,41 @@ export class SheetComponent implements OnInit {
     @Inject(DOCUMENT) document,
     private route: ActivatedRoute,
     private sheetService: SheetService,
-        private taskService: TaskService,
+    private taskService: TaskService,
+    private studentService: StudentService,
     private location: Location
     ) {}
 
   ngOnInit() {
-    this.getSheet();
+    this.getSheetWithSubmissions();
+
+    this.getExercisesWithTasks();
 
     this.getSubmissionTemplate();
   }
 
   getExercisesWithTasks() {
+    this.loadingExercisesWithTasks = true;
     const id = this.route.snapshot.paramMap.get('id');
-    this.sheet.exercises = []
-
-    this.sheetService.getSheetExercises(this.route.snapshot.paramMap.get('id'))
-      .subscribe( exercises => {
-        this.exercises = exercises
-        this.exercises.forEach(ex =>{
-          let sheetExercise: Exercise = new Exercise();
-          sheetExercise._id = ex._id;
-          sheetExercise.description = ex.description;
-          sheetExercise.name = ex.name;
-          sheetExercise.order = ex.order;
-          sheetExercise.tasks = []
-          this.sheet.exercises.push(sheetExercise);
-
-          ex.tasks.forEach(task => {
-            this.taskService.getTask(task).subscribe(t => {
-              sheetExercise.tasks.push(t)
-            })
-          })
-        })
-      })
-      .add( () => {
-        this.loadingExercisesWithTasks = false;
-      })
+    this.sheetService.getSheetExercises(id)
+      .subscribe(
+        exercises => this.exercises = exercises,
+        error => console.error( error ),
+        () => {
+          this.exercises.forEach((exercise, index) => {
+            if (exercise.tasks.length > 0) {
+              this.taskService.getTasks(exercise._id).subscribe(
+                tasks => exercise.tasks = tasks,
+                error => console.error(error),
+                () => {
+                  this.exercises[index] = exercise;
+                  if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
+                }
+              );
+            }
+          });
+        }
+      );
   }
 
   displayMessage(text: string) {
@@ -98,38 +100,31 @@ export class SheetComponent implements OnInit {
     });
   }
 
-  getSheet(): void {
+  getSheetWithSubmissions() {
+    this.loadingSheet = this.loadingSubmissions = true;
     const id = this.route.snapshot.paramMap.get('id');
 
-    this.sheetService.getSheet(id).subscribe(sheet => {
-      //console.log(sheet);
-
-      this.sheet = new Sheet();
-      this.sheet._id = sheet._id;
-      this.sheet.name = sheet.name;
-
-      this.getExercisesWithTasks();
-
-      if(sheet.submissions.length <= 0) return;
-
-      this.sheetService.getSubmissions(this.sheet).subscribe(res => {   
-
-        if(res == null) return;
-
-        res.forEach(sub => {
-          let submission = new Submission();
-          submission._id = res._id;
-          this.sheet.submissions.push(submission);
-
-          this.sheetService.getStudent(sub).subscribe(student => submission.student = student)
-        })
-
-        this.updateUI();
-         //console.log(this.sheet)
-
-        console.log("done fetching sheet");
-      })
-    });
+    this.sheetService.getSheet(id).subscribe(
+      sheet => this.sheet = sheet,
+      error => console.error( error ),
+      () => {
+        this.loadingSheet = false;
+        this.sheetService.getSheetSubmissions(id).subscribe(
+          submissions => this.sheet.submissions = submissions,
+          error => console.error( error ),
+          () => {
+            this.sheet.submissions.forEach((submission, index) => {
+              this.studentService.getStudent(submission.student).subscribe(
+                student => this.sheet.submissions[index].student = student,
+                error => console.error( error ),
+                () => {
+                  if (index === this.sheet.submissions.length - 1) this.loadingSubmissions = false;
+                }
+              )
+            })
+          });
+      }
+    )
   }
 
   getSubmissionTemplate() {
@@ -148,17 +143,6 @@ export class SheetComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
-  }
-
-  updateUI(): void {
-    this.submissionsAvaliable = this.submissionsAvailable();
-  }
-
-  submissionsAvailable(): boolean {
-    if(this.sheet == null) return false;
-    if(this.sheet.submissions == null) return false;
-    if(this.sheet.submissions.length <= 0) return false;
-    return true;
   }
 
   onFilesAdded(fileList: FileList): void {
@@ -230,10 +214,8 @@ export class SheetComponent implements OnInit {
           if(this.submissionValidationResults.length <= 100){ //TODO: 0 for release, 100 for test!
             console.log("done reading zip");
             this.sheet.submissions = submissions;
-            this.submissionsAvaliable = true;
-            this.updateUI();
-            console.log("validation ok")
-            console.log("uploading with data: " + this.sheet)
+            console.log("validation ok");
+            console.log("uploading with data: " + this.sheet);
             this.uploadAndCorrectSubmissions();
           }else{
             this.displayValidationResults();
@@ -257,7 +239,6 @@ export class SheetComponent implements OnInit {
           this.sheetService.autocorrectSubmissions(res).then( () => {
             this.loadInProgress = false;
             this.displayMessage("Abgaben erfolgreich hochgeladen")})})
-        this.updateUI();
       });
     }
     );
@@ -423,7 +404,8 @@ export class SheetComponent implements OnInit {
 
   clearSubmissions() {
     this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
-      this.getSheet();})
+      this.getSheetWithSubmissions()
+    });
   }
 
   numberToArray(number: number){
