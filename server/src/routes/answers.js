@@ -15,4 +15,13 @@ router.get('/:id', verify, function(req, res) {
         });
 });
 
+router.put('/:id', verify, function(req, res) {
+    methods.put(req.params.id, req.body, Answer)
+        .then((doc) => res.status(200).send(doc))
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+        });
+});
+
 export default router;

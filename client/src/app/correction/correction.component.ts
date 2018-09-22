@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
-import {Task} from '../models/task';
 import {Submission} from "../models/submission";
 import {Exercise} from "../models/exercise";
 import {TaskService} from "../services/task.service";
 import {Sheet} from "../models/sheet";
+import {CorrectionInterfaceComponent} from "./correction-interface/correction-interface.component";
 
 @Component({
   selector: 'app-correction',
@@ -14,6 +14,9 @@ import {Sheet} from "../models/sheet";
 })
 export class CorrectionComponent implements OnInit {
 
+  @ViewChild(CorrectionInterfaceComponent)
+  private correctionInterfaceComponent: CorrectionInterfaceComponent;
+
   loadingSheet: boolean = false;
   loadingSubmissions: boolean = false;
   loadingExercisesWithTasks: boolean = false;
@@ -21,9 +24,10 @@ export class CorrectionComponent implements OnInit {
   sheet: Sheet;
   exercises: Exercise[];
   submissions: Submission[];
-  selected_submission: string = null;
 
+  selected_submission: string = null;
   selected_task: string = null;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -88,8 +92,10 @@ export class CorrectionComponent implements OnInit {
     let nextIndex = currentIndex + change;
     if (nextIndex < 0) {
       this.selected_submission = this.submissions[this.submissions.length -1]._id;
+      this.navigateTasks(-1);
     }else if (nextIndex > this.submissions.length -1) {
-      this.selected_submission = this.submissions[0]._id
+      this.selected_submission = this.submissions[0]._id;
+      this.navigateTasks(1);
     } else {
       this.selected_submission = this.submissions[nextIndex]._id;
     }
@@ -104,6 +110,7 @@ export class CorrectionComponent implements OnInit {
       if (newExIndex < 0) {
         let tasks = this.exercises[this.exercises.length - 1].tasks;
         this.selected_task = this.exercises[this.exercises.length - 1].tasks[tasks.length -1]._id;
+        this.navigateSubmissions(-1)
       } else {
         this.selected_task = this.exercises[newExIndex].tasks[this.exercises[newExIndex].tasks.length -1]._id;
       }
@@ -111,6 +118,7 @@ export class CorrectionComponent implements OnInit {
       let newExIndex = currentExIndex + 1;
       if (newExIndex > this.exercises.length - 1) {
         this.selected_task = this.exercises[0].tasks[0]._id;
+        this.navigateSubmissions(1);
       } else {
         this.selected_task = this.exercises[newExIndex].tasks[0]._id;
       }
@@ -123,5 +131,9 @@ export class CorrectionComponent implements OnInit {
     this.router.navigate([`/sheets/${this.route.snapshot.paramMap.get('id')}`])
   }
 
+
+  onAnswerSaved(saved: boolean) {
+    this.navigateTasks(1)
+  }
 
 }

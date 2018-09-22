@@ -4,7 +4,8 @@ import {MessageSnackbarService} from "../message-snackbar.service";
 import {Observable, of} from "rxjs";
 import {Answer} from "../models/answer";
 import {Solution} from "../models/solution";
-import {catchError} from "rxjs/operators";
+import {catchError, tap} from "rxjs/operators";
+import {Sheet} from "../models/sheet";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -16,6 +17,7 @@ const httpOptions = {
 export class AnswerService {
 
   private submissionsUrl = 'http://localhost:3000/submissions';
+  private answersUrl = 'http://localhost:3000/answers';
 
   constructor(
     private http: HttpClient,
@@ -27,6 +29,12 @@ export class AnswerService {
     return this.http.get<Answer>(url).pipe(
       catchError(this.handleError<Answer>(`getAnswer of Submission with id=${submission_id} for Task with id=${task_id}`))
     );
+  }
+
+  updateAnswer(answer: Answer): Observable<Answer> {
+      return this.http.put<Answer>(this.answersUrl + '/' + answer._id, answer, httpOptions).pipe(
+        tap(_ => this.log(`Korrektur gespeichert!`)),
+        catchError(this.handleError<any>('updateSheet')))
   }
 
   private handleError<T> (operation = 'operation', result?: T) {

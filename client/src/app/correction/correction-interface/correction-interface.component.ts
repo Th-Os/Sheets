@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter} from '@angular/core';
 import {SolutionService} from "../../services/solution.service";
 import {AnswerService} from "../../services/answer.service";
 import {Solution} from "../../models/solution";
@@ -16,6 +16,9 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
   @Input() task_id: string;
   @Input() submission_id: string;
 
+  @Output() saved = new EventEmitter<boolean>();
+  saving: boolean = false;
+
   loadingTask: boolean = false;
   task: Task;
 
@@ -24,6 +27,7 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
 
   loadingSolution: boolean = false;
   solution: Solution;
+  points: number[];
 
   constructor(
     private taskService: TaskService,
@@ -39,6 +43,18 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
     this.getCorrection()
   }
 
+  saveAnswer() {
+    this.saving = true;
+    this.answerService.updateAnswer(this.answer).subscribe(
+      null,
+      null,
+      () => {
+        this.saved.emit(true);
+        this.saving = false;
+      }
+    )
+  }
+
   getCorrection(): void {
     this.task = this.solution = this.answer =  null;
     this.getTask();
@@ -51,7 +67,10 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
     this.taskService.getTask(this.task_id).subscribe(
       task => this.task = task,
       error => console.error( error ),
-      () => this.loadingTask = false
+      () => {
+        this.points = Array(this.task.points + 1).fill(0).map((x,i)=>i);
+        this.loadingTask = false
+      }
     );
   }
 
