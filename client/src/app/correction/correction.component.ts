@@ -16,7 +16,6 @@ export class CorrectionComponent implements OnInit {
   loadingSubmissions: boolean = false;
   loadingExercisesWithTasks: boolean = false;
   exercises: Exercise[];
-  tasks: Task[] = [];
   submissions: Submission[];
   selected_submission: string = null;
   selected_task: string = null;
@@ -45,18 +44,16 @@ export class CorrectionComponent implements OnInit {
               this.taskService.getTasks(exercise._id).subscribe(
                 tasks => exercise.tasks = tasks,
                 error => console.error(error),
-                () => this.exercises[index] = exercise
+                () => {
+                  if (index === 0 && this.selected_task === null) this.selected_task = exercise.tasks[0]._id;
+                  this.exercises[index] = exercise
+                  if (index === this.exercises.length) this.loadingExercisesWithTasks = false;
+                }
               );
             }
-          })
+          });
         });
-    /*
-          console.log(this.selected_task)
-          if (this.selected_task === null) this.selected_task = this.exercises[0].tasks[0]._id;
-          console.log(this.selected_task)
-          this.loadingExercisesWithTasks = false;
-        });
-        */
+
   }
 
   getSubmissions() {
@@ -66,7 +63,8 @@ export class CorrectionComponent implements OnInit {
       submissions => this.submissions = submissions,
       error => console.error( error ),
       () => {
-        if (this.selected_submission === null) this.selected_submission = this.submissions[0]._id;
+        if (this.selected_submission === null &&
+            this.submissions.length > 0) this.selected_submission = this.submissions[0]._id;
         this.loadingSubmissions = false;
       });
   }

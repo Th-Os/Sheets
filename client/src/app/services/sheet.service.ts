@@ -54,29 +54,9 @@ export class SheetService {
     const url = `${this.sheetsUrl}/${id}/exercises`;
     return this.http.get<Exercise[]>(url)
       .pipe(
-        tap( exercises => {
-          exercises.forEach((exercise, index) => {
-            if (exercise.tasks.length > 0) {
-              this.taskService.getTasks(exercise._id).subscribe(
-                tasks => exercise.tasks = tasks,
-                error => console.error( error ),
-                () => exercises[index] = exercise
-              );
-            }
-          })
-        }),
         catchError(this.handleError(`getSheetExercises id=${id}`, []))
       );
   }
-
-  /** PUT: update the hero on the server */
-  /*updateSheet (sheet: Sheet): Observable<any> {
-    console.log('Service: update sheet: ' + sheet.name);
-    return this.http.put<Sheet>(this.sheetsUrl + '/' + sheet._id, sheet, httpOptions).pipe(
-      tap(_ => this.log(`updated sheet id=${sheet._id}`)),
-      catchError(this.handleError<any>('updateSheet'))
-    );
-  }*/
 
   /** .subscribe necessary, otherwise put request wont be sent */
   updateSheet (sheet: Sheet): Observable<Sheet> {
