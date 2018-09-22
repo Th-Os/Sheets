@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
+import {TaskService} from "../services/task.service";
 import {CourseService} from '../services/course.service';
 import {Location} from "@angular/common";
 import {Sheet} from '../models/sheet';
@@ -17,6 +18,7 @@ import {DOCUMENT} from '@angular/common';
 import {MatDialog,} from '@angular/material';
 import {SubmissionUploadErrorDialogComponent} from "../submission-upload-error-dialog/submission-upload-error-dialog.component";
 import {Exercise} from "../models/exercise";
+import {Task} from "../models/task";
 import {Template} from "../template";
 import {TemplateTask} from "../template-task";
 
@@ -30,7 +32,7 @@ import {TemplateTask} from "../template-task";
 export class SheetComponent implements OnInit {
 
   uploadErrorMsg = "Es kann nur eine aus GRIPS exportierte .zip-Datei verwendet werden";
-  noTemplateErrorMsg = "Dem Aufgabenblatt ist keine Abgabenvorlage hinterlegt. Abgaben können nicht geparst werden";
+  noTemplateErrorMsg = "Dem Aufgabenblatt ist keine Vorlage hinterlegt. Abgaben können nicht validiert werden";
 
 
   sheet: Sheet;
@@ -52,19 +54,39 @@ export class SheetComponent implements OnInit {
     @Inject(DOCUMENT) document,
     private route: ActivatedRoute,
     private sheetService: SheetService,
+        private taskService: TaskService,
     private location: Location
     ) {}
 
   ngOnInit() {
     this.getSheet();
+
     this.getSubmissionTemplate();
-    this.getExercisesWithTasks();
   }
 
   getExercisesWithTasks() {
     const id = this.route.snapshot.paramMap.get('id');
+    this.sheet.exercises = []
+
     this.sheetService.getSheetExercises(this.route.snapshot.paramMap.get('id'))
-      .subscribe( exercises => this.exercises = exercises)
+      .subscribe( exercises => {
+        this.exercises = exercises
+        this.exercises.forEach(ex =>{
+          let sheetExercise: Exercise = new Exercise();
+          sheetExercise._id = ex._id;
+          sheetExercise.description = ex.description;
+          sheetExercise.name = ex.name;
+          sheetExercise.order = ex.order;
+          sheetExercise.tasks = []
+          this.sheet.exercises.push(sheetExercise);
+
+          ex.tasks.forEach(task => {
+            this.taskService.getTask(task).subscribe(t => {
+              sheetExercise.tasks.push(t)
+            })
+          })
+        })
+      })
       .add( () => {
         this.loadingExercisesWithTasks = false;
       })
@@ -80,13 +102,14 @@ export class SheetComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
 
     this.sheetService.getSheet(id).subscribe(sheet => {
-      console.log(sheet);
+      //console.log(sheet);
 
       this.sheet = new Sheet();
       this.sheet._id = sheet._id;
       this.sheet.name = sheet.name;
 
-      console.log("done fetching sheet");
+      this.getExercisesWithTasks();
+
       if(sheet.submissions.length <= 0) return;
 
       this.sheetService.getSubmissions(this.sheet).subscribe(res => {   
@@ -102,6 +125,8 @@ export class SheetComponent implements OnInit {
         })
 
         this.updateUI();
+         //console.log(this.sheet)
+
         console.log("done fetching sheet");
       })
     });
@@ -109,13 +134,14 @@ export class SheetComponent implements OnInit {
 
   getSubmissionTemplate() {
     const id = this.route.snapshot.paramMap.get('id');
-    //this.submissionTemplate = this.testTemplate(); // TODO: only for testing!
-    
+    this.submissionTemplate = this.testTemplate(); // TODO: only for testing!
+    /*
     //TODO: release!!!
     this.sheetService.getSubmissionTemplate(id).subscribe(template =>{
       //console.log(template)
       this.submissionTemplate = this.parseTemplate(template);
     });
+    */
     
 
   }
@@ -126,12 +152,7 @@ export class SheetComponent implements OnInit {
 
   updateUI(): void {
     this.submissionsAvaliable = this.submissionsAvailable();
-/*
-      this.sheetService.getSubmissions(this.sheet).subscribe(res => {
-        console.log(res)
-      })
-      */
-    }
+  }
 
   submissionsAvailable(): boolean {
     if(this.sheet == null) return false;
@@ -206,12 +227,13 @@ export class SheetComponent implements OnInit {
         });
 
         Promise.all(promises).then(() => {
-          if(this.submissionValidationResults.length <= 0){ //TODO: 0 for release, 100 for test!
+          if(this.submissionValidationResults.length <= 100){ //TODO: 0 for release, 100 for test!
             console.log("done reading zip");
             this.sheet.submissions = submissions;
             this.submissionsAvaliable = true;
             this.updateUI();
             console.log("validation ok")
+            console.log("uploading with data: " + this.sheet)
             this.uploadAndCorrectSubmissions();
           }else{
             this.displayValidationResults();
@@ -337,6 +359,7 @@ export class SheetComponent implements OnInit {
 
             answer.text = answerTextWOLeadingSpace;
             answer.task_id = parseInt(task.num.toString() + j.toString()); 
+            answer.task = this.findTask(answer);
             answers.push(answer);
           }else{
             //Kriterien verletzt
@@ -381,9 +404,35 @@ export class SheetComponent implements OnInit {
 
   }
 
+  findTask(answer: Answer): Task {
+    for (var i = 0; i < this.sheet.exercises.length; ++i) {
+      let exercise = this.sheet.exercises[i];
+
+      for (var j = 0; j < exercise.tasks.length; ++j) {
+        let task = exercise.tasks[j];
+        let taskIDArray = this.numberToArray(answer.task_id);
+
+        if(taskIDArray[1] - 1 == exercise.order && taskIDArray[2] == task.order) {
+          return task;
+        }
+      }
+    }
+
+    return null;
+  }
+
   clearSubmissions() {
     this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
       this.getSheet();})
+  }
+
+  numberToArray(number: number){
+    let res = []
+    let num = number.toString()
+    for (var i = 0, len = num.length; i < len; i += 1) {
+      res.push(parseInt(num.charAt(i)));
+    }
+    return res
   }
 
   handleFileSelection(event): void {
