@@ -12,7 +12,12 @@ import {Task} from '../../models/task';
 })
 export class CorrectionInterfaceComponent implements OnInit {
 
-  @Input() task_id: string;
+  @Input() set task_id(val: string) {
+    console.log('previous task_id = ', this.task_id);
+    console.log('currently selected task_id=', val);
+    this.task_id = this.task;
+    this._item.status = 'In Process';
+  }
   @Input() submission_id: string;
 
   loadingTask: boolean = false;
@@ -28,7 +33,7 @@ export class CorrectionInterfaceComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.task_id !== null) this.getTask();
+    this.getTask();
     this.getSolution()
   }
 

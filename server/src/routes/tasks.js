@@ -6,6 +6,12 @@ import {Task, Solution} from '../models/sheet';
 
 const router = express.Router();
 
+router.get('/:id', verify, function(req, res) {
+    Task.findById(req.params.id).populate({ path: 'solution' }).exec().then((doc) => {
+        res.send(doc);
+    }).catch((err) => res.status(500).send(err));
+});
+
 router.get('/:id/_aggregate', verify, function(req, res) {
     Task.findById(req.params.id).populate({ path: 'solution' }).exec().then((doc) => {
         res.send(doc);
