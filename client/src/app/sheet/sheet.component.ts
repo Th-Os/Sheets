@@ -72,6 +72,9 @@ export class SheetComponent implements OnInit {
       this.sheet._id = sheet._id;
       this.sheet.name = sheet.name;
 
+      console.log("done fetching sheet");
+      if(sheet.submissions.length <= 0) return;
+
       this.sheetService.getSubmissions(this.sheet).subscribe(res => {   
 
         if(res == null) return;
@@ -92,10 +95,15 @@ export class SheetComponent implements OnInit {
 
   getSubmissionTemplate() {
     const id = this.route.snapshot.paramMap.get('id');
+    //this.submissionTemplate = this.testTemplate(); // TODO: only for testing!
+    
+    //TODO: release!!!
     this.sheetService.getSubmissionTemplate(id).subscribe(template =>{
       //console.log(template)
       this.submissionTemplate = this.parseTemplate(template);
     });
+    
+
   }
 
   goBack(): void {
@@ -179,7 +187,7 @@ export class SheetComponent implements OnInit {
         });
 
         Promise.all(promises).then(() => {
-          if(this.submissionValidationResults.length <= 0){
+          if(this.submissionValidationResults.length <= 0){ //TODO: 0 for release, 100 for test!
             console.log("done reading zip");
             this.sheet.submissions = submissions;
             this.submissionsAvaliable = true;
@@ -268,8 +276,6 @@ export class SheetComponent implements OnInit {
   readAnswers(text: string): SubmissionValidationResult {
     let answers = [];
     let template = this.submissionTemplate;
-
-    //let template = this.testTemplate();
 
     for (var i = 0; i < template.tasks.length; ++i) {
       let task: TemplateTask = template.tasks[i];
