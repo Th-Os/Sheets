@@ -104,146 +104,142 @@ export class SheetComponent implements OnInit {
 
   updateUI(): void {
     this.submissionsAvaliable = this.submissionsAvailable();
+  }
+
+  submissionsAvailable(): boolean {
+    if(this.sheet == null) return false;
+    if(this.sheet.submissions == null) return false;
+    if(this.sheet.submissions.length <= 0) return false;
+    return true;
+  }
+
+  onFilesAdded(fileList: FileList): void {
+    if(fileList.length <= 0){
+      this.displayMessage(this.uploadErrorMsg);
+      return;
     }
 
-    submissionsAvailable(): boolean {
-      if(this.sheet == null) return false;
-      if(this.sheet.submissions == null) return false;
-      if(this.sheet.submissions.length <= 0) return false;
-      return true;
+    if(this.submissionTemplate == null){
+      this.displayMessage(this.noTemplateErrorMsg);
+      return;
     }
 
-    onFilesAdded(fileList: FileList): void {
-      if(fileList.length <= 0){
-        this.displayMessage(this.uploadErrorMsg);
-        return;
-      }
-
-      if(this.submissionTemplate == null){
-        this.displayMessage(this.noTemplateErrorMsg);
-        return;
-      }
-
-      if(fileList.length == 1 && this.isZip(fileList[0])){
-        this.submissionValidationResults = [];
-        this.readZipFolder(fileList[0]);
-      }else{
-        this.displayMessage(this.uploadErrorMsg);
-      }
-
-      (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
+    if(fileList.length == 1 && this.isZip(fileList[0])){
+      this.submissionValidationResults = [];
+      this.readZipFolder(fileList[0]);
+    }else{
+      this.displayMessage(this.uploadErrorMsg);
     }
 
-    isZip(file): boolean {
-      return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
-    }
+    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
+  }
 
-    readZipFolder(file): void {
-      let submissions = [];
-      var reader = new FileReader();
-      reader.onload = (e) => {
-        var zip = new JSZip();
-        zip.loadAsync(file).then((zip) => {
-          let promises = [];
-          Object.keys(zip.files).forEach((filename) => {
-            if(filename.split("/").length < 3) return;
-            if(!filename.endsWith("/")) {
+  isZip(file): boolean {
+    return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
+  }
 
-              let submission = new Submission();
-              let student = new Student();
-              let name = this.readAuthorName(filename);
+  readZipFolder(file): void {
+    let submissions = [];
+    var reader = new FileReader();
+    reader.onload = (e) => {
+      var zip = new JSZip();
+      zip.loadAsync(file).then((zip) => {
+        let promises = [];
+        Object.keys(zip.files).forEach((filename) => {
+          if(filename.split("/").length < 3) return;
+          if(!filename.endsWith("/")) {
 
-              student.name = name.split(" ")[0];
-              student.lastname = name.split(" ")[name.split(" ").length - 1];
-              submission.student = student;
+            let submission = new Submission();
+            let student = new Student();
+            let name = this.readAuthorName(filename);
 
-              if(filename.includes(".txt")){
-                promises.push(zip.files[filename].async('string').then((fileData) => {
+            student.name = name.split(" ")[0];
+            student.lastname = name.split(" ")[name.split(" ").length - 1];
+            submission.student = student;
 
-                  let validationResult = this.readAnswers(fileData);
+            if(filename.includes(".txt")){
+              promises.push(zip.files[filename].async('string').then((fileData) => {
 
-                  let answers = validationResult.answers;
-                  let student_id = this.readStudentId(fileData);
+                let validationResult = this.readAnswers(fileData);
 
-                  if(answers == null || student_id == null || student_id == NaN){
-                    validationResult.filename = filename;
-                    this.submissionValidationResults.push(validationResult);
-                  }else{
-                    submission.answers = answers;
-                    submission.student.mat_nr = student_id;
-                    submissions.push(submission);
-                  }
-                }));
-              }
+                let answers = validationResult.answers;
+                let student_id = this.readStudentId(fileData);
+
+                if(answers == null || student_id == null || student_id == NaN){
+                  validationResult.filename = filename;
+                  this.submissionValidationResults.push(validationResult);
+                }else{
+                  submission.answers = answers;
+                  submission.student.mat_nr = student_id;
+                  submissions.push(submission);
+                }
+              }));
             }
-          });
+          }
+        });
 
-          Promise.all(promises).then(() => {
+        Promise.all(promises).then(() => {
+          if(this.submissionValidationResults.length <= 0){
             console.log("done reading zip");
             this.sheet.submissions = submissions;
             this.submissionsAvaliable = true;
             this.updateUI();
             console.log("validation ok")
-              this.uploadAndCorrectSubmissions();
-
-            /*
-            if(this.submissionValidationResults.length <= 0){
-              //TODO ----> code für ok einfügen
-            }else{
-              this.displayValidationResults();
-            }
-            */
-          });
+            this.uploadAndCorrectSubmissions();
+          }else{
+            this.displayValidationResults();
+          }
         });
-      };
+      });
+    };
 
-      reader.readAsArrayBuffer(file);
-    }
+    reader.readAsArrayBuffer(file);
+  }
 
-    uploadAndCorrectSubmissions() {
-      this.loadInProgress = true;
-      this.sheetService.uploadSubmissions(this.sheet)
-      .subscribe(res => {
-        let tempSheet = null;
-        this.sheetService.getSheet(this.sheet._id.toString()).subscribe(sheet => {
-          tempSheet = sheet;
-          res.map(sub => tempSheet.submissions.push(sub._id))
-          this.sheetService.updateSheet(tempSheet).subscribe(res => {
-            this.sheetService.autocorrectSubmissions(res).then( () => {
-              this.loadInProgress = false;
-              this.displayMessage("Abgaben erfolgreich hochgeladen")})})
-          this.updateUI();
-        });
-      }
-      );
-    }
-
-    displayValidationResults() {
-      this.dialog.open(SubmissionUploadErrorDialogComponent, {
-        data: this.submissionValidationResults
+  uploadAndCorrectSubmissions() {
+    this.loadInProgress = true;
+    this.sheetService.uploadSubmissions(this.sheet)
+    .subscribe(res => {
+      let tempSheet = null;
+      this.sheetService.getSheet(this.sheet._id.toString()).subscribe(sheet => {
+        tempSheet = sheet;
+        res.map(sub => tempSheet.submissions.push(sub._id))
+        this.sheetService.updateSheet(tempSheet).subscribe(res => {
+          this.sheetService.autocorrectSubmissions(res).then( () => {
+            this.loadInProgress = false;
+            this.displayMessage("Abgaben erfolgreich hochgeladen")})})
+        this.updateUI();
       });
     }
+    );
+  }
 
-    readStudentId(text: string): number {
-      let lines = text.split("\n");
+  displayValidationResults() {
+    this.dialog.open(SubmissionUploadErrorDialogComponent, {
+      data: this.submissionValidationResults
+    });
+  }
 
-      if (lines.length > 0){
-        return parseInt(lines[0]);
-      }
+  readStudentId(text: string): number {
+    let lines = text.split("\n");
 
-      return NaN;
+    if (lines.length > 0){
+      return parseInt(lines[0]);
     }
 
-    parseTemplate(text: string): Template {
-      let result = new Template();
+    return NaN;
+  }
 
-      let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
-      let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
+  parseTemplate(text: string): Template {
+    let result = new Template();
 
-      let linesTemplate = text.split("\n");
-      let task: TemplateTask = null;
+    let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
+    let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
 
-      for (var i = 0; i < linesTemplate.length; ++i) {
+    let linesTemplate = text.split("\n");
+    let task: TemplateTask = null;
+
+    for (var i = 0; i < linesTemplate.length; ++i) {
       if(i == 0) continue; //Matrikelnummer
 
       let line = linesTemplate[i];
@@ -262,6 +258,7 @@ export class SheetComponent implements OnInit {
 
       //Kriterien verletzt
       console.log("Error parsing Template at line: " + i + " --> " + line)
+      return null;
     }
 
     //console.log(result)
@@ -270,8 +267,9 @@ export class SheetComponent implements OnInit {
 
   readAnswers(text: string): SubmissionValidationResult {
     let answers = [];
-    //let template = this.submissionTemplate;
-    let template = this.testTemplate();
+    let template = this.submissionTemplate;
+
+    //let template = this.testTemplate();
 
     for (var i = 0; i < template.tasks.length; ++i) {
       let task: TemplateTask = template.tasks[i];

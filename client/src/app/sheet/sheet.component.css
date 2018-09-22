@@ -30,4 +30,6 @@ mat-card-content {
 
 #submissionsList{
 	    overflow: auto;
+	    flex-grow: 1;
+	    max-height: 350px;
 }
