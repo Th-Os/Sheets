@@ -31,7 +31,7 @@ export class TaskService {
   }
 
   getTask(id: any): Observable<Task> {
-    const url = `${this.tasksUrl}/${id}`;
+    const url = `${this.tasksUrl}/${id}/_aggregate`;
     return this.http.get<Task>(url).pipe(
       catchError(this.handleError<Task>(`getTask id=${id}`))
     );

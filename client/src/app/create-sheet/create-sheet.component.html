@@ -4,16 +4,20 @@
 
 <div class="container mt-5">
   <h3>
-    <mat-form-field id="title" *ngIf="sheet">
+    <mat-form-field id="titleInput" *ngIf="sheet">
       <input matInput type="text" [(ngModel)]="sheet.name">
      </mat-form-field>
   </h3>
   <div class="input-wrapper">
-    <label style="font-weight: bold">Abgabedatum wählen: </label>
+    <label style="font-weight: bold">Abgabedatum wählen:&nbsp;</label>
     <input [(ngModel)]="sheet.submissiondate"
            [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
     <owl-date-time #dtPicker1></owl-date-time>
+    <div style="float: right">
+      <mat-checkbox [(ngModel)]="sheet.persistent">Immer als Vorlage speichern</mat-checkbox>
+    </div>
   </div>
+
   <br>
   <div class="row">
     <div class="col-12 col-lg-5 col-md-5">
@@ -22,23 +26,30 @@
         <mat-card-content>
           <mat-divider></mat-divider>
           <br>
-          <div *ngIf="sheet">
-            <h4 style="text-align: center">{{sheet.name}}</h4>
-            <br>
-            <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
-            <br>
-          </div>
+          <mat-progress-spinner *ngIf="loadingSheet"
+                                color="primary"
+                                mode="indeterminate"
+                                [diameter]="100"
+                                style="margin:0 auto;">
+          </mat-progress-spinner>
           <div *ngIf="sheet.exercises">
-            <ol>
+            <div *ngIf="sheet">
+              <h4 style="text-align: center">{{sheet.name}}</h4>
+              <br>
+              <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
+              <br>
+            </div>
+            <ol class="listHeader">
               <li *ngFor="let exercise of sheet.exercises">
-                <!--Todo: Find way to display points-->
-                <h5><label>{{exercise.name}} </label> <label *ngIf="exercise.tasks"> ({{exercise._id | pointcalculationPipe}} Punkte)</label></h5>
+                <!--Todo: Find way to update points dynamically-->
+                <h5><label class="alignLabel">{{exercise.name}} ({{exercise.tasks | pointcalculationPipe}} Punkte)</label></h5>
                 <p>{{exercise.description}}</p>
                 <div *ngIf="exercise.tasks">
                   <ol  style="list-style-type: lower-alpha">
                     <li *ngFor="let task of exercise.tasks">
-                      <label>{{task.question}}</label>
                       <label style="float: right">{{task.points}} Punkte</label>
+                      <label class="alignLabel">{{task.question}}</label>
+                      <p class="alignLabel">{{task.choices}}</p>
                     </li>
                   </ol>
                 </div>
@@ -55,6 +66,12 @@
         <mat-card-title>Erstellen</mat-card-title>
         <mat-card-content>
           <mat-divider></mat-divider><br>
+          <mat-progress-spinner *ngIf="loadingSheet"
+                                color="primary"
+                                mode="indeterminate"
+                                [diameter]="100"
+                                style="margin:0 auto;">
+          </mat-progress-spinner>
           <div *ngIf="sheet.exercises">
             <ol>
               <li *ngFor="let exercises of sheet.exercises">
@@ -124,24 +141,41 @@
                                     </mat-form-field>
                                   </div>
                                   <div *ngIf="tasks.solution.type === 'range'">
-                                    <mat-form-field>
-                                      <input matInput type="text" placeholder="Von,Bis" [(ngModel)]="tasks.solution.range">
+                                    <label>Von:&nbsp;</label>
+                                    <mat-form-field class="rangeInput">
+                                      <input matInput type="number" [(ngModel)]="tasks.solution.range.from">
+                                    </mat-form-field>
+                                    <label>&nbsp;Bis:&nbsp;</label>
+                                    <mat-form-field class="rangeInput">
+                                      <input matInput type="number" [(ngModel)]="tasks.solution.range.to">
                                     </mat-form-field>
                                   </div>
                                   <div *ngIf="tasks.solution.type === 'regex'">
-                                    <!--Todo: Maybe use multiple input fields instead of one?-->
-                                    <mat-form-field>
-                                      <!--<input matInput type="text" placeholder="Regex..." [(ngModel)]="tasks.solution.regex"><br>-->
-                                      <input matInput type="text" placeholder="Regex..." [(ngModel)]="regexExpression"><br>
+                                    <mat-form-field class="regexInput">
+                                       <input matInput type="text" placeholder="Regex hinzufügen" [(ngModel)]="regexToAdd"><br>
                                     </mat-form-field>
-                                    <label *ngIf="!regexValid" style="color: red">Falsches Format!</label>
-                                    <button mat-icon-button title="RegEx hinzufügen" style="float: right" (click)="checkAndAddRegex(exercises, tasks)">
+                                    <label *ngIf="!regexValidToAdd" style="color: red">Falsches Format!</label>
+                                    <button mat-icon-button title="RegEx hinzufügen" style="float: right" (click)="checkAndAddRegex(tasks)">
                                       <mat-icon color="secondary">add</mat-icon>
                                     </button>
                                     <br>
-                                    <label>{{tasks.solution.regex}}</label>
+                                    <mat-form-field class="regexInput">
+                                      <input matInput type="text" placeholder="Regex löschen" [(ngModel)]="regexToDelete"><br>
+                                    </mat-form-field>
+                                    <label *ngIf="!regexValidToDelete" style="color: red">Eintrag nicht gefunden!</label>
+                                    <button mat-icon-button title="RegEx entfernen" style="float: right" (click)="deleteRegexFromString(tasks)">
+                                      <mat-icon color="secondary">delete</mat-icon>
+                                    </button>
                                   </div>
                                 </mat-grid-tile>
+                                <div *ngIf="tasks.solution.type === 'regex'">
+                                  <mat-grid-tile>
+                                    <label>Gespeicherte Regex-Einträge:</label>
+                                  </mat-grid-tile>
+                                  <mat-grid-tile>
+                                    <label>{{tasks.solution.regex | regexFormatPipe}}</label>
+                                  </mat-grid-tile>
+                                </div>
                               </div>
                               <mat-grid-tile>
                                 <label>Punkte:</label>
@@ -170,6 +204,7 @@
                               </mat-grid-tile>
                             </mat-grid-list>
                           </div>
+                          <br>
                         </li>
                       </ol>
                     </div>
@@ -185,13 +220,13 @@
                 <br>
               </li>
             </ol>
+            <button mat-icon-button title="Aufgabe hinzufügen" (click)="addExercise()">
+              <mat-icon color="secondary">add</mat-icon>
+            </button>
+            <button style="float: right" (click)="saveProgress()">
+              Save
+            </button>
           </div>
-          <button mat-icon-button title="Aufgabe hinzufügen" (click)="addExercise()">
-            <mat-icon color="secondary">add</mat-icon>
-          </button>
-          <button style="float: right" (click)="saveProgress()">
-            Save
-          </button>
         </mat-card-content>
       </mat-card>
     </div>

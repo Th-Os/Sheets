@@ -35,18 +35,21 @@ export class CourseComponent implements OnInit {
   }
 
   getCourse(): void {
+    this.course = new Course('', '', '', 0);
     const id = this.route.snapshot.paramMap.get('id');
     this.courseService.getCourse(id)
       .subscribe(course => this.course = course);
   }
 
-  // Todo: Fix: Switches to sheets site (routing problem?) when deleting sheet
-  delete(sheet: Sheet): void {
-    //this.course.sheets = this.course.sheets.filter(s => s !== sheet);
-
+   delete(sheet: Sheet): void {
     const sheetIndex = this.course.sheets.indexOf(sheet);
     this.sheetService.deleteSheet(sheet).subscribe(_ => {
-      this.course.sheets.splice(sheetIndex, 1);
+      if (this.sheets.length > 1) {
+        this.sheets.splice(sheetIndex, 1);
+      } else {
+        this.sheets = [];
+      }
+      this.course.sheets = this.sheets;
       this.courseService.updateCourse(this.course);
     });
   }

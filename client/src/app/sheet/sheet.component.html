@@ -15,7 +15,10 @@
         <div id="dropzone" *ngIf="!submissionsAvaliable">
           Abgaben hinzufügen
         </div>
-        <mat-list id="submissionsList" *ngIf="sheet" >
+
+        <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
+
+        <mat-list id="submissionsList" *ngIf="sheet && !loadInProgress" >
           <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
             <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
             <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>

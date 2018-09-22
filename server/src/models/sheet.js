@@ -29,7 +29,7 @@ var sheetSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    perstistent: {
+    persistent: {
         type: Boolean,
         default: false
     }

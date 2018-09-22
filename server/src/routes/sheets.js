@@ -16,6 +16,41 @@ router.get('/:id', verify, function(req, res) {
         });
 });
 
+router.get('/:id/_aggregate', verify, function(req, res) {
+    Sheet.findById(req.params.id).populate([
+        {
+            path: 'exercises',
+            model: 'Exercise',
+            populate:
+                {
+                    path: 'tasks',
+                    model: 'Task',
+                    populate: { path: 'solution' }
+                }
+        }, {
+            path: 'submissions',
+            model: 'Submission',
+            populate:
+                [
+                    {
+                        path: 'answers',
+                        model: 'Answer',
+                        populate:
+                            {
+                                path: 'task',
+                                populate: { path: 'solution' }
+                            }
+                    },
+                    {
+                        path: 'student'
+                    }
+                ]
+        }
+    ]).exec().then((doc) => {
+        res.send(doc);
+    }).catch((err) => res.status(500).send(err));
+});
+
 router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Sheet)
         .then((doc) => res.status(200).send(doc))

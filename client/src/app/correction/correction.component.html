@@ -38,7 +38,7 @@
     </div>
     <div class="col h-100">
       <app-correction-interface *ngIf="selected_task !== null && selected_submission !== null" [task_id]="selected_task" [submission_id]="selected_submission"></app-correction-interface>
-      <div class="d-flex justify-content-center align-items-center">Bitte Abgage und Aufgabe auswählen.</div>
+      <div *ngIf="selected_submission === null || selected_task === null" class="d-flex justify-content-center align-items-center">Bitte Abgage und Aufgabe auswählen.</div>
     </div>
     <div class="col-lg-3 col-md-3 col">
       <mat-card>

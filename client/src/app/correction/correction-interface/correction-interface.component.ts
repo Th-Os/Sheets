@@ -28,7 +28,7 @@ export class CorrectionInterfaceComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.getTask();
+    if (this.task_id !== null) this.getTask();
     this.getSolution()
   }
 
