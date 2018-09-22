@@ -25,16 +25,10 @@ export class SheetService {
   constructor(private http: HttpClient,
     private messageSnackbarService: MessageSnackbarService) { }
 
-  /*getSheets (): Observable<Sheet[]> {
-    return this.http.get<Sheet[]>(this.sheetsUrl)
-      .pipe(
-        catchError(this.handleError('getSheets', []))
-      );
-    }*/
-
-    getSheets(id: string): Observable<Sheet[]> {
-      const url = `${this.coursesUrl}/${id}/sheets`;
-      return this.http.get<Sheet[]>(url)
+  // Same function as getCourseSheets in course-service
+  getSheets(id: string): Observable<Sheet[]> {
+    const url = `${this.coursesUrl}/${id}/sheets`;
+    return this.http.get<Sheet[]>(url)
       .pipe(
         catchError(this.handleError('getSheets', []))
         );
@@ -48,7 +42,14 @@ export class SheetService {
         );
     }
 
-    /** PUT: update the hero on the server */
+  getSheetComplete(id: string): Observable<Sheet> {
+    const url = `${this.sheetsUrl}/${id}/_aggregate`;
+    return this.http.get<Sheet>(url).pipe(
+      catchError(this.handleError<Sheet>(`getSheet id=${id}`))
+    );
+  }
+
+  /** PUT: update the hero on the server */
   /*updateSheet (sheet: Sheet): Observable<any> {
     console.log('Service: update sheet: ' + sheet.name);
     return this.http.put<Sheet>(this.sheetsUrl + '/' + sheet._id, sheet, httpOptions).pipe(

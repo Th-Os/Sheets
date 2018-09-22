@@ -8,7 +8,7 @@ export class Sheet {
   public submissions: Submission[];
   public submissiondate: string;
   public exercises: Exercise[];
-  public  min_req_points: number;
+  public min_req_points: number;
   public persistent: boolean;
 
   constructor(){
