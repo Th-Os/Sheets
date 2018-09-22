@@ -21,17 +21,17 @@
 <div class="container mt-5 h-100">
   <div class="row">
     <div class="col-lg-3 col-md-3 col">
-      <mat-card>
+      <mat-card class="h-100 scroll-overview material-scroll">
         <mat-card-title>Abgaben</mat-card-title>
         <mat-card-content class="d-flex justify-content-center align-items-center h-100">
           <mat-spinner *ngIf="loadingSubmissions"></mat-spinner>
-          <mat-list *ngIf="!loadingSubmissions">
+          <mat-nav-list *ngIf="!loadingSubmissions">
             <mat-list-item *ngFor="let submission of submissions" role="listitem" class="list-selectable"
                            [class.active]="submission._id === selected_submission"
                            (click)="selected_submission = submission._id">
               {{ submission._id }}
             </mat-list-item>
-          </mat-list>
+          </mat-nav-list>
         </mat-card-content>
       </mat-card>
     </div>
@@ -46,14 +46,10 @@
           <mat-nav-list *ngIf="!loadingExercisesWithTasks">
             <ng-container *ngFor="let exercise of exercises; let exerciseIndex = index;">
               <h3 matSubheader>{{exerciseIndex}}. {{exercise.name}}</h3>
-              <mat-list-item *ngFor="let task of exercise.tasks; let taskIndex = index;">
+              <mat-list-item *ngFor="let task of exercise.tasks; let taskIndex = index;"
+                             (click)="selected_task = task._id"
+                             [class.active]="selected_task === task._id">
                 <h4 matLine>{{taskIndex}}.) {{task.question}}</h4>
-              </mat-list-item>
-              <mat-list-item *ngFor="let task of exercise.tasks; let taskIndex = index;">
-                <a matLine href="#">{{ task.question }}</a>
-                <button mat-icon-button (click)="selected_task = task._id">
-                  <mat-icon>info</mat-icon>
-                </button>
               </mat-list-item>
               <mat-divider></mat-divider>
             </ng-container>

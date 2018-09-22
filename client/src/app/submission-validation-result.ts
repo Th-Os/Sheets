@@ -38,6 +38,4 @@ export class SubmissionValidationResult {
  	return ret
  };
 
-
->>>>>>> dev
 }

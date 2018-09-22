@@ -14,7 +14,7 @@ import * as JSZip from 'jszip';
 import {MatSnackBar} from '@angular/material';
 import {Inject} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+import {MatDialog,} from '@angular/material';
 import {SubmissionUploadErrorDialogComponent} from "../submission-upload-error-dialog/submission-upload-error-dialog.component";
 import {Exercise} from "../models/exercise";
 import {Template} from "../template";

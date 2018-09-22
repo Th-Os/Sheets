@@ -17,11 +17,11 @@
   right: 0;
 }
 
-.list-selectable.active {
-  color: blue;
+.active {
+  background-color: #9c004b1f;
+  color: #9C004B;
 }
 
-.list-selectable:hover {
-  text-decoration: underline;
-  cursor: pointer;
+.material-scroll {
+
 }

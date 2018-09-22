@@ -4,6 +4,7 @@ import {SheetService} from "../services/sheet.service";
 import {Task} from '../models/task';
 import {Submission} from "../models/submission";
 import {Exercise} from "../models/exercise";
+import {TaskService} from "../services/task.service";
 
 @Component({
   selector: 'app-correction',
@@ -17,13 +18,14 @@ export class CorrectionComponent implements OnInit {
   exercises: Exercise[];
   tasks: Task[] = [];
   submissions: Submission[];
-  selected_submission: string;
-  selected_task: string;
+  selected_submission: string = null;
+  selected_task: string = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sheetService: SheetService
+    private sheetService: SheetService,
+    private taskService: TaskService,
   ) { }
 
   ngOnInit() {
@@ -38,9 +40,23 @@ export class CorrectionComponent implements OnInit {
         exercises => this.exercises = exercises,
         error => console.error( error ),
         () => {
+          this.exercises.forEach((exercise, index) => {
+            if (exercise.tasks.length > 0) {
+              this.taskService.getTasks(exercise._id).subscribe(
+                tasks => exercise.tasks = tasks,
+                error => console.error(error),
+                () => this.exercises[index] = exercise
+              );
+            }
+          })
+        });
+    /*
+          console.log(this.selected_task)
           if (this.selected_task === null) this.selected_task = this.exercises[0].tasks[0]._id;
+          console.log(this.selected_task)
           this.loadingExercisesWithTasks = false;
         });
+        */
   }
 
   getSubmissions() {
