@@ -1,8 +1,9 @@
 <mat-card>
   <mat-card-title>Korrektur</mat-card-title>
   <mat-card-content class="justify-content-center align-items-center h-100">
+    <mat-spinner *ngIf="loadingTask || loadingSolution"></mat-spinner>
     <div class="d-flex align-items-center justify-content-between">
-      <div><h1>{{task.question}}</h1></div>
+      <div *ngIf="task"><h1>{{task.order +1 }}.){{task.question}}</h1></div>
       <div>
 
       </div>

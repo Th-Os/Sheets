@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {Component, OnInit, Input, OnChanges, SimpleChange, SimpleChanges} from '@angular/core';
 import {SolutionService} from "../../services/solution.service";
 import {AnswerService} from "../../services/answer.service";
 import {Solution} from "../../models/solution";
@@ -10,14 +10,9 @@ import {Task} from '../../models/task';
   templateUrl: './correction-interface.component.html',
   styleUrls: ['./correction-interface.component.css']
 })
-export class CorrectionInterfaceComponent implements OnInit {
+export class CorrectionInterfaceComponent implements OnChanges, OnInit {
 
-  @Input() set task_id(val: string) {
-    console.log('previous task_id = ', this.task_id);
-    console.log('currently selected task_id=', val);
-    this.task_id = this.task;
-    this._item.status = 'In Process';
-  }
+  @Input() task_id: string;
   @Input() submission_id: string;
 
   loadingTask: boolean = false;
@@ -33,15 +28,25 @@ export class CorrectionInterfaceComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.getCorrection()
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.getCorrection()
+  }
+
+  getCorrection(): void {
+    this.task = this.solution = null;
     this.getTask();
-    this.getSolution()
+    this.getSolution();
   }
 
   getTask(): void {
     this.loadingTask = true;
-    console.log(this.task_id)
     this.taskService.getTask(this.task_id).subscribe(
-      task => this.task = task
+      task => this.task = task,
+      error => console.error( error ),
+      () => this.loadingTask = false
     );
   }
 
