@@ -5,6 +5,7 @@ import {Task} from '../models/task';
 import {Submission} from "../models/submission";
 import {Exercise} from "../models/exercise";
 import {TaskService} from "../services/task.service";
+import {Sheet} from "../models/sheet";
 
 @Component({
   selector: 'app-correction',
@@ -13,11 +14,15 @@ import {TaskService} from "../services/task.service";
 })
 export class CorrectionComponent implements OnInit {
 
+  loadingSheet: boolean = false;
   loadingSubmissions: boolean = false;
   loadingExercisesWithTasks: boolean = false;
+
+  sheet: Sheet;
   exercises: Exercise[];
   submissions: Submission[];
   selected_submission: string = null;
+
   selected_task: string = null;
 
   constructor(
@@ -28,8 +33,17 @@ export class CorrectionComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.getSheet();
     this.getExercisesWithTasks();
     this.getSubmissions();
+  }
+
+  getSheet(): void {
+    this.sheetService.getSheet(this.route.snapshot.paramMap.get('id')).subscribe(
+      sheet => this.sheet = sheet,
+      error => console.error( error ),
+      () => this.loadingSheet = false
+    )
   }
 
   getExercisesWithTasks() {

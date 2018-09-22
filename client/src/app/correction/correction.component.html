@@ -44,15 +44,15 @@
       <mat-card>
         <mat-card-title>Aufgaben</mat-card-title>
         <mat-card-content class="d-flex justify-content-center align-items-center h-100">
-          <mat-spinner *ngIf="loadingExercisesWithTasks"></mat-spinner>
-          <mat-nav-list *ngIf="!loadingExercisesWithTasks">
-            <ng-container *ngFor="let exercise of exercises; let exerciseIndex = index;">
-              <h3 matSubheader>{{exerciseIndex}}. {{exercise.name}}</h3>
+          <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
+          <mat-nav-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
+            <ng-container *ngFor="let exercise of exercises">
+              <h3 matSubheader>{{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}</h3>
               <mat-list-item *ngIf="exercises.length === 0" (click)="getExercisesWithTasks()">Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
               <mat-list-item *ngFor="let task of exercise.tasks; let taskIndex = index;"
                              (click)="selected_task = task._id"
                              [class.active]="selected_task === task._id">
-                <h4 matLine>{{taskIndex}}.) {{task.question}}</h4>
+                <h4 matLine>{{task.order + 1}}.) {{task.question}}</h4>
               </mat-list-item>
               <mat-divider></mat-divider>
             </ng-container>

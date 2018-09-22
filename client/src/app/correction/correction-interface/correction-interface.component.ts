@@ -1,9 +1,10 @@
-import {Component, OnInit, Input, OnChanges, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, OnInit, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {SolutionService} from "../../services/solution.service";
 import {AnswerService} from "../../services/answer.service";
 import {Solution} from "../../models/solution";
 import {TaskService} from "../../services/task.service";
 import {Task} from '../../models/task';
+import {Answer} from "../../models/answer";
 
 @Component({
   selector: 'app-correction-interface',
@@ -17,6 +18,9 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
 
   loadingTask: boolean = false;
   task: Task;
+
+  loadingAnswer: boolean = false;
+  answer: Answer;
 
   loadingSolution: boolean = false;
   solution: Solution;
@@ -36,9 +40,10 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
   }
 
   getCorrection(): void {
-    this.task = this.solution = null;
+    this.task = this.solution = this.answer =  null;
     this.getTask();
     this.getSolution();
+    this.getAnswer();
   }
 
   getTask(): void {
@@ -56,6 +61,15 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
       solution => this.solution = solution,
       error => console.error( error ),
       () => this.loadingSolution = false
+    )
+  }
+
+  getAnswer(): void {
+    this.loadingAnswer = true;
+    this.answerService.getAnswer(this.submission_id, this.task_id).subscribe(
+      answer => this.answer = answer,
+      error => console.error( error ),
+      () => this.loadingAnswer = false
     )
   }
 

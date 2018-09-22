@@ -25,10 +25,18 @@ router.post('/:id/answers', verify, function(req, res) {
 });
 
 router.get('/:id/answers/search', verify, function(req, res) {
-    let taskId = req.query.q.split('=')[1];
+    let taskId = req.query.task_id;
+    console.log('gesucht: ' + taskId)
     methods.get(req.params.id, Submission).then((doc) => {
         let promises = [];
         let answers = [];
+        for (let answerId of doc.answers) {
+            Answer.findById(answerId).exec().then( answer => {
+                if (answer.task !== undefined
+                    && answer.task.equals(taskId)) res.status(200).send(answer)
+        });
+        }
+        /*
         for (let answerId of doc.answers) {
             promises.push(Answer.findById(answerId).exec().then((answer) => {
                 if (answer.task.equals(taskId)) {
@@ -43,6 +51,7 @@ router.get('/:id/answers/search', verify, function(req, res) {
         }).catch((err) => {
             res.status(500).send(err);
         });
+        */
     }).catch((err) => {
         if (err.name === StatusError.name) res.status(err.status).send(err.message);
         else res.status(500).send(err);
