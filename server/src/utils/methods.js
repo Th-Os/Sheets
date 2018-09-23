@@ -5,13 +5,21 @@ import mongoose from 'mongoose';
  * @param {*} id
  * @param {*} model
  */
-function get(id, model) {
+function get(id, model, populateObj) {
     return new Promise((resolve, reject) => {
-        model.findById(id, (err, doc) => {
-            if (err) reject(new StatusError(400, err));
-            else if (doc === undefined) reject(new StatusError(404, model.modelName + ' not found.'));
-            else resolve(doc);
-        });
+        if (populateObj === undefined) {
+            model.findById(id, (err, doc) => {
+                if (err) reject(new StatusError(400, err));
+                else if (doc === undefined) reject(new StatusError(404, model.modelName + ' not found.'));
+                else resolve(doc);
+            });
+        } else {
+            model.findById(id).populate(populateObj).exec((err, doc) => {
+                if (err) reject(new StatusError(400, err));
+                else if (doc === undefined) reject(new StatusError(404, model.modelName + ' not found.'));
+                else resolve(doc);
+            });
+        } 
     });
 }
 
