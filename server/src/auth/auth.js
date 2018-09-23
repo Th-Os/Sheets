@@ -53,6 +53,9 @@ router.get('/logout', function(req, res) {
     });
 });
 
+/**
+ * @deprecated register will be deleted.
+ */
 router.post('/register', function(req, res) {
     if (req !== undefined && req.body !== undefined && req.body.password !== undefined) {
         let hashedPassword = bcrypt.hashSync(req.body.password, 8);
