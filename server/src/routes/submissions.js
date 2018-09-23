@@ -24,29 +24,49 @@ router.post('/:id/answers', verify, function(req, res) {
         });
 });
 
+router.get('/search', verify, function(req, res) {
+    let query = req.query.q.split('=');
+    if (query[0] === 'user') {
+        let userId = query[1];
+        Submission.find({ user: userId }).then((subs) => {
+            if (subs === undefined || subs.length === 0) {
+                res.status(404).send('No submissions found');
+            }
+            res.send(subs);
+        }).catch((err) => res.status(500).send(err));
+    } else {
+        res.send(500).send('Query "' + query[0] + '" not available.');
+    }
+});
+
 router.get('/:id/answers/search', verify, function(req, res) {
-    let taskId = req.query.q.split('=')[1];
-    methods.get(req.params.id, Submission).then((doc) => {
-        let promises = [];
-        let answers = [];
-        for (let answerId of doc.answers) {
-            promises.push(Answer.findById(answerId).exec().then((answer) => {
-                if (answer.task.equals(taskId)) {
-                    answers.push(answer);
-                }
+    let query = req.query.q.split('=');
+    if (query[0] === 'task') {
+        let taskId = query[1];
+        methods.get(req.params.id, Submission).then((doc) => {
+            let promises = [];
+            let answers = [];
+            for (let answerId of doc.answers) {
+                promises.push(Answer.findById(answerId).exec().then((answer) => {
+                    if (answer.task.equals(taskId)) {
+                        answers.push(answer);
+                    }
+                }).catch((err) => {
+                    res.status(500).send(err);
+                }));
+            }
+            Promise.all(promises).then(() => {
+                res.status(200).send(answers);
             }).catch((err) => {
                 res.status(500).send(err);
-            }));
-        }
-        Promise.all(promises).then(() => {
-            res.status(200).send(answers);
+            });
         }).catch((err) => {
-            res.status(500).send(err);
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
         });
-    }).catch((err) => {
-        if (err.name === StatusError.name) res.status(err.status).send(err.message);
-        else res.status(500).send(err);
-    });
+    } else {
+        res.send(500).send('Query "' + query[0] + '" not available.');
+    }
 });
 
 export default router;
