@@ -29,6 +29,7 @@ submissionSchema.post('remove', function(doc) {
     });
     mongoose.model('Sheet').find({submissions: doc._id}).exec((err, sheets) => {
         if (err) throw err;
+        if (sheets === undefined || sheets === null) throw Error('No Sheet found.');
         let sheet = (sheets instanceof Array) ? sheets[0] : sheets;
         sheet.submissions = sheet.submissions.filter(e => !(e.equals(doc._id)));
         sheet.save();
