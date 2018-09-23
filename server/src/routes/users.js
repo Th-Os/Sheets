@@ -15,6 +15,10 @@ router.get('/', verify, function(req, res) {
         });
 });
 
+router.get('/roles', verify, function(req, res) {
+    res.send(Role.schema.tree.name.enum);
+});
+
 router.post('/', verify, function(req, res) {
     let data = req.body;
     if (!(data instanceof Array)) data = [data];
