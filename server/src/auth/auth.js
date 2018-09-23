@@ -22,6 +22,7 @@ router.post('/login', function(req, res) {
         var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
         if (!passwordIsValid) {
             return res.status(401).send({
+                user: user._id,
                 auth: false,
                 token: null
             });
@@ -37,6 +38,7 @@ router.post('/login', function(req, res) {
 
         // return the information including token as JSON
         res.status(200).send({
+            user: user._id,
             auth: true,
             token: token
         });
@@ -71,6 +73,7 @@ router.post('/register', function(req, res) {
                 });
                 console.log(token);
                 res.status(200).send({
+                    user: user,
                     auth: true,
                     token: token
                 });
