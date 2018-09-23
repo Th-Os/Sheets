@@ -19,7 +19,7 @@ function get(id, model, populateObj) {
                 else if (doc === undefined) reject(new StatusError(404, model.modelName + ' not found.'));
                 else resolve(doc);
             });
-        } 
+        }
     });
 }
 
