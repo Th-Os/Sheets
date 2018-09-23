@@ -74,7 +74,6 @@ router.post('/register', function(req, res) {
                 }, process.env.SECRET, {
                     expiresIn: 86400 // expires in 24 hours
                 });
-                console.log(token);
                 res.status(200).send({
                     user: user,
                     auth: true,
