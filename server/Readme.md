@@ -4,8 +4,8 @@
 
 | address  | method  | params  | body  | success | fail |
 |---|---|---|---|---|---|
-| /auth/register  | POST  | | username, password  |  { auth: true, token: token } | 500, 404 |
-| /auth/login  | POST  | |username, password  | { auth: true, token: token }  | 500, 404, 401  |
+| @deprecated - soon /auth/register  | POST  | | username, password  |  { user: {User}, auth: true, token: token } | 500, 404 |
+| /auth/login  | POST  | |username, password  | { user: userID, auth: true, token: token }  | 500, 404, 401  |
 | /auth/logout  | GET  | |  |  { auth: false, token: null }  |   |
 | /correct  | POST  | | {Submission} with id  | new {Submission}  |  400 |
 |/courses		|GET	|	|	|200, [Courses]	|401, 404, 400	|
