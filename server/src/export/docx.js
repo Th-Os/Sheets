@@ -1,4 +1,4 @@
-/* import report from 'jsreport-core';
+import report from 'jsreport-core';
 import docx from 'jsreport-html-embedded-in-docx';
 
 function DOCXRenderer() {
@@ -73,7 +73,7 @@ DOCXRenderer.prototype.send = function(res) {
                         engine: 'none'
                     }
                 }).then((response) => {
-                    res.writeHead(200, {'Content-Type': 'application/vnd.openxmlformats-officedocument. wordprocessingml.document'});
+                    res.writeHead(200, {'Content-Type': 'application/vnd.openxmlformats-officedocument. wordprocessingml.document', 'Content-disposition': 'attachment; filename=' + this.docx.name + '.docx'});
                     res.end(response.content, 'binary');
                 });
             });
@@ -83,44 +83,6 @@ DOCXRenderer.prototype.send = function(res) {
     }).catch((e) => {
         console.error(e);
     });
-};
-*/
-import officegen from 'officegen';
-
-function DOCXRenderer() {
-    this.docx = officegen({
-        'type': 'docx',
-        'title': '',
-        'author': 'Sheets Team',
-        'subject': '',
-        'keywords': '',
-        'description': ''
-    });
-
-    this.docx.on('finalize', function(written) {
-        console.log('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
-    });
-    this.docx.on('error', function(err) {
-        console.log(err);
-    });
-}
-
-DOCXRenderer.prototype.addHeader = function() {
-    this.docx.getHeader().createP().addText('This is the header');
-    return this;
-};
-
-DOCXRenderer.prototype.add = function() {
-    this.docx.createP().addText('hello');
-    return this;
-};
-
-DOCXRenderer.prototype.send = function(res) {
-    res.writeHead(200, {
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.documentml.document',
-        'Content-disposition': 'attachment; filename=test.docx'
-    });
-    this.docx.generate(res);
 };
 
 export default DOCXRenderer;
