@@ -6,6 +6,7 @@ import {Exercise} from "../models/exercise";
 import {TaskService} from "../services/task.service";
 import {Sheet} from "../models/sheet";
 import {CorrectionInterfaceComponent} from "./correction-interface/correction-interface.component";
+import {StudentService} from "../services/student.service";
 
 @Component({
   selector: 'app-correction',
@@ -33,6 +34,7 @@ export class CorrectionComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private sheetService: SheetService,
+    private studentService: StudentService,
     private taskService: TaskService,
   ) { }
 
@@ -81,9 +83,18 @@ export class CorrectionComponent implements OnInit {
       submissions => this.submissions = submissions,
       error => console.error( error ),
       () => {
-        if (this.selected_submission === null &&
-            this.submissions.length > 0) this.selected_submission = this.submissions[0]._id;
-        this.loadingSubmissions = false;
+        this.submissions.forEach((submission, index) => {
+          this.studentService.getStudent(submission.student).subscribe(
+            student => this.submissions[index].student = student,
+            error => console.error( error ),
+            () => {
+              if (this.submissions.length -1 === index) {
+                if (this.selected_submission === null && this.submissions.length > 0) this.selected_submission = this.submissions[0]._id;
+                this.loadingSubmissions = false;
+              }
+            }
+          )
+        })
       });
   }
 

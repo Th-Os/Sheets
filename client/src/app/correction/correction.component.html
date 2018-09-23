@@ -26,11 +26,18 @@
         <mat-card-content class="d-flex justify-content-center align-items-center h-100">
           <mat-spinner *ngIf="loadingSubmissions"></mat-spinner>
           <mat-nav-list *ngIf="!loadingSubmissions">
-            <mat-list-item *ngIf="submissions.length === 0" (click)="getSubmissions()">Abgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
+            <mat-list-item *ngIf="submissions.length === 0" (click)="getSubmissions()">
+              Abgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+            </mat-list-item>
             <mat-list-item *ngFor="let submission of submissions" role="listitem" class="list-selectable"
                            [class.active]="submission._id === selected_submission"
                            (click)="selected_submission = submission._id">
-              {{ submission._id }}
+              <h3 mat-line *ngIf="submission.student != null">
+                {{submission.student.lastname}} {{submission.student.name}}
+              </h3>
+              <p mat-line class="text-grayed" *ngIf="submission.student != null">
+                {{ submission.student.mat_nr }}
+              </p>
             </mat-list-item>
           </mat-nav-list>
         </mat-card-content>

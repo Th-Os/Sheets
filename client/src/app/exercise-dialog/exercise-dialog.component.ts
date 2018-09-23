@@ -26,8 +26,8 @@ export class ExerciseDialogComponent implements OnInit {
   courses: Course[];
   sheets = [];
   useTemplate: boolean;
-  selectedCourseId: number;
-  selectedSheetId: number;
+  selectedCourseId: string;
+  selectedSheetId: string;
   fetchedSheet: Sheet;
 
   constructor(
@@ -80,7 +80,7 @@ export class ExerciseDialogComponent implements OnInit {
     this.courses = courses;
   }
 
-  findCourseIdOfSheet(courses: Course[], sheetId: number): void {
+  findCourseIdOfSheet(courses: Course[], sheetId: string): void {
     courses.forEach(course => {
       course.sheets.forEach(sheet => {
         if (sheet._id === sheetId) {

@@ -21,14 +21,17 @@ import {SolutionService} from '../services/solution.service';
 })
 export class CreateSheetComponent implements OnInit {
 
+  loadingSheet: boolean = false;
   sheet: Sheet;
+  selectedExercise: string = null;
+  selectedTask: string = null;
+
   regexToAdd = '';
   regexToDelete = '';
   // Todo: Use correct pattern
   regexPattern = '[a-zA-Z0-9]+/+b$';
   regexValidToAdd = true;
   regexValidToDelete = true;
-  loadingSheet = false;
 
   constructor(
     private location: Location,
@@ -40,13 +43,38 @@ export class CreateSheetComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.getSheet();
+  }
+
+  getSheet() {
+    const id = this.route.snapshot.paramMap.get('id');
     this.loadingSheet = true;
-    this.sheet = new Sheet();
-    this.sheetService.getSheetComplete(this.route.snapshot.paramMap.get('id')).subscribe(sheet => {
-      this.sheet = sheet;
-      this.loadingSheet = false;
-    });
-    // this.getSheet(this.route.snapshot.paramMap.get('id'));
+    this.sheetService.getSheet(id).subscribe(
+      sheet => this.sheet = sheet,
+      error => console.log(error),
+      () => {
+        this.sheetService.getSheetExercises(this.sheet._id).subscribe(
+          exercises => this.sheet.exercises = exercises,
+          error => console.error( error ),
+          () => {
+            this.sheet.exercises.forEach( (exercise, index) => {
+                this.taskService.getTasks(exercise._id).subscribe(
+                  tasks => this.sheet.exercises[index].tasks = tasks,
+                  error => console.error( error ),
+                  () => {
+                    if (this.sheet.exercises.length - 1 === index) {
+                      if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
+                        this.selectedExercise = this.sheet.exercises[0]._id;
+                      }
+                      this.loadingSheet = false
+                    }
+                  }
+                )
+            });
+          }
+        );
+      }
+    );
   }
 
   /*getSheet(sheetId: string): void {

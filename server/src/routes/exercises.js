@@ -6,6 +6,12 @@ import {Exercise, Task} from '../models/sheet';
 
 const router = express.Router();
 
+router.get('/:id', verify, function(req, res) {
+    Exercise.findById(req.params.id).exec()
+        .then( doc => res.status(200).send(doc) )
+        .catch( err => res.status(500).send(err) );
+});
+
 router.get('/:id/_aggregate', verify, function(req, res) {
     Exercise.findById(req.params.id).populate({
         path: 'exercises',

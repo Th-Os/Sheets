@@ -28,8 +28,8 @@ export class ExerciseService {
         catchError(this.handleError('getExercises', []))
       );
   }
-  /** GET hero by id. Will 404 if id not found */
-  getExercise(id: number): Observable<Exercise> {
+  /** GET exercise by id. Will 404 if id not found */
+  getExercise(id: string): Observable<Exercise> {
     const url = `${this.exercisesUrl}/${id}`;
     return this.http.get<Exercise>(url).pipe(
       catchError(this.handleError<Exercise>(`getExercise id=${id}`))
@@ -44,6 +44,13 @@ export class ExerciseService {
     );
   }*/
 
+  updateExercise(exercise: Exercise): Observable<Exercise> {
+    return this.http.put<Exercise>(`${this.exercisesUrl}/${exercise._id}`, exercise, httpOptions).pipe(
+      tap(_ => this.log(`updated exercise id=${exercise._id}`)),
+      catchError(this.handleError<any>('updateExercise')))
+  }
+
+  /*
   updateExercise (exercise: Exercise): Exercise {
     let updatedExercise = new Exercise();
     this.http.put<Exercise>(this.exercisesUrl + '/' + exercise._id, exercise, httpOptions).pipe(
@@ -52,7 +59,7 @@ export class ExerciseService {
       .subscribe(res => updatedExercise = res);
     return updatedExercise;
   }
-
+  */
   /** POST: add a new hero to the server */
   addExercise (sheetsId: string, exercise: Exercise): Observable<Exercise> {
     const url = `${this.sheetsUrl}/${sheetsId}/exercises`;

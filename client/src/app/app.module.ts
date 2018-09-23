@@ -21,6 +21,7 @@ import { MomentPipe } from './pipes/moment.pipe';
 import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
 import { RegexFormatPipe } from './pipes/regex-format.pipe';
 import { NumberToCharPipe } from './pipes/number-to-char.pipe';
+import { CreateSheetInterfaceComponent } from './create-sheet/create-sheet-interface/create-sheet-interface.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { NumberToCharPipe } from './pipes/number-to-char.pipe';
     PointcalculationPipe,
     RegexFormatPipe,
     NumberToCharPipe,
+    CreateSheetInterfaceComponent,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,

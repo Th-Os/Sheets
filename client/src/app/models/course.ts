@@ -8,6 +8,6 @@ export class Course {
     public semester: string,
     public min_req_sheets: number,
     public sheets?: Sheet[],
-    public _id?: number,
+    public _id?: string,
   ) {  }
 }
