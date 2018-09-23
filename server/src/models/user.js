@@ -27,10 +27,11 @@ var userSchema = new mongoose.Schema({
         ref: 'Role',
         required: false
     },
-    courses: {
-        type: String,
+    courses: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Course',
         required: false
-    }
+    }]
 });
 
 var roleSchema = new mongoose.Schema({
