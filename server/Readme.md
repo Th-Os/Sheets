@@ -47,6 +47,7 @@
 |/answers/:id		|PUT	|	|:id, {Answers}	|200, {Answers}	|400, 401, 404	|
 |**Users**		|	|	|	|	|	|
 |/users		|GET	|	|	|200, [Users]	|400, 401, 404	|
+|/users/roles		|GET	|	|	|200, [Roles]	| |
 |/users		|POST	|	|{Users}	|200, {Users}	|400, 401, 404	|
 |/users/:id		|PUT	|	|:id, {Users}	|200, {Users}	|400, 401, 404	|
 |/users/:id		|DELETE	|	|:id	|200	|403, 404	|
