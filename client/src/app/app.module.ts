@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {Form, FormsModule} from '@angular/forms';
+import { ReactiveFormsModule, FormsModule} from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SheetsMaterialComponentsModule } from './sheets-material-components.module';
 import { HttpClientModule } from '@angular/common/http';
@@ -50,6 +50,7 @@ import { CreateSheetInterfaceComponent } from './create-sheet/create-sheet-inter
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule,
     SheetsMaterialComponentsModule,
     SheetsOtherComponentsModule,

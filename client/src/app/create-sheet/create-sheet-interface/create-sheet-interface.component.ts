@@ -3,6 +3,7 @@ import {ExerciseService} from "../../services/exercise.service";
 import {TaskService} from "../../services/task.service";
 import {Exercise} from "../../models/exercise";
 import {Task} from "../../models/task";
+import {FormControl, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-create-sheet-interface',
@@ -19,6 +20,9 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
   exercise: Exercise;
   task: Task;
 
+  newRegex: string;
+  regex = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9]+/+b$')]);
+
   constructor(
     private exerciseService: ExerciseService,
     private taskService: TaskService,
@@ -30,6 +34,17 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
 
   ngOnChanges() {
     this.reloadEdit();
+  }
+
+  getRegexErrorMessage() {
+    return this.regex.hasError('required') ? 'Bitte Regex eingeben.' :
+      this.regex.hasError('pattern') ? 'Falsches Format! Bitte folgendes Format benutzen: Wort/b' : '';
+  }
+
+  addRegex() {
+    console.log(this.regex)
+    this.task.solution.regex += this.regex.value;
+    this.newRegex = '';
   }
 
   reloadEdit() {

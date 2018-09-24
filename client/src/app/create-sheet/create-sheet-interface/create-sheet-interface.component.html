@@ -37,16 +37,30 @@
       <ng-container *ngIf="task.solution.type && task.solution.type != 'none'">
         <mat-divider [inset]="true" class="mb-4"></mat-divider>
         <mat-list-item *ngIf="task.solution.type === 'regex'">
+          <mat-form-field class="w-100 mb-4" hintLabel="Bitte in folgendem Format eingeben: Wort/b">
+            <input  class="w-100" matInput placeholder="Regex hinzufügen" [formControl]="regex" required>
+            <mat-error *ngIf="regex.invalid">{{getRegexErrorMessage()}}</mat-error>
+            <mat-icon *ngIf="regex.valid" style="cursor: pointer;" matSuffix (click)="addRegex()">add</mat-icon>
+          </mat-form-field>
+          <mat-list>
+            <h3 matSubheader>Gespeicherte Regex-Einträge:</h3>
+            <mat-list-item>
+              {{task.solution.regex | regexFormatPipe}}
+            </mat-list-item>
+            <!--
+                      <div *ngIf="tasks.solution.type === 'regex'">
+                            <mat-grid-tile>
+                              <label>Gespeicherte Regex-Einträge:</label>
+                            </mat-grid-tile>
+                            <mat-grid-tile>
+                              <label>{{tasks.solution.regex | regexFormatPipe}}</label>
+                            </mat-grid-tile>
+                          </div>
+            -->
+          </mat-list>
           <!--
               <div *ngIf="tasks.solution.type === 'regex'">
-                              <mat-form-field class="regexInput">
-                                <input matInput type="text" placeholder="Regex hinzufügen" [(ngModel)]="regexToAdd"><br>
-                              </mat-form-field>
-                              <label *ngIf="!regexValidToAdd" style="color: red">Falsches Format!</label>
-                              <button mat-icon-button title="RegEx hinzufügen" style="float: right" (click)="checkAndAddRegex(tasks)">
-                                <mat-icon color="secondary">add</mat-icon>
-                              </button>
-                              <br>
+
                               <mat-form-field class="regexInput">
                                 <input matInput type="text" placeholder="Regex löschen" [(ngModel)]="regexToDelete"><br>
                               </mat-form-field>
