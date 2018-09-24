@@ -11,7 +11,7 @@ class RouteError extends Error {
             Error.captureStackTrace(this, RouteError);
         }
 
-        res.status(this.status).send(this.message);
+        if (!res.headerSent) res.status(this.status).send(this.message);
     }
 }
 

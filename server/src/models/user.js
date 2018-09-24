@@ -20,23 +20,22 @@ var userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    // TODO: set required to true
-    // is false because of registration
     role: {
         type: Schema.Types.ObjectId,
         ref: 'Role',
-        required: false
+        required: true
     },
-    courses: {
-        type: String,
+    courses: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Course',
         required: false
-    }
+    }]
 });
 
 var roleSchema = new mongoose.Schema({
     name: {
         type: String,
-        enum: ['admin', 'courseadmin', 'tutor'],
+        enum: ['admin', 'lecturer', 'tutor'],
         required: true
     }
 });

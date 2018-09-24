@@ -118,7 +118,8 @@ router.delete('/:id/submissions', verify, function(req, res) {
     Sheet.findById(req.params.id, (err, sheet) => {
         if (err) res.status(400).send(err);
         Submission.find().where('_id').in(sheet.submissions).exec((err, subs) => {
-            if (err) res.status(400).send(err);
+            if (err) res.status(500).send(err);
+            if (subs === undefined || (subs.length !== undefined && subs.length > 0)) res.status(404).send('No submissions found.');
             for (let s of subs) s.remove();
             sheet.submissions = [];
             sheet.save();
