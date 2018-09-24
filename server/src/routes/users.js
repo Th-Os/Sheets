@@ -26,12 +26,12 @@ router.post('/', verify, function(req, res) {
     let promises = [];
     let response = [];
     for (let item of data) {
-        if (('role' in item) === true) {
+        /*if (('role' in item) === true) {
             Role.create(item.role, (err, doc) => {
                 if (err) res.status(400).send(err);
                 item.role = doc._id;
             });
-        }
+        }*/
         item.password = bcrypt.hashSync(item.password, 8);
         promises.push(User.create(item).then((user) => {
             response.push(user.username);
