@@ -55,6 +55,9 @@ router.get('/:id', verify, function(req, res) {
 });
 
 router.put('/:id', verify, function(req, res) {
+    if (req.body.password) {
+        req.body.password = bcrypt.hashSync(req.body.password, 8);
+    }
     methods.put(req.params.id, req.body, User)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
