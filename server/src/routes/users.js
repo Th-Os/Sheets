@@ -45,7 +45,8 @@ router.post('/', verify, function(req, res) {
 });
 
 router.get('/:id', verify, function(req, res) {
-    methods.get(req.params.id, User, { path: 'role' })
+    // methods.get(req.params.id, User, { path: 'role' })
+    methods.get(req.params.id, User)
         .then((doc) => res.status(200).send(doc))
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
