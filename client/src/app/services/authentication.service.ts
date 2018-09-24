@@ -3,7 +3,8 @@ import {BehaviorSubject, Observable, of} from 'rxjs';
 import {MessageSnackbarService} from '../message-snackbar.service';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {map, catchError, tap} from 'rxjs/internal/operators';
-import {reject} from 'q';
+import {UserService} from './user.service';
+import {User} from '../models/user';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -18,7 +19,8 @@ export class AuthenticationService {
   public isUserloggedIn = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient,
-              private messageSnackbarService: MessageSnackbarService
+              private messageSnackbarService: MessageSnackbarService,
+              private userService: UserService
   ) { }
 
   // Todo: See if even necessary to give back userid (should all be saved in local storage)
@@ -30,11 +32,21 @@ export class AuthenticationService {
           catchError(this.handleError<any>('loginUser')))
         .subscribe(res => {
           if (res && res.auth && res.token) {
-            localStorage.setItem('currentUser', res.token);
-            this.isUserloggedIn.next(true);
-            // Todo: save whole user in local storage
-            //resolve(res._id);
-            resolve('abc');
+            this.userService.getUser(res.user).subscribe(user => {
+              const storeUser = {
+                _id: user._id,
+                username: user.username,
+                password: user.password,
+                forename: user.forename,
+                lastname: user.lastname,
+                role: user.role,
+                courses: user.courses,
+                token: res.token
+              };
+              localStorage.setItem('currentUser', JSON.stringify(storeUser));
+              this.isUserloggedIn.next(true);
+              resolve(user._id);
+            });
           } else {
             this.isUserloggedIn.next(false);
             reject('error');

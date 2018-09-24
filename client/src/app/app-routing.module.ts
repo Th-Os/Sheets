@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: 'sheets/:id', component: SheetComponent },
   { path: 'sheet/:id/create', component: CreateSheetComponent },
   { path: 'sheet/:id/edit', component: CreateSheetComponent},
-  { path: 'profile', component: UserprofileComponent}, // Todo: Probably add id or get it from local storage
+  { path: 'profile', component: UserprofileComponent},
 ];
 
 @NgModule({

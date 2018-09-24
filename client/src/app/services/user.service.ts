@@ -17,13 +17,11 @@ const httpOptions = {
 export class UserService {
 
   private userUrl = 'http://localhost:3000/users';
-  private roleUrl = 'http://localhost:3000/roles';
 
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService
   ) { }
 
-  // Todo: Implement route in backend
   getUser(userId: string): Observable<User> {
     const url = `${this.userUrl}/${userId}`;
     return this.http.get<User>(url, httpOptions)
@@ -74,9 +72,9 @@ export class UserService {
       );
   }
 
-  // Todo: Implement in server
-  getRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(this.roleUrl, httpOptions)
+  // Todo: Adjust to Role[] if necessary
+  getRoles(): Observable<string[]> {
+    return this.http.get<string[]>(this.userUrl + '/roles', httpOptions)
       .pipe(
         catchError(this.handleError('getRoles', []))
       );

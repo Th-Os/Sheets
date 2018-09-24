@@ -15,9 +15,11 @@ import {Role} from '../models/role';
 export class UserDialogComponent implements OnInit {
 
   courses: Course[];
-  roles: Role[];
+  //roles: Role[];
+  roles: string[];  // Todo: Replace if role should be objectId
   user: User;
   saving = false;
+  loggedInUser: any;
 
   constructor(private userService: UserService,
               private courseService: CourseService,
@@ -26,7 +28,11 @@ export class UserDialogComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.data.user;
+    // Todo: Maybe find better way of not using hashed password (without hash could be hashed again)
+    this.user.password = '';
     this.getCourses();
+    this.getRoles();
+    this.loggedInUser = JSON.parse(localStorage.getItem('currentUser'));
   }
 
   getCourses(): void {

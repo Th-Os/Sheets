@@ -17,6 +17,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @NgModule({
   imports: [
@@ -29,7 +30,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatRadioModule, MatGridListModule,
     MatSnackBarModule, MatProgressSpinnerModule,
     MatDatepickerModule, MatNativeDateModule,
-    MatProgressBarModule, MatCheckboxModule
+    MatProgressBarModule, MatCheckboxModule,
+    MatButtonToggleModule
   ],
   exports: [
     MatToolbarModule, MatCardModule,
@@ -41,7 +43,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatSelectModule, MatFormFieldModule,
     MatRadioModule, MatGridListModule,
     MatDatepickerModule, MatNativeDateModule,
-    MatProgressBarModule, MatCheckboxModule
+    MatProgressBarModule, MatCheckboxModule,
+    MatButtonToggleModule
   ],
 })
 export class SheetsMaterialComponentsModule { }

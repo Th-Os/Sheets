@@ -2,11 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import {MatDialog} from '@angular/material';
 
-import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
+import {UserDialogComponent} from '../user-dialog/user-dialog.component';
 import {UserService} from '../services/user.service';
+import {CourseService} from '../services/course.service';
+import {SubmissionService} from '../services/submission.service';
 import {User} from '../models/user';
 import {Course} from '../models/course';
-import {UserDialogComponent} from '../user-dialog/user-dialog.component';
+import {Submission} from '../models/submission';
+import {Answer} from '../models/answer';
 
 @Component({
   selector: 'app-userprofile',
@@ -15,35 +18,119 @@ import {UserDialogComponent} from '../user-dialog/user-dialog.component';
 })
 export class UserprofileComponent implements OnInit {
 
-  tutors: User[];
+  users: User[];
+  usersCourses: Course[];
   loadingUsers = false;
-  correctionProgress = 30;
-  loggedInUser = 'tutor'; // Todo: get from local storage data later
+  //correctionProgress = 30;
+  loggedInUser: any;
+  viewProfile = false;
+
+  //submissions: Submission[];
+  correctionProgress = [];
 
   constructor(private location: Location,
               private userService: UserService,
+              private courseService: CourseService,
+              private submissionService: SubmissionService,
               public dialog: MatDialog
   ) { }
 
   ngOnInit() {
-    this.getTutors();
+    this.getUsers();
+    const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.loggedInUser = {
+      _id: storedUser._id,
+      username: storedUser.username,
+      password: storedUser.password,
+      forename: storedUser.forename,
+      lastname: storedUser.lastname,
+      role: storedUser.role,
+      courses: storedUser.courses
+    };
+    this.getCoursesOfUser();
+
+    // For own user profile
+    this.calculateProgressionForSubmissions();
+
+    /*this.getSubmissionsForUser(this.loggedInUser._id).then(_ => {
+      this.getAnswers().then(_ => this.calculateProgressionForSubmissions());
+    });*/
   }
 
-  getTutors(): void {
+  getUsers(): void {
     this.loadingUsers = true;
     this.userService.getUsers().subscribe(users => {
-      this.tutors = users;
+      this.users = users;
       this.loadingUsers = false;
     });
   }
 
+  getCoursesOfUser(): void {
+    this.usersCourses = [];
+    this.loggedInUser.courses.forEach(courseId => {
+      this.courseService.getCourse(courseId).subscribe(course => {
+        this.usersCourses.push(course);
+      });
+    });
+  }
+
+  getSubmissionsForUser(userId: string): Promise<Submission[]> {
+    //this.submissions = [];
+    return new Promise<Submission[]>(resolve => {
+      this.submissionService.getSubmissionsForUser(userId).subscribe(submissions => {
+        //this.submissions = submissions;
+        resolve(submissions);
+      });
+    });
+  }
+
+  getAnswers(submissions: Submission[]): Promise<Submission[]> {
+    return new Promise<Submission[]>(resolve => {
+      submissions.forEach(submission => {
+        submission.answers.forEach(answerObject => {
+          this.submissionService.getAnswer(answerObject).subscribe(answer => {
+            answerObject = answer;
+            resolve(submissions);
+          });
+        });
+      });
+    });
+  }
+
+  calculateProgressionForSubmissions(): void {
+    this.getSubmissionsForUser(this.loggedInUser._id).then(submissions => {
+      this.getAnswers(submissions).then(filledSubmissions => {
+        let answerCount = 0;
+        let corrected = 0;
+        let submissionCount = 0;
+        // console.log('Größe: ' + filledSubmissions.length);
+        filledSubmissions.forEach(submission => {
+          submissionCount++;
+          submission.answers.forEach(answer => {
+            answerCount++;
+            if (answer.corrected) {
+              corrected++;
+            }
+          });
+          // console.log('fortschritt: ' + corrected + ' ' + answerCount);
+          this.correctionProgress.push({name: 'Abgabe ' + submissionCount, progress: (corrected / answerCount) * 100});
+        });
+      });
+    });
+  }
+
+  calculateProgressionForUser(userId: string): number {
+    // Todo: Implement
+    return 30;
+  }
+
   delete(user: User): void {
-    const userIndex = this.tutors.indexOf(user);
+    const userIndex = this.users.indexOf(user);
     this.userService.deleteUser(user).subscribe(_ => {
-      if (this.tutors.length > 0) {
-        this.tutors.splice(userIndex, 1);
+      if (this.users.length > 0) {
+        this.users.splice(userIndex, 1);
       } else {
-        this.tutors = [];
+        this.users = [];
       }
     });
   }
@@ -56,13 +143,8 @@ export class UserprofileComponent implements OnInit {
     this.showEditDialog(false, false, user);
   }
 
-  addCourseTutor(user: User): void {
+  addCourseToTutor(user: User): void {
     this.showEditDialog(false, true, user);
-  }
-
-  updateOwnData(): void {
-    // Todo: update own data from storage data + prohibit normal user from changing role and courses
-    //this.showEditDialog(false, false, {});
   }
 
   showEditDialog(create: boolean, addCourse: boolean, user: User): void {
@@ -74,10 +156,10 @@ export class UserprofileComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: User) => {
       if (!result) { return; }
       if (create) {
-        this.tutors.push(result);
+        this.users.push(result);
       } else {
-        const userIndex = this.tutors.findIndex(c => c._id === user._id);
-        this.tutors[userIndex] = result;
+        const userIndex = this.users.findIndex(c => c._id === user._id);
+        this.users[userIndex] = result;
       }
     });
   }

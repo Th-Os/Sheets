@@ -7,6 +7,7 @@ export class User {
   password: string;
   forename: string;
   lastname: string;
-  role: Role;
-  courses: string; // Todo: Probably replace with Course[] later
+  //role: Role;
+  role: string; // Todo: Replace depending on, if role should be objectId or string
+  courses: Course[];
 }

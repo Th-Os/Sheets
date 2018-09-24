@@ -21,6 +21,7 @@ import { RegexFormatPipe } from './pipes/regex-format.pipe';
 import { LoginComponent } from './login/login.component';
 import { UserprofileComponent } from './userprofile/userprofile.component';
 import { UserDialogComponent } from './user-dialog/user-dialog.component';
+import { FilterusersPipe } from './pipes/filterusers.pipe';
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import { UserDialogComponent } from './user-dialog/user-dialog.component';
     LoginComponent,
     UserprofileComponent,
     UserDialogComponent,
+    FilterusersPipe,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,

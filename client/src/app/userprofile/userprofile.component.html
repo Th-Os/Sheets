@@ -1,26 +1,53 @@
 <button mat-fab color="primary" class="position-absolute m-5" (click)="goBack()">
   <i class="material-icons">arrow_back</i>
 </button>
-<!--Todo: Probably add button or sth to toggle managementview and own profile view-->
-<div class="container mt-5 h-100" *ngIf="loggedInUser === ('admin' || 'courseadmin')">
-  <h1>Profil</h1>
+
+<!--Todo: Display above card without hardcoding postion-->
+<div *ngIf="loggedInUser.role === 'admin'">
+  <mat-button-toggle-group id="toggleButton" name="profileView" aria-label="Change View" [(ngModel)]="viewProfile">
+    <mat-button-toggle [value]="false">Management</mat-button-toggle>
+    <mat-button-toggle [value]="true">Profil</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+<div class="container mt-5 h-100" *ngIf="loggedInUser.role === 'admin' && !viewProfile">
   <div class="row h-100">
     <div class="col-12 col-lg-4 col-md-4">
       <mat-card>
-        <mat-card-title>Tutorenmanagement</mat-card-title>
-        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+        <mat-card-title>Usermanagement</mat-card-title>
+        <mat-card-content class="d-flex justify-content-left align-items-left">
           <mat-progress-spinner *ngIf="loadingUsers"
                                 color="primary"
                                 mode="indeterminate"
                                 [diameter]="50">
           </mat-progress-spinner>
-          <mat-list *ngIf="tutors && tutors.length > 0">
-            <mat-list-item *ngFor="let tutor of tutors" role="listitem">
-              <a mat-line style="cursor: pointer" (click)="addCourseTutor(tutor)">{{ tutor.forename }}&nbsp;{{tutor.lastname}} </a>
-              <button mat-icon-button (click)="update(tutor)">
+          <mat-list *ngIf="users && users.length > 0">
+            <h4 mat-subheader>Admins</h4>
+            <mat-list-item *ngFor="let user of users | filterUsersPipe:'admin'" role="listitem">
+              <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
+              <button mat-icon-button (click)="update(user)">
                 <mat-icon color="secondary">edit</mat-icon>
               </button>
-              <button mat-icon-button (click)="delete(tutor)">
+              <button mat-icon-button (click)="delete(user)">
+                <mat-icon color="secondary">delete</mat-icon>
+              </button>
+            </mat-list-item>
+            <h4 mat-subheader>Dozenten</h4>
+            <mat-list-item *ngFor="let user of users | filterUsersPipe:'lecturer'" role="listitem">
+              <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
+              <button mat-icon-button (click)="update(user)">
+                <mat-icon color="secondary">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="delete(user)">
+                <mat-icon color="secondary">delete</mat-icon>
+              </button>
+            </mat-list-item>
+            <h4 mat-subheader>Tutoren</h4>
+            <mat-list-item *ngFor="let user of users | filterUsersPipe:'tutor'" role="listitem">
+              <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
+              <button mat-icon-button (click)="update(user)">
+                <mat-icon color="secondary">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="delete(user)">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>
             </mat-list-item>
@@ -35,10 +62,10 @@
       <mat-card>
         <mat-card-title>Korrekturfortschritt</mat-card-title>
         <mat-card-content>
-          <mat-list *ngIf="tutors && tutors.length > 0">
-            <mat-list-item *ngFor="let tutor of tutors" role="listitem">
-              <a mat-line>{{ tutor.forename }}&nbsp;{{tutor.lastname}} </a>
-              <mat-progress-bar mode="determinate" [value]="correctionProgress"></mat-progress-bar>
+          <mat-list *ngIf="users && users.length > 0">
+            <mat-list-item *ngFor="let user of users" role="listitem">
+              <a mat-line>{{ user.forename }}&nbsp;{{user.lastname}} </a>
+              <mat-progress-bar mode="determinate" [value]="calculateProgressionForUser(user._id)"></mat-progress-bar>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
@@ -47,29 +74,53 @@
   </div>
 </div>
 
-<div class="container mt-5 h-100" *ngIf="loggedInUser === 'tutor'">
-  <h1>Profil</h1>
+<div class="container mt-5 h-100" *ngIf="(loggedInUser.role === ('tutor' || 'lecturer')) || (loggedInUser.role === 'admin' && viewProfile)">
+  <!--<h1>Profil:&nbsp;{{loggedInUser.forename}}&nbsp;{{loggedInUser.lastname}}</h1>-->
   <div class="row h-100">
     <div class="col-12 col-lg-4 col-md-4">
       <mat-card>
         <mat-card-title>
           Eigene Daten
-          <button mat-icon-button id="editIcon" (click)="updateOwnData()">
+          <button mat-icon-button id="editIcon" (click)="update(loggedInUser)">
             <mat-icon color="secondary">edit</mat-icon>
           </button>
         </mat-card-title>
-        <!--Todo: Fill with storage data-->
-        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
-          Eigene Daten hier
+        <mat-card-content class="d-flex justify-content-left align-items-left h-100">
+          <mat-list>
+            <mat-list-item>
+              <label>Username:</label><label>{{loggedInUser.username}}</label>
+            </mat-list-item>
+            <mat-list-item>
+            <label>Vorname:</label><label>{{loggedInUser.forename}}</label>
+            </mat-list-item>
+            <mat-list-item>
+              <label>Nachname:</label><label>{{loggedInUser.lastname}}</label>
+            </mat-list-item>
+            <mat-list-item>
+              <label>Rolle:</label><label>{{loggedInUser.role}}</label>
+            </mat-list-item>
+            <!--Todo: Display courses correctly-->
+            <mat-list-item>
+              <label>Kurse:</label>
+              <ul *ngIf="usersCourses">
+                <li *ngFor="let course of usersCourses">{{course.name}}</li>
+              </ul>
+            </mat-list-item>
+          </mat-list>
         </mat-card-content>
       </mat-card>
     </div>
     <div class="col-12 col-lg-4 col-md-4">
       <mat-card>
         <mat-card-title>Eigener Korrekturfortschritt</mat-card-title>
-        <!--Todo: Fill with own progression data-->
-        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
-          Eigener Fortschritt hier
+        <!--Todo: Display list over full width of card-->
+        <mat-card-content class="d-flex justify-content-left align-items-left h-100">
+          <mat-list>
+            <mat-list-item *ngFor="let subProgress of correctionProgress">
+              <a mat-line>{{subProgress.name}}</a>
+              <mat-progress-bar mode="determinate" [value]="subProgress.progress"></mat-progress-bar>
+            </mat-list-item>
+          </mat-list>
         </mat-card-content>
       </mat-card>
     </div>
