@@ -64,6 +64,17 @@ sheetSchema.post('remove', (doc) => {
         let course = (courses instanceof Array) ? courses[0] : courses;
         course.sheets = course.sheets.filter(e => !(e.equals(doc._id)));
         course.save();
+        let promises = [];
+        for (let sheetId of course.sheets) {
+            promises.push(mongoose.model('Sheet').findById(sheetId).exec()
+                .then((sheet) => {
+                    if (sheet.order > doc.order) {
+                        sheet.order -= 1;
+                        sheet.save();
+                    }
+                }));
+        }
+        Promise.all(promises).then(() => console.log('saved all other sheets'));
     });
 });
 
