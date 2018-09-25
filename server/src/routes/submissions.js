@@ -6,6 +6,12 @@ import {Submission, Answer} from '../models/submission';
 
 const router = express.Router();
 
+router.put('/:id', verify, function(req, res) {
+    methods.put(req.params.id, req.body, Submission)
+        .then((doc) => res.send(doc))
+        .catch((err) => res.status(500).send(err));
+});
+
 router.get('/:id/answers', verify, function(req, res) {
     methods.get(req.params.id, Submission, { path: 'answers' })
         .then((doc) => res.status(200).send(doc.answers))
