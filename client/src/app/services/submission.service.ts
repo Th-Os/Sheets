@@ -4,7 +4,7 @@ import { MessageSnackbarService } from '../message-snackbar.service';
 import { Observable, of } from 'rxjs';
 
 import {Submission} from '../models/submission';
-import {catchError} from 'rxjs/internal/operators';
+import {catchError, tap} from 'rxjs/internal/operators';
 import {Answer} from '../models/answer';
 
 const httpOptions = {
@@ -27,6 +27,22 @@ export class SubmissionService {
       .pipe(
         catchError(this.handleError('getSubmissionsForUser', []))
       );
+  }
+
+  /*updateSubmission(submission: Submission): Observable<any> {
+    return this.http.put(`${this.submissionsUrl}/${submission._id}`, httpOptions)
+      .pipe(
+        tap(_ => this.log(`updated submission id=${submission._id}`)),
+        catchError(this.handleError<any>('updateSubmission')));
+  }*/
+
+  updateSubmission (submission: any): Submission {
+    let updatedSubmission = new Submission();
+    this.http.put<Submission>(`${this.submissionsUrl}/${submission._id}`, httpOptions).pipe(
+      tap(_ => this.log(`updated submission id=${submission._id}`)),
+      catchError(this.handleError<any>('updateSubmission')))
+      .subscribe(res => updatedSubmission = res);
+    return updatedSubmission;
   }
 
   private handleError<T> (operation = 'operation', result?: T) {

@@ -26,6 +26,9 @@
           <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
 
       </mat-card-content>
+        <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
+          <mat-icon>person</mat-icon>
+        </button>
       <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">
         <mat-icon>delete</mat-icon>
       </button>

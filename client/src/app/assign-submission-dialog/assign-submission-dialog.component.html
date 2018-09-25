@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Aufgaben vergeben</h2>
+<mat-dialog-content>
+  <div id="submissionList">
+    <mat-selection-list #submissionsList role="listbox" [(ngModel)]="selectedSubmissions">
+      <mat-list-option *ngFor="let submission of submissions" role="option" [value]="submission">
+        <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
+        <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
+  <div>
+    <i class="material-icons">
+      forward
+    </i>
+  </div>
+  <div id="userList">
+    <mat-selection-list #userList role="listbox" [(ngModel)]="selectedUser">
+      <mat-list-option
+        #selUser
+        *ngFor="let user of users"
+        [value]="user"
+        [disabled]="userList.selectedOptions.selected.length > 0 && !selUser.selected">
+        <h3 mat-line *ngIf="user != null">{{user.lastname}} {{user.forename}}</h3>
+        <p mat-line class="text-grayed" *ngIf="user != null"> {{ user.role.name }} </p>
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onClose()">Abbrechen</button>
+  <button mat-button (click)="onSubmit()" [disabled]="submissionsList.selectedOptions.selected.length < 1 || userList.selectedOptions.selected.length < 1">
+    Speichern
+  </button>
+</mat-dialog-actions>

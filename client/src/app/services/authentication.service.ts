@@ -62,7 +62,7 @@ export class AuthenticationService {
 
   checkIfUserIsLoggedIn(): void {
     if (localStorage.getItem('currentUser') !== null) {
-      console.log(localStorage.getItem('currentUser'));
+      // console.log(localStorage.getItem('currentUser'));
       this.isUserloggedIn.next(true);
     } else {
       this.isUserloggedIn.next(false);
