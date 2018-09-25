@@ -244,7 +244,8 @@ export class SheetComponent implements OnInit {
             console.log("done reading zip");
             this.sheet.submissions = submissions;
             console.log("validation ok");
-            console.log("uploading with data: " + this.sheet);
+            console.log("uploading with data: ");
+            console.log(this.sheet)
             this.uploadAndCorrectSubmissions();
           }else{
             this.displayValidationResults();

@@ -53,11 +53,9 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <div class="col-12 col-lg-4 col-md-4">
+    <div class="col-12 col-lg-4 col-md-4" *ngIf="!loadingSubmissions && sheet.submissions.length > 0">
       <button mat-raised-button color="accent" routerLink="./correction">Starte Korrektur</button>
-    </div>
-        <div class="col-12 col-lg-4 col-md-4">
-      <button mat-raised-button color="accent" (click)="autocorrect()">Starte Autokorrektur</button>
+      <button mat-raised-button (click)="autocorrect()"> - autokorrektur test - </button>
     </div>
 </div>
 </div>

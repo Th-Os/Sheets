@@ -36,7 +36,6 @@ function beginCorrection(answers, callback) {
 }
 
 function checkAnswerArray(answers, callback) {
-    console.log(answers)
     let promises = [];
     let errors = [];
     for (let answer of answers) {
