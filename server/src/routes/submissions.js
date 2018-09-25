@@ -24,7 +24,6 @@ router.post('/:id/answers', verify, function(req, res) {
         });
 });
 
-                    next();
 router.get('/search', verify, function(req, res) {
     let query = req.query.q.split('=');
     if (query[0] === 'user') {

@@ -31,8 +31,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
     MatRadioModule, MatGridListModule,
     MatSnackBarModule, MatProgressSpinnerModule,
     MatDatepickerModule, MatNativeDateModule,
-    MatTreeModule,
-    MatButtonToggleModule
+    MatTreeModule, MatProgressBarModule,
+    MatButtonToggleModule, MatCheckboxModule,
   ],
   exports: [
     MatToolbarModule, MatCardModule,
@@ -44,8 +44,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
     MatSelectModule, MatFormFieldModule,
     MatRadioModule, MatGridListModule,
     MatDatepickerModule, MatNativeDateModule,
-    MatTreeModule,
-    MatButtonToggleModule
+    MatTreeModule, MatProgressBarModule,
+    MatButtonToggleModule, MatCheckboxModule,
   ],
 })
 export class SheetsMaterialComponentsModule { }
