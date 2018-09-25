@@ -14,7 +14,7 @@
         [ngClass]="{'active': dropzoneActive}">
 
           <mat-spinner *ngIf="loadingSubmissions || loadingSheet"></mat-spinner>
-          <mat-list id="submissionsList" *ngIf="!loadingSubmissions && !loadingSheet" >
+          <mat-list id="submissionsList" *ngIf="!loadingSubmissions && !loadingSheet && !loadInProgress" >
             <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
               <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
               <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
