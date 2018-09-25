@@ -32,6 +32,16 @@ var sheetSchema = new mongoose.Schema({
     persistent: {
         type: Boolean,
         default: false
+    },
+    template: {
+        flag: {
+            type: Boolean,
+            default: false
+        },
+        points: {
+            type: Number,
+            default: 0
+        }
     }
 });
 
@@ -195,6 +205,7 @@ var taskSchema = new mongoose.Schema({
     }
 });
 
+// TODO: Tasks Reihenfolge der anderen Tasks einer Aufgabe ändern.
 taskSchema.post('remove', (doc) => {
     mongoose.model('Solution').findById(doc.solution, (err, doc) => {
         if (err) throw err;

@@ -17,7 +17,10 @@ router.get('/', verify, function(req, res) {
 });
 
 router.get('/roles', verify, function(req, res) {
-    res.send(Role.schema.tree.name.enum);
+    Role.find({}).exec().then((docs) => {
+        if (docs === undefined || docs.length === 0) res.status(404).send('No roles found');
+        res.send(docs);
+    }).catch((err) => res.status(500).send(err));
 });
 
 router.post('/', verify, function(req, res) {
