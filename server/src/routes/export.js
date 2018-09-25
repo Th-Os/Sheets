@@ -90,7 +90,7 @@ router.get('/word/:id', verify, function(req, res) {
 });
 
 router.get('/csv/:id', verify, function(req, res) {
-    Sheet.findById(req.params.id).populate([
+    methods.get(req.params.id, Sheet, [
         {
             path: 'exercises',
             model: 'Exercise',
@@ -119,7 +119,7 @@ router.get('/csv/:id', verify, function(req, res) {
                     }
                 ]
         }
-    ]).exec().then((sheet) => {
+    ]).then((sheet) => {
         let renderer = new CSVRenderer().addHeader();
         for (let s of sheet.submissions) {
             let maxPoints = 0;
