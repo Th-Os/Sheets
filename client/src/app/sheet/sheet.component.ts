@@ -289,6 +289,11 @@ export class SheetComponent implements OnInit {
     return NaN;
   }
 
+  autocorrect(){
+    this.sheetService.autocorrectSubmissions(this.sheet)
+    console.log("autocorrect")
+  }
+
   parseTemplate(text: string): Template {
     let result = new Template();
 

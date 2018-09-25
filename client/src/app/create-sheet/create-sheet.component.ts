@@ -25,7 +25,7 @@ export class CreateSheetComponent implements OnInit {
   regexToAdd = '';
   regexToDelete = '';
   // Todo: Use correct pattern
-  regexPattern = '[a-zA-Z0-9]+/+b$';
+  regexPattern = '.+/+b$';
   regexValidToAdd = true;
   regexValidToDelete = true;
   loadingSheet = false;
