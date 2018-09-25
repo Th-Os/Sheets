@@ -20,9 +20,12 @@ var userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    role: {
-        //type: Schema.Types.ObjectId,
+    email: {
         type: String,
+        required: false
+    },
+    role: {
+        type: Schema.Types.ObjectId,
         ref: 'Role',
         required: true
     },

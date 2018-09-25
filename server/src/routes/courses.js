@@ -15,6 +15,18 @@ router.get('/', verify, function(req, res) {
     });
 });
 
+// courses/_search?sheet={ID}
+router.get('/_search', verify, function(req, res) {
+    let sheetId = req.query.sheet;
+    if (sheetId !== undefined) {
+        console.log(sheetId);
+        Course.find().where('sheets').in(sheetId).exec().then((doc) => {
+            console.log(doc);
+            res.send(doc);
+        }).catch((err) => res.status(500).send(err));
+    }
+});
+
 router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Course)
         .then((doc) => {

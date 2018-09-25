@@ -4,9 +4,11 @@ import mongoose from 'mongoose';
 function verify(req, res, next) {
     // check if id is a valid mongoose ObjectId:
     if (req.params.id !== undefined) {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            res.status(400).send('Bad ObjectId.');
-            return;
+        if (!(req.params.id === '_search' || req.params.id === '_aggregate' || req.params.id === '_bulk')) {
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                res.status(400).send('Bad ObjectId.');
+                return;
+            }
         }
     }
 

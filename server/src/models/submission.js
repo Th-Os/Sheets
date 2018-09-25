@@ -20,6 +20,7 @@ const submissionSchema = new mongoose.Schema({
     }
 });
 
+// TODO: check submissions delete
 submissionSchema.post('remove', function(doc) {
     mongoose.model('Answer').find().where('_id').in(doc.answers).exec((err, docs) => {
         if (err) throw err;
@@ -29,8 +30,9 @@ submissionSchema.post('remove', function(doc) {
     });
     mongoose.model('Sheet').find({submissions: doc._id}).exec((err, sheets) => {
         if (err) throw err;
-        if (sheets === undefined || sheets === null) throw Error('No Sheet found.');
+        if (sheets === undefined || sheets === null) return;
         let sheet = (sheets instanceof Array) ? sheets[0] : sheets;
+        if (sheet === undefined || sheet === null) return;
         sheet.submissions = sheet.submissions.filter(e => !(e.equals(doc._id)));
         sheet.save();
     });

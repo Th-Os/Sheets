@@ -14,6 +14,7 @@ import {Sheet, Exercise, Task} from '../models/sheet';
 const router = express.Router();
 moment.locale('de');
 
+// TODO: PDF and Word export use ordering starting with 0 and not 1.
 // TODO: refactor RouteError handling. Not working correctly. "HTTP headers set after sending."
 router.get('/pdf/:id', verify, function(req, res) {
     fs.readFile(path.join(__dirname, '../../resources/template.html'), 'utf8', function(err, html) {
@@ -57,15 +58,14 @@ router.get('/word/:id', verify, function(req, res) {
             let sheetId = req.params.id;
             let obj = {};
             Course.find({sheets: sheetId}).exec((err, docs) => {
-                if (err) throw new RouteError(400, err, res);
-                console.log(docs);
+                if (err) throw new RouteError(500, err, res);
                 if (docs === undefined || docs.length === 0) throw new RouteError(404, 'Course not found', res);
                 obj.course = docs[0];
                 Sheet.findById(sheetId, (err, sheet) => {
-                    if (err) throw new RouteError(400, err, res);
+                    if (err) throw new RouteError(500, err, res);
                     if (sheet === undefined || sheet === null) throw new RouteError(404, 'Sheet not found', res);
                     Exercise.find().where('_id').in(sheet.exercises).exec((err, exercises) => {
-                        if (err) throw new RouteError(400, err, res);
+                        if (err) throw new RouteError(500, err, res);
                         if (exercises === undefined || exercises.length === 0) throw new RouteError(404, 'Exercises not found', res);
                         obj.sheet = sheet;
                         obj.sheet.exercises = exercises;
@@ -80,46 +80,59 @@ router.get('/word/:id', verify, function(req, res) {
                             obj.date = toReadableDate(obj.sheet.submissiondate);
                             obj.template = getTemplate(sheet, 'html');
                             new DOCXRenderer().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).name(obj.course.name + ' - ' + sheet.name).send(res);
-                        }).catch((err) => console.error(err));
+                        }).catch((err) => { throw new RouteError(500, err, res); });
                     });
                 });
             });
         } catch (err) {
-            console.error(err);
+            throw new RouteError(500, err, res);
         }
     });
-    // new DOCXRenderer().addHeader().add().send(res);
 });
 
 router.get('/csv/:id', verify, function(req, res) {
-    methods.get(req.params.id, Sheet).then((sheet) => {
-        sheet.populateObj().then(() => {
-            let promises = [];
-            for (let submission of sheet.submissions) {
-                promises.push(submission.populateObj());
-            }
-            Promise.all(promises).then(() => {
-                promises = [];
-                for (let s of sheet.submissions) {
-                    for (let a of s.answers) {
-                        promises.push(a.populateObj());
-                    }
+    methods.get(req.params.id, Sheet, [
+        {
+            path: 'exercises',
+            model: 'Exercise',
+            populate:
+                {
+                    path: 'tasks',
+                    model: 'Task',
+                    populate: { path: 'solution' }
                 }
-                Promise.all(promises).then(() => {
-                    let renderer = new CSVRenderer().addHeader();
-                    for (let s of sheet.submissions) {
-                        let maxPoints = 0;
-                        for (let a of s.answers) {
-                            maxPoints += a.task.points;
-                            a.task.exercise = 0;
-                        }
-                        renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints);
+        }, {
+            path: 'submissions',
+            model: 'Submission',
+            populate:
+                [
+                    {
+                        path: 'answers',
+                        model: 'Answer',
+                        populate:
+                            {
+                                path: 'task',
+                                populate: { path: 'solution' }
+                            }
+                    },
+                    {
+                        path: 'student'
                     }
-                    res.attachment('output.csv').type('text/csv').end(renderer.export());
-                }).catch((err) => console.error(err));
-            }).catch((err) => console.error(err));
-        }).catch((err) => console.error(err));
-    });
+                ]
+        }
+    ]).then((sheet) => {
+        let renderer = new CSVRenderer().addHeader();
+        for (let s of sheet.submissions) {
+            let maxPoints = 0;
+            for (let a of s.answers) {
+                maxPoints += a.task.points;
+                a.task.exercise = 0;
+            }
+            if (sheet.template.flag) maxPoints += sheet.template.points;
+            renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints, sheet.template);
+        }
+        res.attachment('output.csv').type('text/csv').end(renderer.export());
+    }).catch((err) => res.status(500).send(err));
 });
 
 router.get('/template/:id', verify, function(req, res) {
@@ -144,7 +157,7 @@ router.get('/template/:id', verify, function(req, res) {
                 // https://stackoverflow.com/questions/21950049/create-a-text-file-in-node-js-from-a-string-and-stream-it-in-response
                 res.attachment('template.txt').type('txt').end(getTemplate(sheet, 'txt'));
             }).catch((err) => {
-                console.error(err);
+                res.status(500).send(err);
             });
         });
     });
@@ -163,7 +176,7 @@ function getTemplate(sheet, mode) {
     template += newLine;
     for (let exercise of sheet.exercises) {
         if (exercise.tasks !== undefined) {
-            template += 'Aufgabe ' + sheet.order + '.' + exercise.order + ':' + newLine;
+            template += 'Aufgabe ' + (sheet.order + 1) + '.' + (exercise.order + 1) + ':' + newLine;
             for (let task of exercise.tasks) {
                 let choices = task.choices.join(' | ');
                 // Should prevent html from being interpreted.
@@ -171,7 +184,7 @@ function getTemplate(sheet, mode) {
                     choices = choices.replace('<', '&lt;');
                     choices = choices.replace('>', '&gt;');
                 }
-                template += toAlphabeticOrder(task.order) + ')  < ' + choices + ' >' + newLine;
+                template += toAlphabeticOrder(task.order + 1) + ')  < ' + choices + ' >' + newLine;
             }
         }
     }

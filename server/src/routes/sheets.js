@@ -130,16 +130,46 @@ router.get('/:id/submissions', verify, function(req, res) {
         });
 });
 
+router.delete('/:id/exercises', verify, function(req, res) {
+    Sheet.findById(req.params.id).populate({ path: 'exercises' }).exec((err, sheet) => {
+        if (err) {
+            res.status(400).send(err);
+        }
+        for (let e of sheet.exercises) {
+            if (!e.persistent) e.remove();
+        }
+        sheet.exercises = [];
+        sheet.save();
+        res.send('Deleted exercises');
+    });
+});
+
 router.delete('/:id/submissions', verify, function(req, res) {
     Sheet.findById(req.params.id, (err, sheet) => {
-        if (err) res.status(400).send(err);
+        if (err) {
+            res.status(400).send(err);
+            return;
+        }
         Submission.find().where('_id').in(sheet.submissions).exec((err, subs) => {
-            if (err) res.status(500).send(err);
-            if (subs === undefined || (subs.length !== undefined && subs.length > 0)) res.status(404).send('No submissions found.');
-            for (let s of subs) s.remove();
-            sheet.submissions = [];
-            sheet.save();
-            res.send(subs);
+            if (err) {
+                res.status(500).send(err);
+                return;
+            }
+            if (subs === undefined || subs.length === undefined) {
+                let ids = sheet.submissions;
+                sheet.submissions = [];
+                sheet.save();
+                res.status(404).send('No submissions found with submission ids: ' + ids + '. Deleting all references.');
+            } else {
+                try {
+                    for (let s of subs) s.remove();
+                } catch (err) {
+                    return;
+                }
+                sheet.submissions = [];
+                sheet.save();
+                res.send(subs);
+            }
         });
     });
 });
