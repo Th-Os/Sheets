@@ -14,6 +14,7 @@ import {Sheet, Exercise, Task} from '../models/sheet';
 const router = express.Router();
 moment.locale('de');
 
+// TODO: PDF and Word export use ordering starting with 0 and not 1.
 // TODO: refactor RouteError handling. Not working correctly. "HTTP headers set after sending."
 router.get('/pdf/:id', verify, function(req, res) {
     fs.readFile(path.join(__dirname, '../../resources/template.html'), 'utf8', function(err, html) {
