@@ -1,6 +1,5 @@
 import express from 'express';
 import verify from '../auth/verify';
-import bodyParser from 'body-parser';
 import {Submission} from '../models/submission';
 
 class CorrectionError extends Error {}
@@ -70,7 +69,8 @@ function checkAnswer(answer, solution, task) {
             default:
                 throw Error('No specified type found');
         }
-        answer.set({achieved_points: points, auto_corrected: true});
+        let feedback = (points === 0) ? 'Falsch.' : 'Richtig.';
+        answer.set({achieved_points: points, auto_corrected: true, feedback: feedback});
         answer.save().then(() => resolve()).catch((err) => reject(err));
     });
 }
