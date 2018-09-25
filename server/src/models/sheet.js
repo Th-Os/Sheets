@@ -38,6 +38,10 @@ var sheetSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
+        correctly: {
+            type: Boolean,
+            default: true
+        },
         points: {
             type: Number,
             default: 0
