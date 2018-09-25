@@ -40,7 +40,7 @@ function deepGet(id, parent, child, isSingle) {
             if (doc === undefined) reject(new StatusError(404, parent.modelName + ' not found.'));
             child.find().where('_id').in(doc[ids]).exec((err, docs) => {
                 if (err) reject(new StatusError(400, err));
-                if (docs === undefined || docs.length === 0) reject(new StatusError(404, child.modelName + ' not found.'));
+                if (docs === undefined) reject(new StatusError(404, child.modelName + ' not found.'));
                 else resolve(docs);
             });
         });
