@@ -1,15 +1,17 @@
-import {Component, Input, OnChanges, OnInit} from '@angular/core';
-import {ExerciseService} from "../../services/exercise.service";
-import {TaskService} from "../../services/task.service";
-import {Exercise} from "../../models/exercise";
-import {Task} from "../../models/task";
-import {FormControl, Validators} from "@angular/forms";
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ExerciseService } from "../../services/exercise.service";
+import { TaskService } from "../../services/task.service";
+import { Exercise } from "../../models/exercise";
+import { Task } from "../../models/task";
+import { FormControl, Validators } from "@angular/forms";
+import { ValidateRegex } from "../../validators/regex.validator";
 
 @Component({
   selector: 'app-create-sheet-interface',
   templateUrl: './create-sheet-interface.component.html',
   styleUrls: ['./create-sheet-interface.component.css']
 })
+
 export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
 
   @Input() exercise_id: string;
@@ -20,8 +22,7 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
   exercise: Exercise;
   task: Task;
 
-  newRegex: string;
-  regex = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9]+/+b$')]);
+  regex = new FormControl('', [Validators.required, ValidateRegex]);
 
   constructor(
     private exerciseService: ExerciseService,
@@ -38,13 +39,7 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
 
   getRegexErrorMessage() {
     return this.regex.hasError('required') ? 'Bitte Regex eingeben.' :
-      this.regex.hasError('pattern') ? 'Falsches Format! Bitte folgendes Format benutzen: Wort/b' : '';
-  }
-
-  addRegex() {
-    console.log(this.regex)
-    this.task.solution.regex += this.regex.value;
-    this.newRegex = '';
+      this.regex.hasError('validRegex') ? 'Invalider Regex!' : '';
   }
 
   reloadEdit() {
@@ -65,9 +60,12 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
   getTask(): void {
     this.loading = true;
     this.taskService.getTask(this.task_id).subscribe(
-      task  => this.task = task,
-      error => console.error( error ),
-      () => this.loading = false,
+      task  => {
+            this.task = task;
+            this.regex.setValue(task.solution.regex);
+          },
+          error => console.error( error ),
+          () => this.loading = false,
     );
   }
 
@@ -91,7 +89,8 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
       .subscribe(
         null,
         error => console.error( error ),
-        () => this.saving = false)
+        () => this.saving = false
+      )
   }
 
 }

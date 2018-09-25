@@ -36,39 +36,25 @@
       </mat-list-item>
       <ng-container *ngIf="task.solution.type && task.solution.type != 'none'">
         <mat-divider [inset]="true" class="mb-4"></mat-divider>
-        <mat-list-item *ngIf="task.solution.type === 'regex'">
-          <mat-form-field class="w-100 mb-4" hintLabel="Bitte in folgendem Format eingeben: Wort/b">
-            <input  class="w-100" matInput placeholder="Regex hinzufügen" [formControl]="regex" required>
+        <!-- REGEX INPUT -->
+        <mat-list-item *ngIf="task.solution.type === 'regex'" class="w-100">
+          <mat-form-field class="w-100 mb-4">
+            <input type="text" class="w-100" matInput placeholder="Regex hinzufügen" [formControl]="regex" required>
             <mat-error *ngIf="regex.invalid">{{getRegexErrorMessage()}}</mat-error>
-            <mat-icon *ngIf="regex.valid" style="cursor: pointer;" matSuffix (click)="addRegex()">add</mat-icon>
           </mat-form-field>
-          <mat-list>
-            <h3 matSubheader>Gespeicherte Regex-Einträge:</h3>
-            <mat-list-item>
-              {{task.solution.regex | regexFormatPipe}}
-            </mat-list-item>
-            <!--
-                      <div *ngIf="tasks.solution.type === 'regex'">
-                            <mat-grid-tile>
-                              <label>Gespeicherte Regex-Einträge:</label>
-                            </mat-grid-tile>
-                            <mat-grid-tile>
-                              <label>{{tasks.solution.regex | regexFormatPipe}}</label>
-                            </mat-grid-tile>
-                          </div>
-            -->
-          </mat-list>
+        </mat-list-item>
+        <!-- NUMBER INPUT -->
+        <mat-list-item *ngIf="task.solution.type === 'number'" class="w-100">
+          <mat-form-field class="w-100 mb-4">
+            <input type="number" #solutionNumber class="w-100" matInput placeholder="Zahl..." [(ngModel)]="task.solution.number" required>
+            <mat-error *ngIf="!solutionNumber.valid">Bitte Nummer eingeben.</mat-error>
+          </mat-form-field>
           <!--
-              <div *ngIf="tasks.solution.type === 'regex'">
-
-                              <mat-form-field class="regexInput">
-                                <input matInput type="text" placeholder="Regex löschen" [(ngModel)]="regexToDelete"><br>
-                              </mat-form-field>
-                              <label *ngIf="!regexValidToDelete" style="color: red">Eintrag nicht gefunden!</label>
-                              <button mat-icon-button title="RegEx entfernen" style="float: right" (click)="deleteRegexFromString(tasks)">
-                                <mat-icon color="secondary">delete</mat-icon>
-                              </button>
-                            </div>
+          <div *ngIf="tasks.solution.type === 'number'">
+            <mat-form-field>
+              <input matInput type="number" placeholder="Zahl..." [(ngModel)]="tasks.solution.number">
+            </mat-form-field>
+          </div>
           -->
         </mat-list-item>
       </ng-container>
@@ -114,27 +100,9 @@
                     </button>
                     <div *ngIf="tasks.solution">
                       <mat-grid-list [cols]="2" rowHeight="70px">
-                        <mat-grid-tile>
-                          <label>Antworttyp:</label>
-                        </mat-grid-tile>
-                        <mat-grid-tile>
-                          <mat-form-field>
-                            <mat-select placeholder="Typ wählen" [(ngModel)]="tasks.solution.type">
-                              <mat-option value="freetext">Freitext</mat-option>
-                              <mat-option value="number">Zahl</mat-option>
-                              <mat-option value="range">Zahlenbereich</mat-option>
-                              <mat-option value="regex">Regex</mat-option>
-                              <mat-option value="none">Keine</mat-option>
-                            </mat-select>
-                          </mat-form-field>
-                        </mat-grid-tile>
                         <div *ngIf="tasks.solution.type && tasks.solution.type != 'none'">
                           <mat-grid-tile>
                             <label>Antworten:</label>
-                            <div *ngIf="tasks.solution.type === 'regex'">
-                              <br>
-                              <p style="font-size: 80%">Bitte in folgendem Format eingeben: Wort/b</p>
-                            </div>
                           </mat-grid-tile>
                           <mat-grid-tile class="mat-grid-tile-custom">
                             <div *ngIf="tasks.solution.type === 'freetext'">
@@ -143,11 +111,6 @@
                                 <mat-radio-button [value]="true">Volle Punkte</mat-radio-button>
                                 <mat-radio-button [value]="false">Keine Punkte</mat-radio-button>
                               </mat-radio-group>
-                            </div>
-                            <div *ngIf="tasks.solution.type === 'number'">
-                              <mat-form-field>
-                                <input matInput type="number" placeholder="Zahl..." [(ngModel)]="tasks.solution.number">
-                              </mat-form-field>
                             </div>
                             <div *ngIf="tasks.solution.type === 'range'">
                               <label>Von:&nbsp;</label>

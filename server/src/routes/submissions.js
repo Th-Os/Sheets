@@ -27,19 +27,6 @@ router.post('/:id/answers', verify, function(req, res) {
 router.get('/:id/answers/search', verify, function(req, res, next) {
     let taskId = req.query.task_id;
     methods.get(req.params.id, Submission).then((doc) => {
-        /*
-        for (let answerId of doc.answers) {
-            let searched;
-            Answer.findById(answerId).exec().then( answer => {
-                if (answer.task !== undefined
-                    && answer.task.equals(taskId)) {
-                    searched = answer;
-                    //res.status(200).send(answer);
-                }
-            });
-            console.log(searched)
-        }
-        */
         let promises = [];
         let answers = [];
         for (let answerId of doc.answers) {
