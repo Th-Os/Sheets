@@ -7,8 +7,8 @@ import {Submission, Answer} from '../models/submission';
 const router = express.Router();
 
 router.get('/:id/answers', verify, function(req, res) {
-    methods.get(req.params.id, Submission)
-        .then((doc) => res.status(200).send(doc))
+    methods.get(req.params.id, Submission, { path: 'answers' })
+        .then((doc) => res.status(200).send(doc.answers))
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
