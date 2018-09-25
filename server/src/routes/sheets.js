@@ -114,7 +114,6 @@ router.get('/:id/submissions', verify, function(req, res) {
         });
 });
 
-// TODO: submissions are not deleted.
 router.delete('/:id/submissions', verify, function(req, res) {
     Sheet.findById(req.params.id, (err, sheet) => {
         if (err) {
