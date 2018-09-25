@@ -3,8 +3,9 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { MessageSnackbarService } from "../message-snackbar.service";
 import { Observable, of } from "rxjs";
 import { Sheet } from "../models/sheet";
-import {Submission} from '../models/submission';
+import { Submission } from '../models/submission';
 import { catchError, tap } from "rxjs/operators";
+import { Exercise } from "../models/exercise";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -31,16 +32,16 @@ export class SheetService {
     return this.http.get<Sheet[]>(url)
       .pipe(
         catchError(this.handleError('getSheets', []))
-        );
-    }
+      );
+  }
 
-    /** GET hero by id. Will 404 if id not found */
-    getSheet(id: string): Observable<Sheet> {
-      const url = `${this.sheetsUrl}/${id}`;
-      return this.http.get<Sheet>(url).pipe(
-        catchError(this.handleError<Sheet>(`getSheet id=${id}`))
-        );
-    }
+  /** GET sheet by id. Will 404 if id not found */
+  getSheet(id: string): Observable<Sheet> {
+    const url = `${this.sheetsUrl}/${id}`;
+    return this.http.get<Sheet>(url).pipe(
+      catchError(this.handleError<Sheet>(`getSheet id=${id}`))
+      );
+  }
 
   getSheetComplete(id: string): Observable<Sheet> {
     const url = `${this.sheetsUrl}/${id}/_aggregate`;
@@ -49,14 +50,21 @@ export class SheetService {
     );
   }
 
-  /** PUT: update the hero on the server */
-  /*updateSheet (sheet: Sheet): Observable<any> {
-    console.log('Service: update sheet: ' + sheet.name);
-    return this.http.put<Sheet>(this.sheetsUrl + '/' + sheet._id, sheet, httpOptions).pipe(
-      tap(_ => this.log(`updated sheet id=${sheet._id}`)),
-      catchError(this.handleError<any>('updateSheet'))
-    );
-  }*/
+  getSheetSubmissions(id: string): Observable<Submission[]> {
+    const url = `${this.sheetsUrl}/${id}/submissions`;
+    return this.http.get<Submission[]>(url)
+      .pipe(
+        catchError(this.handleError(`getSheetSubmissions id=${id}`, []))
+      );
+  }
+
+  getSheetExercises(id: string): Observable<Exercise[]> {
+    const url = `${this.sheetsUrl}/${id}/exercises`;
+    return this.http.get<Exercise[]>(url)
+      .pipe(
+        catchError(this.handleError(`getSheetExercises id=${id}`, []))
+      );
+  }
 
   /** .subscribe necessary, otherwise put request wont be sent */
   updateSheet (sheet: Sheet): Observable<Sheet> {
@@ -65,7 +73,7 @@ export class SheetService {
       catchError(this.handleError<any>('updateSheet')))
   }
 
-  /** POST: add a new hero to the server */
+  /** POST: add a new sheet to the server */
   addSheet (courseId: string, sheet: Sheet): Observable<Sheet> {
     const url = `${this.coursesUrl}/${courseId}/sheets`;
     return this.http.post<Sheet>(url, sheet, httpOptions).pipe(
@@ -74,7 +82,7 @@ export class SheetService {
       );
   }
 
-  /** DELETE: delete the hero from the server */
+  /** DELETE: delete the sheet from the server */
   deleteSheet (sheet: Sheet | number): Observable<Sheet> {
     const id = typeof sheet === 'number' ? sheet : sheet._id;
     const url = `${this.sheetsUrl}/${id}`;
@@ -121,12 +129,11 @@ export class SheetService {
   }
 
   autocorrectSubmissions(sheet: Sheet): Promise<any> {
-    const url = `${this.sheetsUrl}/correct/`
-
+    const url = `${this.sheetsUrl}/correct/`;
     let promises = [];
     sheet.submissions.forEach(sub => {
       promises.push(this.http.post<Submission>(url, sub, httpOptions))
-    })
+    });
 
     return Promise.all(promises);
   }
@@ -164,7 +171,7 @@ export class SheetService {
     };
   }
 
-  /** Log a HeroService message with the MessageService */
+  /** Log a SheetService message with the MessageService */
   private log(message: string) {
     this.messageSnackbarService.show(`SheetService: ${message}`);
   }

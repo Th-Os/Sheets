@@ -1,8 +1,8 @@
-import {Task} from './task';
+import {Task} from '../models/task';
 
 
 export class Answer {
-	id: number;
+	_id: number;
 	text: string;
 	task: Task;
 	task_id: number;

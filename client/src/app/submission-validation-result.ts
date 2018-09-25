@@ -1,9 +1,10 @@
 import {Answer} from './models/answer';
 
 export class SubmissionValidationResult {
-	filename: string
-	answers: Answer[]
-	errorTaskNum: number
+
+	filename: string;
+	answers: Answer[];
+	errorTaskNum: number;
 	constructor(){
 
 	}
@@ -36,6 +37,5 @@ export class SubmissionValidationResult {
 
  	return ret
  };
-
 
 }

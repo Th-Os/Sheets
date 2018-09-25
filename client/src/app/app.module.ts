@@ -13,6 +13,8 @@ import { CourseComponent } from './course/course.component';
 import { SheetComponent } from './sheet/sheet.component';
 import { FileDropDirective } from './file-drop.directive';
 import { SubmissionUploadErrorDialogComponent } from './submission-upload-error-dialog/submission-upload-error-dialog.component';
+import { CorrectionComponent } from './correction/correction.component';
+import { CorrectionInterfaceComponent } from './correction/correction-interface/correction-interface.component';
 import { ExerciseDialogComponent } from './exercise-dialog/exercise-dialog.component';
 import { CreateSheetComponent } from './create-sheet/create-sheet.component';
 import { MomentPipe } from './pipes/moment.pipe';
@@ -22,7 +24,7 @@ import { LoginComponent } from './login/login.component';
 import { UserprofileComponent } from './userprofile/userprofile.component';
 import { UserDialogComponent } from './user-dialog/user-dialog.component';
 import { FilterusersPipe } from './pipes/filterusers.pipe';
-
+import { NumberToCharPipe } from './pipes/number-to-char.pipe';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,8 @@ import { FilterusersPipe } from './pipes/filterusers.pipe';
     SheetComponent,
     FileDropDirective,
     SubmissionUploadErrorDialogComponent,
+    CorrectionComponent,
+    CorrectionInterfaceComponent,
     ExerciseDialogComponent,
     CreateSheetComponent,
     MomentPipe,
@@ -42,6 +46,7 @@ import { FilterusersPipe } from './pipes/filterusers.pipe';
     UserprofileComponent,
     UserDialogComponent,
     FilterusersPipe,
+    NumberToCharPipe,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,

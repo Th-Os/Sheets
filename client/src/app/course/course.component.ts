@@ -57,11 +57,10 @@ export class CourseComponent implements OnInit {
   getCourseSheets(): void {
     this.loadingSheets = true;
     const id = this.route.snapshot.paramMap.get('id');
-    this.courseService.getCourseSheets(id)
+    this.sheetService.getSheets(id)
       .subscribe(sheets => {
         this.sheets = sheets;
-        this.loadingSheets = false;
-      });
+      }).add( () => this.loadingSheets = false );
   }
 
   deleteSheet(sheet: Sheet): void {

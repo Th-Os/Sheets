@@ -6,11 +6,45 @@
 // Be sure that you only ever include this mixin once!
 @include mat-core();
 
+$corporate-design-ur: (
+  50 : #f3e0e9,
+  100 : #e1b3c9,
+  200 : #ce80a5,
+  300 : #ba4d81,
+  400 : #ab2666,
+  500 : #9c004b,
+  600 : #940044,
+  700 : #8a003b,
+  800 : #800033,
+  900 : #6e0023,
+  A100 : #ff9db4,
+  A200 : #ff6a8d,
+  A400 : #ff3765,
+  A700 : #ff1e52,
+  contrast: (
+    50 : #000000,
+    100 : #000000,
+    200 : #000000,
+    300 : #ffffff,
+    400 : #ffffff,
+    500 : #ffffff,
+    600 : #ffffff,
+    700 : #ffffff,
+    800 : #ffffff,
+    900 : #ffffff,
+    A100 : #000000,
+    A200 : #000000,
+    A400 : #ffffff,
+    A700 : #ffffff,
+  )
+);
+
+
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
 $sheets-app-primary: mat-palette($mat-blue-gray);
-$sheets-app-accent:  mat-palette($mat-pink, A200, A100, A400);
+$sheets-app-accent:  mat-palette($corporate-design-ur, 500, A100, A400);
 
 // The warn palette is optional (defaults to red).
 $sheets-app-warn:    mat-palette($mat-red);

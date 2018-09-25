@@ -1,0 +1,67 @@
+<button mat-fab class="uni-color" class="position-absolute m-4" (click)="exit()">
+  <i class="material-icons">close</i>
+</button>
+
+<button mat-fab color="primary" class="position-absolute submissions-prev mt-4" (click)="navigateSubmissions(-1)">
+  <mat-icon>keyboard_arrow_up</mat-icon>
+</button>
+
+<button mat-fab color="primary"  class="position-absolute submissions-next mb-4" (click)="navigateSubmissions(1)" >
+  <mat-icon>keyboard_arrow_down</mat-icon>
+</button>
+
+<button mat-fab color="primary"  class="position-absolute tasks-prev ml-2" (click)="navigateTasks(-1)">
+  <mat-icon>keyboard_arrow_left</mat-icon>
+</button>
+
+<button mat-fab color="primary"  class="position-absolute tasks-next mr-2" (click)="navigateTasks(1)">
+  <mat-icon>keyboard_arrow_right</mat-icon>
+</button>
+
+<div class="container correction-container">
+  <div class="row">
+    <div class="col-lg-3 col-md-3 col mh-100">
+      <mat-card class="h-100 scroll-overview material-scroll">
+        <mat-card-title>Abgaben</mat-card-title>
+        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+          <mat-spinner *ngIf="loadingSubmissions"></mat-spinner>
+          <mat-nav-list *ngIf="!loadingSubmissions">
+            <mat-list-item *ngIf="submissions.length === 0" (click)="getSubmissions()">Abgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
+            <mat-list-item *ngFor="let submission of submissions" role="listitem" class="list-selectable"
+                           [class.active]="submission._id === selected_submission"
+                           (click)="selected_submission = submission._id">
+              {{ submission._id }}
+            </mat-list-item>
+          </mat-nav-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div class="col h-100">
+      <app-correction-interface *ngIf="selected_task !== null && selected_submission !== null"
+                                [task_id]="selected_task" [submission_id]="selected_submission"
+                                (saved)="onAnswerSaved()"></app-correction-interface>
+      <div *ngIf="selected_submission === null || selected_task === null" class="d-flex justify-content-center align-items-center">Bitte Abgage und Aufgabe auswählen.</div>
+    </div>
+    <div class="col-lg-3 col-md-3 col">
+      <mat-card>
+        <mat-card-title>Aufgaben</mat-card-title>
+        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+          <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
+          <mat-nav-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
+            <ng-container *ngFor="let exercise of exercises; let index = index;">
+              <h3 matSubheader>{{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}</h3>
+              <mat-list-item *ngIf="exercises.length === 0" (click)="getExercisesWithTasks()">Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
+              <mat-list-item *ngFor="let task of exercise.tasks"
+                             (click)="selected_task = task._id"
+                             [class.active]="selected_task === task._id">
+                <h4 matLine>{{task.order | numberToChar}}.) {{task.question}}</h4>
+              </mat-list-item>
+              <mat-divider *ngIf="exercises.length === index" [inset]="true"></mat-divider>
+            </ng-container>
+          </mat-nav-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+

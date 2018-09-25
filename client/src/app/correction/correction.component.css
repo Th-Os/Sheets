@@ -1,0 +1,32 @@
+.correction-container {
+  margin-top: 8rem;
+}
+
+
+.submissions-prev {
+  left: 50%;
+}
+
+.submissions-next {
+  bottom: 0;
+  left: 50%;
+}
+
+.tasks-prev {
+  top: 50%;
+  left: 0;
+}
+
+.tasks-next {
+  top: 50%;
+  right: 0;
+}
+
+.active {
+  background-color: #9c004b1f;
+  color: #9C004B;
+}
+
+.material-scroll {
+
+}

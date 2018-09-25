@@ -31,7 +31,7 @@ export class SolutionService {
       );
   }
 
-  getSolution(taskId: String): Observable<Solution> {
+  getSolution(taskId: string): Observable<Solution> {
     const url = `${this.tasksUrl}/${taskId}/solutions`;
     return this.http.get<Solution>(url).pipe(
       catchError(this.handleError<Solution>(`getSolution of Task with id=${taskId}`))
@@ -83,7 +83,7 @@ export class SolutionService {
     };
   }
 
-  /** Log a HeroService message with the MessageService */
+  /** Log a TaskService message with the MessageService */
   private log(message: string) {
     this.messageSnackbarService.show(`SolutionService: ${message}`);
   }

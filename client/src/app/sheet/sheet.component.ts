@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
-import {CourseService} from '../services/course.service';
+import {TaskService} from "../services/task.service";
 import {Location} from "@angular/common";
 import {Sheet} from '../models/sheet';
 import {Submission} from "../models/submission";
@@ -14,10 +14,13 @@ import * as JSZip from 'jszip';
 import {MatSnackBar} from '@angular/material';
 import {Inject} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+import {MatDialog,} from '@angular/material';
 import {SubmissionUploadErrorDialogComponent} from "../submission-upload-error-dialog/submission-upload-error-dialog.component";
+import {Exercise} from "../models/exercise";
+import {Task} from "../models/task";
 import {Template} from "../template";
 import {TemplateTask} from "../template-task";
+import {StudentService} from "../services/student.service";
 
 
 @Component({
@@ -29,18 +32,24 @@ import {TemplateTask} from "../template-task";
 export class SheetComponent implements OnInit {
 
   uploadErrorMsg = "Es kann nur eine aus GRIPS exportierte .zip-Datei verwendet werden";
-  noTemplateErrorMsg = "Dem Aufgabenblatt ist keine Abgabenvorlage hinterlegt. Abgaben können nicht geparst werden";
+  noTemplateErrorMsg = "Dem Aufgabenblatt ist keine Vorlage hinterlegt. Abgaben können nicht validiert werden";
 
 
-  sheet: Sheet;
   submissionTemplate: Template;
   selectedFile = null;
 
-  submissionsAvaliable:boolean = false;
   submissionValidationResults: SubmissionValidationResult[];
 
   dropzoneActive:boolean = false;
   loadInProgress:boolean = false;
+
+  loadingSheet: boolean = false;
+  sheet: Sheet;
+
+  loadingSubmissions: boolean = false;
+
+  loadingExercisesWithTasks: boolean = false;
+  exercises: Exercise[];
 
   constructor(
     private dialog: MatDialog,
@@ -48,12 +57,41 @@ export class SheetComponent implements OnInit {
     @Inject(DOCUMENT) document,
     private route: ActivatedRoute,
     private sheetService: SheetService,
+    private taskService: TaskService,
+    private studentService: StudentService,
     private location: Location
     ) {}
 
   ngOnInit() {
-    this.getSheet();
+    this.getSheetWithSubmissions();
+
+    this.getExercisesWithTasks();
+
     this.getSubmissionTemplate();
+  }
+
+  getExercisesWithTasks() {
+    this.loadingExercisesWithTasks = true;
+    const id = this.route.snapshot.paramMap.get('id');
+    this.sheetService.getSheetExercises(id)
+      .subscribe(
+        exercises => this.exercises = exercises,
+        error => console.error( error ),
+        () => {
+          this.exercises.forEach((exercise, index) => {
+            if (exercise.tasks.length > 0) {
+              this.taskService.getTasks(exercise._id).subscribe(
+                tasks => exercise.tasks = tasks,
+                error => console.error(error),
+                () => {
+                  this.exercises[index] = exercise;
+                  if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
+                }
+              );
+            }
+          });
+        }
+      );
   }
 
   displayMessage(text: string) {
@@ -62,188 +100,176 @@ export class SheetComponent implements OnInit {
     });
   }
 
-  getSheet(): void {
+  getSheetWithSubmissions() {
+    this.loadingSheet = this.loadingSubmissions = true;
     const id = this.route.snapshot.paramMap.get('id');
 
-    this.sheetService.getSheet(id).subscribe(sheet => {
-      console.log(sheet);
-
-      this.sheet = new Sheet();
-      this.sheet._id = sheet._id;
-      this.sheet.name = sheet.name;
-
-      this.sheetService.getSubmissions(this.sheet).subscribe(res => {   
-
-        if(res == null) return;
-
-        res.forEach(sub => {
-          let submission = new Submission();
-          submission._id = res._id;
-          this.sheet.submissions.push(submission);
-
-          this.sheetService.getStudent(sub).subscribe(student => submission.student = student)
-        })
-
-        this.updateUI();
-        console.log("done fetching sheet");
-      })
-    });
+    this.sheetService.getSheet(id).subscribe(
+      sheet => this.sheet = sheet,
+      error => console.error( error ),
+      () => {
+        this.loadingSheet = false;
+        this.sheetService.getSheetSubmissions(id).subscribe(
+          submissions => this.sheet.submissions = submissions,
+          error => console.error( error ),
+          () => {
+            this.sheet.submissions.forEach((submission, index) => {
+              this.studentService.getStudent(submission.student).subscribe(
+                student => this.sheet.submissions[index].student = student,
+                error => console.error( error ),
+                () => {
+                  if (index === this.sheet.submissions.length - 1) this.loadingSubmissions = false;
+                }
+              )
+            })
+          });
+      }
+    )
   }
 
   getSubmissionTemplate() {
     const id = this.route.snapshot.paramMap.get('id');
+    this.submissionTemplate = this.testTemplate(); // TODO: only for testing!
+    /*
+    //TODO: release!!!
     this.sheetService.getSubmissionTemplate(id).subscribe(template =>{
       //console.log(template)
       this.submissionTemplate = this.parseTemplate(template);
     });
+    */
+    
+
   }
 
   goBack(): void {
     this.location.back();
   }
 
-  updateUI(): void {
-    this.submissionsAvaliable = this.submissionsAvailable();
+  onFilesAdded(fileList: FileList): void {
+    if(fileList.length <= 0){
+      this.displayMessage(this.uploadErrorMsg);
+      return;
     }
 
-    submissionsAvailable(): boolean {
-      if(this.sheet == null) return false;
-      if(this.sheet.submissions == null) return false;
-      if(this.sheet.submissions.length <= 0) return false;
-      return true;
+    if(this.submissionTemplate == null){
+      this.displayMessage(this.noTemplateErrorMsg);
+      return;
     }
 
-    onFilesAdded(fileList: FileList): void {
-      if(fileList.length <= 0){
-        this.displayMessage(this.uploadErrorMsg);
-        return;
-      }
-
-      if(this.submissionTemplate == null){
-        this.displayMessage(this.noTemplateErrorMsg);
-        return;
-      }
-
-      if(fileList.length == 1 && this.isZip(fileList[0])){
-        this.submissionValidationResults = [];
-        this.readZipFolder(fileList[0]);
-      }else{
-        this.displayMessage(this.uploadErrorMsg);
-      }
-
-      (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
+    if(fileList.length == 1 && this.isZip(fileList[0])){
+      this.submissionValidationResults = [];
+      this.readZipFolder(fileList[0]);
+    }else{
+      this.displayMessage(this.uploadErrorMsg);
     }
 
-    isZip(file): boolean {
-      return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
-    }
+    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
+  }
 
-    readZipFolder(file): void {
-      let submissions = [];
-      var reader = new FileReader();
-      reader.onload = (e) => {
-        var zip = new JSZip();
-        zip.loadAsync(file).then((zip) => {
-          let promises = [];
-          Object.keys(zip.files).forEach((filename) => {
-            if(filename.split("/").length < 3) return;
-            if(!filename.endsWith("/")) {
+  isZip(file): boolean {
+    return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
+  }
 
-              let submission = new Submission();
-              let student = new Student();
-              let name = this.readAuthorName(filename);
+  readZipFolder(file): void {
+    let submissions = [];
+    var reader = new FileReader();
+    reader.onload = (e) => {
+      var zip = new JSZip();
+      zip.loadAsync(file).then((zip) => {
+        let promises = [];
+        Object.keys(zip.files).forEach((filename) => {
+          if(filename.split("/").length < 3) return;
+          if(!filename.endsWith("/")) {
 
-              student.name = name.split(" ")[0];
-              student.lastname = name.split(" ")[name.split(" ").length - 1];
-              submission.student = student;
+            let submission = new Submission();
+            let student = new Student();
+            let name = this.readAuthorName(filename);
 
-              if(filename.includes(".txt")){
-                promises.push(zip.files[filename].async('string').then((fileData) => {
+            student.name = name.split(" ")[0];
+            student.lastname = name.split(" ")[name.split(" ").length - 1];
+            submission.student = student;
 
-                  let validationResult = this.readAnswers(fileData);
+            if(filename.includes(".txt")){
+              promises.push(zip.files[filename].async('string').then((fileData) => {
 
-                  let answers = validationResult.answers;
-                  let student_id = this.readStudentId(fileData);
+                let validationResult = this.readAnswers(fileData);
 
-                  if(answers == null || student_id == null || student_id == NaN){
-                    validationResult.filename = filename;
-                    this.submissionValidationResults.push(validationResult);
-                  }else{
-                    submission.answers = answers;
-                    submission.student.mat_nr = student_id;
-                    submissions.push(submission);
-                  }
-                }));
-              }
+                let answers = validationResult.answers;
+                let student_id = this.readStudentId(fileData);
+
+                if(answers == null || student_id == null || student_id == NaN){
+                  validationResult.filename = filename;
+                  this.submissionValidationResults.push(validationResult);
+                }else{
+                  submission.answers = answers;
+                  submission.student.mat_nr = student_id;
+                  submissions.push(submission);
+                }
+              }));
             }
-          });
+          }
+        });
 
-          Promise.all(promises).then(() => {
+        Promise.all(promises).then(() => {
+          if(this.submissionValidationResults.length <= 100){ //TODO: 0 for release, 100 for test!
             console.log("done reading zip");
             this.sheet.submissions = submissions;
-            this.submissionsAvaliable = true;
-            this.updateUI();
-            console.log("validation ok")
-              this.uploadAndCorrectSubmissions();
-
-            /*
-            if(this.submissionValidationResults.length <= 0){
-              //TODO ----> code für ok einfügen
-            }else{
-              this.displayValidationResults();
-            }
-            */
-          });
+            console.log("validation ok");
+            console.log("uploading with data: " + this.sheet);
+            this.uploadAndCorrectSubmissions();
+          }else{
+            this.displayValidationResults();
+          }
         });
-      };
+      });
+    };
 
-      reader.readAsArrayBuffer(file);
-    }
+    reader.readAsArrayBuffer(file);
+  }
 
-    uploadAndCorrectSubmissions() {
-      this.loadInProgress = true;
-      this.sheetService.uploadSubmissions(this.sheet)
-      .subscribe(res => {
-        let tempSheet = null;
-        this.sheetService.getSheet(this.sheet._id.toString()).subscribe(sheet => {
-          tempSheet = sheet;
-          res.map(sub => tempSheet.submissions.push(sub._id))
-          this.sheetService.updateSheet(tempSheet).subscribe(res => {
-            this.sheetService.autocorrectSubmissions(res).then( () => {
-              this.loadInProgress = false;
-              this.displayMessage("Abgaben erfolgreich hochgeladen")})})
-          this.updateUI();
-        });
-      }
-      );
-    }
-
-    displayValidationResults() {
-      this.dialog.open(SubmissionUploadErrorDialogComponent, {
-        data: this.submissionValidationResults
+  uploadAndCorrectSubmissions() {
+    this.loadInProgress = true;
+    this.sheetService.uploadSubmissions(this.sheet)
+    .subscribe(res => {
+      let tempSheet = null;
+      this.sheetService.getSheet(this.sheet._id.toString()).subscribe(sheet => {
+        tempSheet = sheet;
+        res.map(sub => tempSheet.submissions.push(sub._id))
+        this.sheetService.updateSheet(tempSheet).subscribe(res => {
+          this.sheetService.autocorrectSubmissions(res).then( () => {
+            this.loadInProgress = false;
+            this.displayMessage("Abgaben erfolgreich hochgeladen")})})
       });
     }
+    );
+  }
 
-    readStudentId(text: string): number {
-      let lines = text.split("\n");
+  displayValidationResults() {
+    this.dialog.open(SubmissionUploadErrorDialogComponent, {
+      data: this.submissionValidationResults
+    });
+  }
 
-      if (lines.length > 0){
-        return parseInt(lines[0]);
-      }
+  readStudentId(text: string): number {
+    let lines = text.split("\n");
 
-      return NaN;
+    if (lines.length > 0){
+      return parseInt(lines[0]);
     }
 
-    parseTemplate(text: string): Template {
-      let result = new Template();
+    return NaN;
+  }
 
-      let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
-      let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
+  parseTemplate(text: string): Template {
+    let result = new Template();
 
-      let linesTemplate = text.split("\n");
-      let task: TemplateTask = null;
+    let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
+    let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
 
-      for (var i = 0; i < linesTemplate.length; ++i) {
+    let linesTemplate = text.split("\n");
+    let task: TemplateTask = null;
+
+    for (var i = 0; i < linesTemplate.length; ++i) {
       if(i == 0) continue; //Matrikelnummer
 
       let line = linesTemplate[i];
@@ -262,6 +288,7 @@ export class SheetComponent implements OnInit {
 
       //Kriterien verletzt
       console.log("Error parsing Template at line: " + i + " --> " + line)
+      return null;
     }
 
     //console.log(result)
@@ -270,8 +297,7 @@ export class SheetComponent implements OnInit {
 
   readAnswers(text: string): SubmissionValidationResult {
     let answers = [];
-    //let template = this.submissionTemplate;
-    let template = this.testTemplate();
+    let template = this.submissionTemplate;
 
     for (var i = 0; i < template.tasks.length; ++i) {
       let task: TemplateTask = template.tasks[i];
@@ -314,6 +340,7 @@ export class SheetComponent implements OnInit {
 
             answer.text = answerTextWOLeadingSpace;
             answer.task_id = parseInt(task.num.toString() + j.toString()); 
+            answer.task = this.findTask(answer);
             answers.push(answer);
           }else{
             //Kriterien verletzt
@@ -358,9 +385,36 @@ export class SheetComponent implements OnInit {
 
   }
 
+  findTask(answer: Answer): Task {
+    for (var i = 0; i < this.sheet.exercises.length; ++i) {
+      let exercise = this.sheet.exercises[i];
+
+      for (var j = 0; j < exercise.tasks.length; ++j) {
+        let task = exercise.tasks[j];
+        let taskIDArray = this.numberToArray(answer.task_id);
+
+        if(taskIDArray[1] - 1 == exercise.order && taskIDArray[2] == task.order) {
+          return task;
+        }
+      }
+    }
+
+    return null;
+  }
+
   clearSubmissions() {
     this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
-      this.getSheet();})
+      this.getSheetWithSubmissions()
+    });
+  }
+
+  numberToArray(number: number){
+    let res = []
+    let num = number.toString()
+    for (var i = 0, len = num.length; i < len; i += 1) {
+      res.push(parseInt(num.charAt(i)));
+    }
+    return res
   }
 
   handleFileSelection(event): void {

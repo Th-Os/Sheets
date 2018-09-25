@@ -6,6 +6,12 @@ import {Task, Solution} from '../models/sheet';
 
 const router = express.Router();
 
+router.get('/:id', verify, function(req, res) {
+    Task.findById(req.params.id).populate({ path: 'solution' }).exec().then((doc) => {
+        res.send(doc);
+    }).catch((err) => res.status(500).send(err));
+});
+
 router.get('/:id/_aggregate', verify, function(req, res) {
     Task.findById(req.params.id).populate({ path: 'solution' }).exec().then((doc) => {
         res.send(doc);
@@ -32,7 +38,10 @@ router.delete('/:id', verify, function(req, res) {
 
 router.get('/:id/solutions', verify, function(req, res) {
     methods.deepGetSolution(req.params.id, Task, Solution)
-        .then((docs) => res.status(200).send(docs))
+        .then((docs) => {
+            if (docs.length > 0) res.status(200).send(docs[0]);
+            else res.status(200).send({});
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
