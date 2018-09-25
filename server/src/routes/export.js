@@ -7,14 +7,16 @@ import {RouteError} from '../utils/error';
 import verify from '../auth/verify';
 import PDFRenderer from '../export/pdf';
 import CSVRenderer from '../export/csv';
+import DOCXRenderer from '../export/docx';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
 
 const router = express.Router();
 moment.locale('de');
 
+// TODO: refactor RouteError handling. Not working correctly. "HTTP headers set after sending."
 router.get('/pdf/:id', verify, function(req, res) {
-    fs.readFile(path.join(__dirname, '../../resources/pdf.html'), 'utf8', function(err, html) {
+    fs.readFile(path.join(__dirname, '../../resources/template.html'), 'utf8', function(err, html) {
         if (err) throw new RouteError(500, err, res);
         let sheetId = req.params.id;
         let obj = {};
@@ -33,16 +35,15 @@ router.get('/pdf/:id', verify, function(req, res) {
                     let promises = [];
                     for (let exercise of sheet.exercises) {
                         promises.push(Task.find().where('_id').in(exercise.tasks).then((tasks) => {
-                            if (err) throw new RouteError(400, err, res);
                             if (tasks === undefined || tasks.length === 0) throw new RouteError(404, 'Tasks not found', res);
                             exercise.tasks = tasks;
-                        }));
+                        }).catch((err) => res.status(500).send(err)));
                     }
                     Promise.all(promises).then(() => {
                         obj.date = toReadableDate(obj.sheet.submissiondate);
                         obj.template = getTemplate(sheet, 'html');
                         new PDFRenderer().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).send(res);
-                    });
+                    }).catch((err) => console.error(err));
                 });
             });
         });
@@ -50,7 +51,44 @@ router.get('/pdf/:id', verify, function(req, res) {
 });
 
 router.get('/word/:id', verify, function(req, res) {
-    res.send('not implemented yet');
+    fs.readFile(path.join(__dirname, '../../resources/template.html'), 'utf8', function(err, html) {
+        try {
+            if (err) throw new RouteError(500, err, res);
+            let sheetId = req.params.id;
+            let obj = {};
+            Course.find({sheets: sheetId}).exec((err, docs) => {
+                if (err) throw new RouteError(400, err, res);
+                console.log(docs);
+                if (docs === undefined || docs.length === 0) throw new RouteError(404, 'Course not found', res);
+                obj.course = docs[0];
+                Sheet.findById(sheetId, (err, sheet) => {
+                    if (err) throw new RouteError(400, err, res);
+                    if (sheet === undefined || sheet === null) throw new RouteError(404, 'Sheet not found', res);
+                    Exercise.find().where('_id').in(sheet.exercises).exec((err, exercises) => {
+                        if (err) throw new RouteError(400, err, res);
+                        if (exercises === undefined || exercises.length === 0) throw new RouteError(404, 'Exercises not found', res);
+                        obj.sheet = sheet;
+                        obj.sheet.exercises = exercises;
+                        let promises = [];
+                        for (let exercise of sheet.exercises) {
+                            promises.push(Task.find().where('_id').in(exercise.tasks).then((tasks) => {
+                                if (tasks === undefined || tasks.length === 0) throw new RouteError(404, 'Tasks not found', res);
+                                exercise.tasks = tasks;
+                            }).catch((err) => { throw new RouteError(500, err, res); }));
+                        }
+                        Promise.all(promises).then(() => {
+                            obj.date = toReadableDate(obj.sheet.submissiondate);
+                            obj.template = getTemplate(sheet, 'html');
+                            new DOCXRenderer().addHelper(toAlphabeticOrder).data(JSON.stringify(obj)).html(html).name(obj.course.name + ' - ' + sheet.name).send(res);
+                        }).catch((err) => console.error(err));
+                    });
+                });
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    // new DOCXRenderer().addHeader().add().send(res);
 });
 
 router.get('/csv/:id', verify, function(req, res) {
