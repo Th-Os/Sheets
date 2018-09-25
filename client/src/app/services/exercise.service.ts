@@ -60,7 +60,7 @@ export class ExerciseService {
     return updatedExercise;
   }
   */
-  /** POST: add a new hero to the server */
+  /** POST: add a new exercise to sheet on the server */
   addExercise (sheetsId: string, exercise: Exercise): Observable<Exercise> {
     const url = `${this.sheetsUrl}/${sheetsId}/exercises`;
     return this.http.post<Exercise>(url, exercise, httpOptions).pipe(
@@ -69,7 +69,7 @@ export class ExerciseService {
     );
   }
 
-  /** DELETE: delete the hero from the server */
+  /** DELETE: delete the eercise from the server */
   deleteExercise (exercise: Exercise | number): Observable<Exercise> {
     const id = typeof exercise === 'number' ? exercise : exercise._id;
     const url = `${this.exercisesUrl}/${id}`;

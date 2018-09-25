@@ -20,6 +20,10 @@ import { CreateSheetComponent } from './create-sheet/create-sheet.component';
 import { MomentPipe } from './pipes/moment.pipe';
 import { PointcalculationPipe } from './pipes/pointcalculation.pipe';
 import { RegexFormatPipe } from './pipes/regex-format.pipe';
+import { LoginComponent } from './login/login.component';
+import { UserprofileComponent } from './userprofile/userprofile.component';
+import { UserDialogComponent } from './user-dialog/user-dialog.component';
+import { FilterusersPipe } from './pipes/filterusers.pipe';
 import { NumberToCharPipe } from './pipes/number-to-char.pipe';
 import { CreateSheetInterfaceComponent } from './create-sheet/create-sheet-interface/create-sheet-interface.component';
 
@@ -39,13 +43,18 @@ import { CreateSheetInterfaceComponent } from './create-sheet/create-sheet-inter
     MomentPipe,
     PointcalculationPipe,
     RegexFormatPipe,
+    LoginComponent,
+    UserprofileComponent,
+    UserDialogComponent,
+    FilterusersPipe,
     NumberToCharPipe,
     CreateSheetInterfaceComponent,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,
     CourseDialogComponent,
-    ExerciseDialogComponent
+    ExerciseDialogComponent,
+    UserDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -59,7 +68,8 @@ import { CreateSheetInterfaceComponent } from './create-sheet/create-sheet-inter
   ],
   providers: [
     MomentPipe,
-    PointcalculationPipe
+    PointcalculationPipe,
+    RegexFormatPipe
   ],
   bootstrap: [AppComponent]
 })

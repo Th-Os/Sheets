@@ -22,6 +22,7 @@ router.post('/login', function(req, res) {
         var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
         if (!passwordIsValid) {
             return res.status(401).send({
+                user: user._id,
                 auth: false,
                 token: null
             });
@@ -37,6 +38,7 @@ router.post('/login', function(req, res) {
 
         // return the information including token as JSON
         res.status(200).send({
+            user: user._id,
             auth: true,
             token: token
         });
@@ -51,6 +53,9 @@ router.get('/logout', function(req, res) {
     });
 });
 
+/**
+ * @deprecated register will be deleted.
+ */
 router.post('/register', function(req, res) {
     if (req !== undefined && req.body !== undefined && req.body.password !== undefined) {
         let hashedPassword = bcrypt.hashSync(req.body.password, 8);
@@ -69,8 +74,8 @@ router.post('/register', function(req, res) {
                 }, process.env.SECRET, {
                     expiresIn: 86400 // expires in 24 hours
                 });
-                console.log(token);
                 res.status(200).send({
+                    user: user,
                     auth: true,
                     token: token
                 });

@@ -24,8 +24,10 @@
         "jsreport-chrome-pdf": "^1.1.5",
         "jsreport-core": "^2.2.0",
         "jsreport-handlebars": "^2.0.0",
+        "jsreport-html-embedded-in-docx": "^1.0.0",
         "moment": "^2.22.2",
         "mongoose": "^5.2.15",
+        "officegen": "^0.4.5",
         "passport": "^0.4.0",
         "passport-local": "^1.0.0",
         "puppeteer": "^1.8.0"

@@ -1,10 +1,11 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
 import { ExerciseService } from "../../services/exercise.service";
 import { TaskService } from "../../services/task.service";
 import { Exercise } from "../../models/exercise";
 import { Task } from "../../models/task";
-import { FormControl, Validators } from "@angular/forms";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 import { ValidateRegex } from "../../validators/regex.validator";
+import {SolutionService} from "../../services/solution.service";
 
 @Component({
   selector: 'app-create-sheet-interface',
@@ -17,6 +18,9 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
   @Input() exercise_id: string;
   @Input() task_id: string;
 
+  @Output() taskUpdate = new EventEmitter<Task>();
+  @Output() exerciseUpdate = new EventEmitter<Exercise>();
+
   saving: boolean = false;
   loading: boolean = false;
   exercise: Exercise;
@@ -27,6 +31,7 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
   constructor(
     private exerciseService: ExerciseService,
     private taskService: TaskService,
+    private solutionService: SolutionService,
   ) { }
 
   ngOnInit() {
@@ -76,21 +81,33 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
 
   saveTask() {
     this.saving = true;
-    this.taskService.updateTask(this.task)
+    this.solutionService.updateSolution(this.task.solution)
       .subscribe(
         null,
         error => console.error( error ),
-        () => this.saving = false );
+        () => {
+          this.taskService.updateTask(this.task).subscribe(
+            null,
+            error => console.error( error ),
+            () => {
+              this.taskUpdate.emit(this.task);
+              this.saving = false
+            }
+          )
+        }
+      )
   }
 
   saveExercise() {
     this.saving = true;
     this.exerciseService.updateExercise(this.exercise)
       .subscribe(
-        null,
+        exercise => this.exercise = exercise,
         error => console.error( error ),
-        () => this.saving = false
-      )
+        () => {
+          this.exerciseUpdate.emit(this.exercise);
+          this.saving = false
+        })
   }
 
 }

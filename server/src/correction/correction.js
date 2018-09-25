@@ -12,7 +12,7 @@ router.use(bodyParser.urlencoded({
 router.use(bodyParser.json());
 
 router.post('/', verify, function(req, res) {
-    let id = req.body.submission.id;
+    let id = req.body._id;
     Submission.findById(id).populate('answers.answer').exec().then(res => {
         beginCorrection(res.answers, function(err) {
             if (err == null) {
@@ -36,6 +36,7 @@ function beginCorrection(answers, callback) {
 }
 
 function checkAnswerArray(answers, callback) {
+    console.log(answers)
     let promises = [];
     let errors = [];
     for (let answer of answers) {
@@ -66,6 +67,7 @@ function checkAnswerArray(answers, callback) {
  * @param {*} task
  */
 function checkAnswer(answer, solution, task) {
+    console.log("correction")
     let points = 0;
     switch (solution.type) {
         case 'freetext':

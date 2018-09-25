@@ -1,0 +1,13 @@
+.fill-space {
+  /*Fill remaining space */
+  flex: 1 1 auto;
+}
+
+#accountIcon {
+  font-size: 48px;
+  right: 30px;
+}
+
+#logoutIcon {
+  font-size: 36px;
+}

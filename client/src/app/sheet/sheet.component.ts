@@ -64,9 +64,7 @@ export class SheetComponent implements OnInit {
 
   ngOnInit() {
     this.getSheetWithSubmissions();
-
     this.getExercisesWithTasks();
-
     this.getSubmissionTemplate();
   }
 
@@ -94,6 +92,32 @@ export class SheetComponent implements OnInit {
       );
   }
 
+  getTaskObjects(){
+    this.sheet.exercises = []
+
+    this.sheetService.getSheetExercises(this.route.snapshot.paramMap.get('id'))
+      .subscribe( exercises => {
+          exercises.forEach(ex =>{
+          let sheetExercise: Exercise = new Exercise();
+          sheetExercise._id = ex._id;
+          sheetExercise.description = ex.description;
+          sheetExercise.name = ex.name;
+          sheetExercise.order = ex.order;
+          sheetExercise.tasks = []
+          this.sheet.exercises.push(sheetExercise);
+
+          ex.tasks.forEach(task => {
+            this.taskService.getTask(task).subscribe(t => {
+              sheetExercise.tasks.push(t)
+            })
+          })
+        })
+      })
+      .add( () => {
+        this.loadingExercisesWithTasks = false;
+      })
+  }
+
   displayMessage(text: string) {
     this.snackBar.open(text, "", {
       duration: 3000,
@@ -109,10 +133,15 @@ export class SheetComponent implements OnInit {
       error => console.error( error ),
       () => {
         this.loadingSheet = false;
+        this.getTaskObjects();
         this.sheetService.getSheetSubmissions(id).subscribe(
           submissions => this.sheet.submissions = submissions,
-          error => console.error( error ),
+          error => {
+            console.error( error )
+            this.loadingSubmissions = false;
+          },
           () => {
+            if(this.sheet.submissions == null  || this.sheet.submissions.length <= 0) this.loadingSubmissions = false;
             this.sheet.submissions.forEach((submission, index) => {
               this.studentService.getStudent(submission.student).subscribe(
                 student => this.sheet.submissions[index].student = student,
@@ -258,6 +287,11 @@ export class SheetComponent implements OnInit {
     }
 
     return NaN;
+  }
+
+  autocorrect(){
+    this.sheetService.autocorrectSubmissions(this.sheet)
+    console.log("autocorrect")
   }
 
   parseTemplate(text: string): Template {

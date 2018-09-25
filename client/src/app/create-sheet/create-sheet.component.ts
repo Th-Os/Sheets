@@ -26,13 +26,6 @@ export class CreateSheetComponent implements OnInit {
   selectedExercise: string = null;
   selectedTask: string = null;
 
-  regexToAdd = '';
-  regexToDelete = '';
-  // Todo: Use correct pattern
-  regexPattern = '[a-zA-Z0-9]+/+b$';
-  regexValidToAdd = true;
-  regexValidToDelete = true;
-
   constructor(
     private location: Location,
     private route: ActivatedRoute,
@@ -75,6 +68,64 @@ export class CreateSheetComponent implements OnInit {
         );
       }
     );
+  }
+
+  onTaskUpdated(updatedTask: Task) {
+    this.loadingSheet = true;
+    this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
+      exercise.tasks.forEach((task, taskIndex) => {
+        if (task._id === updatedTask._id) {
+          this.sheet.exercises[exerciseIndex].tasks[taskIndex] = updatedTask;
+          this.loadingSheet = false;
+          return;
+        }
+      })
+    })
+  }
+
+  onExerciseUpdated(updatedExercise: Exercise) {
+    this.loadingSheet = true;
+    this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
+      if (exercise._id === updatedExercise._id) {
+        this.sheet.exercises[exerciseIndex] = updatedExercise;
+        this.taskService.getTasks(exercise._id).subscribe(
+          tasks => this.sheet.exercises[exerciseIndex].tasks = tasks,
+          error => console.error( error ),
+          () => this.loadingSheet = false
+        )
+      }
+    })
+  }
+
+  addExercise() {
+    this.loadingSheet = true;
+    let newExercise = new Exercise();
+    newExercise.name = 'Neue Aufgabe';
+    newExercise.description = 'Beschreibung';
+    newExercise.order = this.sheet.exercises.length;
+    newExercise.tasks = [];
+    newExercise.persistent = false;
+
+    this.exerciseService.addExercise(this.route.snapshot.paramMap.get('id'), newExercise)
+      .subscribe(
+        exercise =>  this.sheet.exercises.push(exercise[0]),
+        error => console.error( error ),
+        () => this.loadingSheet = false
+        );
+  }
+
+  deleteExercise(exercise: Exercise): void {
+
+    if (window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
+      this.sheetService.deleteExercise(this.route.snapshot.paramMap.get('id'), exercise).subscribe(
+        null,
+        error => console.error( error ),
+        () => {
+          var index = this.sheet.exercises.indexOf(exercise);
+          this.sheet.exercises.splice(index, 1);
+        }
+      );
+    }
   }
 
   /*getSheet(sheetId: string): void {
@@ -124,23 +175,7 @@ export class CreateSheetComponent implements OnInit {
         this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks[this.getIndexOfTask(exercise, task)].solution = solution[0];
     });
   }*/
-
-  addExercise(): void {
-    const newExercise = new Exercise();
-
-    newExercise.name = 'Neue Aufgabe';
-    newExercise.description = 'Beschreibung';
-    newExercise.order = this.sheet.exercises.length;
-    newExercise.tasks = [];
-    newExercise.persistent = false;
-
-    this.exerciseService.addExercise(this.route.snapshot.paramMap.get('id'), newExercise)
-      .subscribe(exercise => {
-        this.sheet.exercises.push(exercise[0]);
-        this.sheetService.updateSheet(this.sheet);
-      });
-  }
-
+/*
   deleteExercise(exercise: Exercise): void {
     const index = this.getIndexOfExercise(exercise);
 
@@ -153,7 +188,7 @@ export class CreateSheetComponent implements OnInit {
       }
     }
   }
-
+*/
   addTask(exercise: Exercise): void {
 
     const exerciseIndex = this.getIndexOfExercise(exercise);
@@ -201,26 +236,6 @@ export class CreateSheetComponent implements OnInit {
         this.solutionService.updateSolution(task.solution);
       });
     });
-  }
-
-  checkAndAddRegex(task: Task): void {
-    if (this.regexToAdd.match(this.regexPattern)) {
-      this.regexValidToAdd = true;
-      task.solution.regex += this.regexToAdd;
-      this.regexToAdd = '';
-    } else {
-      this.regexValidToAdd = false;
-    }
-  }
-
-  deleteRegexFromString(task: Task): void {
-    if ((task.solution.regex.search(this.regexToDelete) !== -1) && this.regexToDelete.match(this.regexPattern)) {
-      task.solution.regex = task.solution.regex.replace(this.regexToDelete, '');
-      this.regexValidToDelete = true;
-      this.regexToDelete = '';
-    } else {
-      this.regexValidToDelete = false;
-    }
   }
 
   private getIndexOfExercise(exercise: Exercise): number {

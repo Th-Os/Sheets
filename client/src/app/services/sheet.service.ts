@@ -17,6 +17,7 @@ const httpOptions = {
 
 export class SheetService {
 
+  private correctionUrl = 'http://localhost:3000/correct'
   private sheetsUrl = 'http://localhost:3000/sheets';
   private coursesUrl = 'http://localhost:3000/courses';
   private submissionsUrl = 'http://localhost:3000/submissions';
@@ -129,13 +130,24 @@ export class SheetService {
   }
 
   autocorrectSubmissions(sheet: Sheet): Promise<any> {
-    const url = `${this.sheetsUrl}/correct/`;
+console.log("corr")
+
+      this.http.post<Submission>(this.correctionUrl, sheet.submissions[0],httpOptions).pipe(
+      tap(_ => this.log(`corrected submission`)),
+      catchError(this.handleError<any>('correction'))).subscribe(res => console.log(res))
+/*
     let promises = [];
     sheet.submissions.forEach(sub => {
-      promises.push(this.http.post<Submission>(url, sub, httpOptions))
+      console.log(sub)
+      this.http.post(this.correctionUrl, sub, httpOptions);
+      promises.push(this.http.post(this.correctionUrl, sub, httpOptions))
     });
 
+    console.log(promises)
+
     return Promise.all(promises);
+    */
+    return null
   }
 
   getAnswers (submission: Submission): Observable<any> {
