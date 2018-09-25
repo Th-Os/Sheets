@@ -66,13 +66,19 @@ function deepGetSolution(id, parent, child) {
  *
  * @param {*} model
  */
-function getAll(model) {
+function getAll(model, populateObj) {
     return new Promise((resolve, reject) => {
-        model.find({}, (err, docs) => {
-            if (err) reject(new StatusError(400, err));
-            if (docs === null || docs.length === 0) reject(new StatusError(404, model.modelName + ' not found.'));
-            resolve(docs);
-        });
+        if (populateObj === undefined) {
+            model.find({}, (err, docs) => {
+                if (err) reject(new StatusError(400, err));
+                if (docs === null || docs.length === 0) reject(new StatusError(404, model.modelName + ' not found.'));
+                resolve(docs);
+            });
+        } else {
+            model.find({}).populate(populateObj).exec().then((docs) => {
+                resolve(docs);
+            }).catch((err) => reject(err));
+        }
     });
 }
 
