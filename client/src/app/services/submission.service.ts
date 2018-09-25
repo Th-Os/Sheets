@@ -17,24 +17,15 @@ const httpOptions = {
 export class SubmissionService {
 
   private submissionsUrl = 'http://localhost:3000/submissions';
-  private answersUrl = 'http://localhost:3000/answers';
 
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService) { }
 
   getSubmissionsForUser(userId: string): Observable<Submission[]> {
-    const url = `${this.submissionsUrl}/search?q=user=${userId}`;
+    const url = `${this.submissionsUrl}/_search?user=${userId}`;
     return this.http.get<Submission[]>(url, httpOptions)
       .pipe(
         catchError(this.handleError('getSubmissionsForUser', []))
-      );
-  }
-
-  getAnswer(answerId: any): Observable<Answer> {
-    const url = `${this.answersUrl}/${answerId}`;
-    return this.http.get<Answer>(url, httpOptions)
-      .pipe(
-        catchError(this.handleError<Answer>(`getAnswer id=${answerId}`))
       );
   }
 
