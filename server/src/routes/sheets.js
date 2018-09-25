@@ -130,13 +130,32 @@ router.get('/:id/submissions', verify, function(req, res) {
         });
 });
 
+// TODO: submissions are not deleted.
 router.delete('/:id/submissions', verify, function(req, res) {
     Sheet.findById(req.params.id, (err, sheet) => {
-        if (err) res.status(400).send(err);
+        if (err) {
+            res.status(400).send(err);
+            return;
+        }
+        console.log(sheet.submissions);
         Submission.find().where('_id').in(sheet.submissions).exec((err, subs) => {
-            if (err) res.status(500).send(err);
-            if (subs === undefined || (subs.length !== undefined && subs.length > 0)) res.status(404).send('No submissions found.');
-            for (let s of subs) s.remove();
+            if (err) {
+                res.status(500).send(err);
+                return;
+            }
+            if (subs === undefined || (subs.length !== undefined && subs.length > 0)) {
+                let ids = sheet.submissions;
+                sheet.submissions = [];
+                sheet.save();
+                res.status(404).send('No submissions found with submission ids: ' + ids + '. Deleting all references.');
+                return;
+            }
+            try {
+                for (let s of subs) s.remove();
+            } catch (err) {
+                console.error(err);
+                return;
+            }
             sheet.submissions = [];
             sheet.save();
             res.send(subs);
