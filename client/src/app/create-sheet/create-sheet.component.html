@@ -17,7 +17,7 @@
       <mat-checkbox [(ngModel)]="sheet.persistent">Immer als Vorlage speichern</mat-checkbox>
     </div>
   </div>
-
+{{selectedExercise}}
   <br>
   <div class="row">
     <div class="col-12 col-lg-5 col-md-5">
@@ -33,7 +33,7 @@
               <mat-list-item (click)="selectedExercise = exercise._id; selectedTask = null;"
                 [class.active]="exercise._id === selectedExercise">
                 <span class="exercise" matLine>{{exercise.order + 1}}.) {{exercise.name}}</span>
-                <button mat-icon-button (click)="deleteExercise(exercise)">
+                <button mat-icon-button (click)="deleteExercise(exercise); $event.stopPropagation();">
                   <mat-icon class="mat-24">delete</mat-icon>
                 </button>
               </mat-list-item>
@@ -42,6 +42,9 @@
                              [class.active]="task._id === selectedTask"
                              class="ml-3">
                 <span class="task" matLine>{{task.order | numberToChar}}.) {{task.question}}</span>
+                <button mat-icon-button (click)="deleteTask(exercise, task); $event.stopPropagation();">
+                  <mat-icon class="mat-24">delete</mat-icon>
+                </button>
               </mat-list-item>
               <mat-divider *ngIf="sheet.exercises.length === index" [inset]="true"></mat-divider>
             </ng-container>

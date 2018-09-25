@@ -144,6 +144,20 @@ router.delete('/:id/exercises', verify, function(req, res) {
     });
 });
 
+router.delete('/:id/exercises', verify, function(req, res) {
+    Sheet.findById(req.params.id).populate({ path: 'exercises' }).exec((err, sheet) => {
+        if (err) {
+            res.status(400).send(err);
+        }
+        for (let e of sheet.exercises) {
+            if (!e.persistent) e.remove();
+        }
+        sheet.exercises = [];
+        sheet.save();
+        res.send('Deleted exercises');
+    });
+});
+
 router.delete('/:id/submissions', verify, function(req, res) {
     Sheet.findById(req.params.id, (err, sheet) => {
         if (err) {

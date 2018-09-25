@@ -5,7 +5,7 @@
 <div class="container mt-5 h-100">
   <h1 *ngIf="course">{{course.name}}</h1>
   <div class="row h-100">
-    <div class="col-12 col-lg-4 col-md-4">
+    <div class="col-12 col-lg-6 col-md-6">
       <mat-card>
         <mat-card-title>Übungsblätter</mat-card-title>
         <mat-card-content class="d-flex justify-content-center align-items-center h-100">
@@ -14,32 +14,25 @@
                                 mode="indeterminate"
                                 [diameter]="50">
           </mat-progress-spinner>
-          <mat-list *ngIf="course && !loadingSheets" >
-            <mat-list-item *ngFor="let sheet of sheets" role="listitem">
-              <a mat-line routerLink="/sheets/{{sheet._id}}"> {{ sheet.name }} </a>
-              <button mat-icon-button (click)="update(sheet)">
+          <mat-nav-list *ngIf="course && !loadingSheets" >
+            <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
+              <a mat-line> {{ sheet.name }} </a>
+              <button mat-icon-button (click)="update(sheet); $event.stopPropagation();">
                 <mat-icon color="secondary">edit</mat-icon>
               </button>
-              <button mat-icon-button (click)="delete(sheet)">
+              <button mat-icon-button (click)="delete(sheet); $event.stopPropagation();">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>
             </mat-list-item>
-          </mat-list>
+          </mat-nav-list>
         </mat-card-content>
         <button (click)="add()" class="position-absolute" style="right: 10px;" mat-fab color="primary">
           <mat-icon>add</mat-icon>
         </button>
       </mat-card>
     </div>
-    <div class="col-12 col-lg-4 col-md-4">
-      <mat-card>
-        <mat-card-title>Statistik</mat-card-title>
-        <mat-card-content>
-         Statistik
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div class="col-12 col-lg-4 col-md-4">
+
+    <div class="col-12 col-lg-6 col-md-6">
       <mat-card>
         <mat-card-title>Studenten</mat-card-title>
         <mat-card-content>

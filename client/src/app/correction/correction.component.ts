@@ -131,7 +131,18 @@ export class CorrectionComponent implements OnInit {
         this.selected_task = this.exercises[0].tasks[0]._id;
         this.navigateSubmissions(1);
       } else {
-        this.selected_task = this.exercises[newExIndex].tasks[0]._id;
+        if (this.exercises[newExIndex].tasks.length > 0) this.selected_task = this.exercises[newExIndex].tasks[0]._id;
+        else {
+          while (newExIndex < this.exercises.length -1 ) {
+            newExIndex = newExIndex + 1;
+            if (this.exercises[newExIndex].tasks.length > 0) {
+              this.selected_task = this.exercises[newExIndex].tasks[0]._id;
+              return;
+            }
+          }
+          this.selected_task = this.exercises[0].tasks[0]._id;
+          this.navigateSubmissions(1);
+        }
       }
     } else {
       this.selected_task = this.exercises[currentExIndex].tasks[newTaIndex]._id;

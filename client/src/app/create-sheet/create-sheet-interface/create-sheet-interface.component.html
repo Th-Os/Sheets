@@ -1,7 +1,10 @@
 <mat-card>
   <mat-card-title>Erstellen</mat-card-title>
   <mat-card-content>
-    <mat-spinner *ngIf="loading || (!exercise && !task)"></mat-spinner>
+    <div *ngIf="task_id === null && exercise_id === null" class="d-flex justify-content-center align-items-center">
+      Aufgabe oder Teilausgabe auswählen
+    </div>
+    <mat-spinner *ngIf="loading || (!exercise && !task) && (task_id !== null || exercise_id !== null)"></mat-spinner>
     <form #editForm="ngForm">
       <mat-list *ngIf="!loading && exercise" class="mt-3">
         <mat-list-item>
