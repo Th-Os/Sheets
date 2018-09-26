@@ -94,10 +94,9 @@ function put(id, body, model) {
             if (err) reject(new StatusError(400, err));
             if (doc === null) reject(new StatusError(404, 'No ' + model.modelName + ' with ' + id + ' was found.'));
             doc.set(body);
-            doc.save((err, res) => {
-                if (err) reject(new StatusError(500, err));
-                else resolve(res);
-            });
+            doc.save()
+                .then((doc) => resolve(doc))
+                .catch((err) => reject(new StatusError(500, err)));
         });
     });
 }

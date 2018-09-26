@@ -8,7 +8,9 @@ const router = express.Router();
 
 router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Submission)
-        .then((doc) => res.send(doc))
+        .then((doc) => {
+            res.send(doc);
+        })
         .catch((err) => res.status(500).send(err));
 });
 
