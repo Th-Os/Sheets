@@ -241,10 +241,12 @@ export class SheetComponent implements OnInit {
             let submission = new Submission();
             let student = new Student();
             let name = this.readAuthorName(filename);
+            let gripsID = this.readGripsID(filename);
 
             student.name = name.split(" ")[0];
             student.lastname = name.split(" ")[name.split(" ").length - 1];
             submission.student = student;
+            submission.grips_id = gripsID;
 
             if(filename.includes(".txt")){
               promises.push(zip.files[filename].async('string').then((fileData) => {
@@ -274,7 +276,7 @@ export class SheetComponent implements OnInit {
             console.log("validation ok");
             console.log("uploading with data: ");
             console.log(this.sheet)
-            this.uploadAndCorrectSubmissions();
+            //this.uploadAndCorrectSubmissions();
           }else{
             this.displayValidationResults();
           }
@@ -317,6 +319,18 @@ export class SheetComponent implements OnInit {
     }
 
     return NaN;
+  }
+
+  readGripsID(fileName: string){
+    let res = null;
+    let pathSlices = fileName.split("/");
+
+    if(pathSlices.length < 2) return null;
+
+    //"Vorname0 Nachname0_1327627_assignsubmission_file_"
+    let relevantFolderName: string = pathSlices[pathSlices.length - 2];
+    res = relevantFolderName.split("_")[1];
+    return parseInt(res);
   }
 
   autocorrect(){
