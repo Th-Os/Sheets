@@ -17,16 +17,16 @@
         <mat-nav-list *ngIf="course && !loadingSheets" >
           <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
             <a mat-line> {{ sheet.name }} </a>
-            <button mat-icon-button (click)="update(sheet); $event.stopPropagation();">
+            <button mat-icon-button matTooltip="Übungsblatt editieren" (click)="update(sheet); $event.stopPropagation();">
               <mat-icon color="secondary">edit</mat-icon>
             </button>
-            <button mat-icon-button (click)="delete(sheet); $event.stopPropagation();">
+            <button mat-icon-button matTooltip="Übungsblatt löschen" (click)="delete(sheet); $event.stopPropagation();">
               <mat-icon color="secondary">delete</mat-icon>
             </button>
           </mat-list-item>
         </mat-nav-list>
       </mat-card-content>
-      <button (click)="add()" class="position-absolute" style="right: 10px;" mat-fab color="primary">
+      <button (click)="add()" matTooltip="Übungsblatt hinzufügen" class="position-absolute" style="right: 10px;" mat-fab color="primary">
         <mat-icon>add</mat-icon>
       </button>
     </mat-card>

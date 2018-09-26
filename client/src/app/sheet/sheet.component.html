@@ -26,13 +26,13 @@
           <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
 
       </mat-card-content>
-        <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0 && loggInUserRole === 'admin'" style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
+        <button class="position-absolute" matTooltip="Korrekturzuteilung festlegen" *ngIf="!loadingSubmissions && sheet.submissions.length > 0 && loggInUserRole === 'admin'" style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
           <mat-icon>person</mat-icon>
         </button>
-      <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">
+      <button class="position-absolute" matTooltip="Alle Abgaben löschen" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">
         <mat-icon>delete</mat-icon>
       </button>
-      <button class="position-absolute" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
+      <button class="position-absolute" matTooltip="Abgaben hinzufügen" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
         <mat-icon>publish</mat-icon>
       </button>
       <input id="fileToUpload" type="file" style="display:none;" (change)="handleFileSelection($event)" >
@@ -57,7 +57,7 @@
       </mat-card>
     </div>
     <div class="col-12 col-lg-4 col-md-4" *ngIf="!loadingSubmissions && sheet.submissions.length > 0">
-      <button mat-raised-button color="accent" routerLink="./correction">Starte Korrektur</button>
+      <button mat-raised-button matTooltip="Manuelle korrektur starten" color="accent" routerLink="./correction">Manuelle korrektur</button>
        <!--<button mat-raised-button (click)="autocorrect()"> - autokorrektur test - </button> -->
     </div>
 </div>

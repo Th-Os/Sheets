@@ -104,7 +104,7 @@
     </mat-list>
     </form>
   </mat-card-content>
-  <button class="position-absolute float-right" style="right: 10px;" mat-fab
+  <button class="position-absolute float-right" matTooltip="Alle Eingaben speichern" style="right: 10px;" mat-fab
           [disabled]="saving || !editForm.valid || (task && task.solution.type === 'regex' && regex.invalid)"
           (click)="save()">
     <mat-icon>save</mat-icon>
