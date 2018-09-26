@@ -17,6 +17,10 @@ const submissionSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: false
+    },
+    grips_id: {
+        type: String,
+        required: true
     }
 });
 
@@ -117,10 +121,6 @@ const studentSchema = new mongoose.Schema({
         required: false
     },
     mat_nr: {
-        type: Number,
-        required: true
-    },
-    grips_id: {
         type: Number,
         required: true
     }
