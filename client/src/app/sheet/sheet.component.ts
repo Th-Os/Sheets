@@ -52,6 +52,8 @@ export class SheetComponent implements OnInit {
   loadingExercisesWithTasks: boolean = false;
   exercises: Exercise[];
 
+  loggInUserRole: string;
+
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -67,6 +69,8 @@ export class SheetComponent implements OnInit {
     this.getSheetWithSubmissions();
     this.getExercisesWithTasks();
     this.getSubmissionTemplate();
+
+    this.loggInUserRole = JSON.parse(localStorage.getItem('currentUser')).role.name;
   }
 
   getExercisesWithTasks() {
@@ -510,9 +514,21 @@ export class SheetComponent implements OnInit {
         notAlreadyAssigned.push(submission);
       }
     });
-    this.dialog.open(AssignSubmissionDialogComponent, {
+    const dialogRef = this.dialog.open(AssignSubmissionDialogComponent, {
       width: '500px',
       data: { submissions: notAlreadyAssigned}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        return;
+      } else {
+        result.forEach(submission => {
+          const submissionIndex = this.sheet.submissions.findIndex(s => s._id === submission._id);
+          // Update submission
+          this.sheet.submissions[submissionIndex] = submission;
+        });
+      }
     });
   }
 }

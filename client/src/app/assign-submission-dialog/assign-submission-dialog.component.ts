@@ -35,13 +35,13 @@ export class AssignSubmissionDialogComponent implements OnInit {
   }
 
   onSubmit(): void {
+    const updatedSubmissons = [];
     this.selectedSubmissions.forEach(submission => {
-      // console.log('Submission: ' + submission._id + ' User: ' + this.selectedUser[0]._id);
       submission.user = this.selectedUser[0];
-      // console.log('bla: ' + JSON.stringify(submission));
-      this.submissionService.updateSubmission(submission);
+      updatedSubmissons.push(this.submissionService.updateSubmission(submission));
     });
-    this.dialogRef.close(null);
+    // Todo: Give back array of updated submissions to replace in sheet component
+    this.dialogRef.close(updatedSubmissons);
   }
 
   onClose(): void {
