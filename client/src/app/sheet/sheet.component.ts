@@ -163,16 +163,11 @@ export class SheetComponent implements OnInit {
 
   getSubmissionTemplate() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.submissionTemplate = this.testTemplate(); // TODO: only for testing!
-    /*
-    //TODO: release!!!
+    //this.submissionTemplate = this.testTemplate();
     this.sheetService.getSubmissionTemplate(id).subscribe(template =>{
       //console.log(template)
       this.submissionTemplate = this.parseTemplate(template);
     });
-    */
-
-
   }
 
   goBack(): void {
@@ -276,7 +271,7 @@ export class SheetComponent implements OnInit {
             console.log("validation ok");
             console.log("uploading with data: ");
             console.log(this.sheet)
-            //this.uploadAndCorrectSubmissions();
+            this.uploadAndCorrectSubmissions();
           }else{
             this.displayValidationResults();
           }
@@ -296,7 +291,7 @@ export class SheetComponent implements OnInit {
         tempSheet = sheet;
         res.map(sub => tempSheet.submissions.push(sub._id))
         this.sheetService.updateSheet(tempSheet).subscribe(res => {
-          //res.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+          res.submissions.forEach(newSubmission => this.sheetService.autocorrectSubmissions(newSubmission).subscribe())
           this.loadInProgress = false;
           this.displayMessage("Abgaben erfolgreich hochgeladen")
         })
@@ -335,13 +330,11 @@ export class SheetComponent implements OnInit {
 
   autocorrect(){
     this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
-
     console.log("autocorrect")
   }
 
   parseTemplate(text: string): Template {
     let result = new Template();
-
     let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
     let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
 
@@ -366,8 +359,10 @@ export class SheetComponent implements OnInit {
       }
 
       //Kriterien verletzt
-      console.log("Error parsing Template at line: " + i + " --> " + line)
-      return null;
+      if(line != ""){
+        console.log("Error parsing Template at line: " + i + " --> " + line)
+      return null;      
+    }
     }
 
     //console.log(result)
