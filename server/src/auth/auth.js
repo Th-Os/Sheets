@@ -2,7 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import bodyParser from 'body-parser';
-import {User, Role} from '../models/user';
+import {User} from '../models/user';
 
 const router = express.Router();
 
@@ -11,6 +11,11 @@ router.use(bodyParser.urlencoded({
 }));
 router.use(bodyParser.json());
 
+/**
+ * Login route.
+ * @param req.body.username the username of the user.
+ * @param req.body.password the password of the user.
+ */
 router.post('/login', function(req, res) {
     User.findOne({
         username: req.body.username
@@ -45,47 +50,14 @@ router.post('/login', function(req, res) {
     });
 });
 
-// TODO: logout needs to take place in the client (deleting token)
+/**
+ * Logout route.
+ */
 router.get('/logout', function(req, res) {
     res.status(200).send({
         auth: false,
         token: null
     });
-});
-
-/**
- * @deprecated register will be deleted.
- */
-router.post('/register', function(req, res) {
-    if (req !== undefined && req.body !== undefined && req.body.password !== undefined) {
-        let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-
-        User.create({
-            username: req.body.username,
-            password: hashedPassword
-        }).then(function(user) {
-            Role.create({name: 'admin'}).then((role) => {
-                user.role = role._id;
-
-                // if user is registered without errors
-                // create a token
-                var token = jwt.sign({
-                    id: user._id
-                }, process.env.SECRET, {
-                    expiresIn: 86400 // expires in 24 hours
-                });
-                res.status(200).send({
-                    user: user,
-                    auth: true,
-                    token: token
-                });
-            });
-        }).catch((err) => {
-            if (err) return res.status(500).send('There was a problem registering the user.');
-        });
-    } else {
-        res.status(404).send();
-    }
 });
 
 export default router;

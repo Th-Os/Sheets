@@ -1,8 +1,8 @@
-/* global require */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose from 'mongoose';
 
-var sheetSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const sheetSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -127,7 +127,7 @@ sheetSchema.methods.populateObj = function() {
     });
 };
 
-var exerciseSchema = new mongoose.Schema({
+const exerciseSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -206,7 +206,7 @@ exerciseSchema.methods.populateObj = function() {
     });
 };
 
-var taskSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema({
     question: {
         type: String,
         required: true
@@ -270,7 +270,7 @@ taskSchema.methods.populateObj = function() {
     });
 };
 
-var solutionSchema = new mongoose.Schema({
+const solutionSchema = new mongoose.Schema({
     type: {
         type: String,
         required: true
@@ -304,7 +304,7 @@ var solutionSchema = new mongoose.Schema({
     }
 });
 
-export var Solution = mongoose.model('Solution', solutionSchema);
-export var Sheet = mongoose.model('Sheet', sheetSchema);
-export var Exercise = mongoose.model('Exercise', exerciseSchema);
-export var Task = mongoose.model('Task', taskSchema);
+export let Solution = mongoose.model('Solution', solutionSchema);
+export let Sheet = mongoose.model('Sheet', sheetSchema);
+export let Exercise = mongoose.model('Exercise', exerciseSchema);
+export let Task = mongoose.model('Task', taskSchema);

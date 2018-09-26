@@ -1,8 +1,8 @@
-/* global require */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose from 'mongoose';
 
-var courseSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const courseSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -35,4 +35,4 @@ courseSchema.post('remove', (doc) => {
     });
 });
 
-export var Course = mongoose.model('Course', courseSchema);
+export let Course = mongoose.model('Course', courseSchema);

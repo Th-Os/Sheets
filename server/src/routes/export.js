@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
 import * as methods from '../utils/methods';
-import {RouteError} from '../utils/error';
-import verify from '../auth/verify';
+import {StatusError} from '../utils/errors';
+import verify from '../auth/verification';
 import Renderer from '../export/renderer';
 import CSVRenderer from '../export/csv';
 import {Course} from '../models/course';
@@ -106,7 +106,7 @@ function sendReport(id, type, res) {
             .output(type)
             .send(res);
     }).catch((err) => {
-        if (err.name === RouteError.name) res.status(err.status).send(err.message);
+        if (err.name === StatusError.name) res.status(err.status).send(err.message);
         else res.status(500).send(err);
     });
 }
@@ -116,9 +116,9 @@ function getReportObj(sheetId) {
         let obj = {};
         fs.readFile(path.join(__dirname, '../../resources/template.html'), 'utf8', function(err, html) {
             obj.html = html;
-            if (err) reject(new RouteError(500, err));
+            if (err) reject(new StatusError(500, err));
             Course.find({sheets: sheetId}).exec().then((docs) => {
-                if (docs === undefined || docs.length === 0) reject(new RouteError(404, 'Course not found'));
+                if (docs === undefined || docs.length === 0) reject(new StatusError(404, 'Course not found'));
                 obj.course = docs[0];
                 methods.get(sheetId, Sheet, { path: 'exercises', populate: { path: 'tasks' } }).then((sheet) => {
                     obj.sheet = sheet;
@@ -126,8 +126,8 @@ function getReportObj(sheetId) {
                     obj.template = getTemplate(sheet, 'html');
                     obj = countOrderUpBy(obj, 1);
                     resolve(obj);
-                }).catch((err) => reject(new RouteError(400, err)));
-            }).catch((err) => reject(new RouteError(400, err)));
+                }).catch((err) => reject(new StatusError(400, err)));
+            }).catch((err) => reject(new StatusError(400, err)));
         });
     });
 }

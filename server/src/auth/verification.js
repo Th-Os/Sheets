@@ -1,6 +1,12 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
+/**
+ * This function will check whether the req.params.id is a mongoDB ObjectId.
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 function verify(req, res, next) {
     // check if id is a valid mongoose ObjectId:
     if (req.params.id !== undefined) {

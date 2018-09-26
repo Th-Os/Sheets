@@ -1,9 +1,8 @@
-/* global require */
-var mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-var userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true
@@ -36,7 +35,7 @@ var userSchema = new mongoose.Schema({
     }]
 });
 
-var roleSchema = new mongoose.Schema({
+const roleSchema = new mongoose.Schema({
     name: {
         type: String,
         enum: ['admin', 'lecturer', 'tutor'],

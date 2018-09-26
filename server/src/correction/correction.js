@@ -1,8 +1,7 @@
 import express from 'express';
 import verify from '../auth/verify';
 import {Submission} from '../models/submission';
-
-class CorrectionError extends Error {}
+import {CorrectionError} from '../utils/errors';
 const router = express.Router();
 
 // TODO: refactor CorrectionError -> don't stop when throwing one error and return all errors as result.

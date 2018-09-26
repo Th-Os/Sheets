@@ -1,5 +1,5 @@
 import express from 'express';
-import verify from '../auth/verify';
+import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {Sheet, Exercise} from '../models/sheet';
 import {StatusError} from '../utils/error';
