@@ -85,8 +85,8 @@ export class CourseComponent implements OnInit {
     .subscribe(sheets => {
       this.sheets = sheets;
     }).add( () => {
-      this.loadingSheets = false
-      this.getStudents()
+      this.loadingSheets = false;
+      this.getStudents();
     });
   }
 

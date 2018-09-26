@@ -92,15 +92,34 @@
       <mat-divider [inset]="true" class="mb-4"></mat-divider>
       <mat-list-item class="my-4">
         <mat-form-field class="w-100">
-          <textarea matInput name="taskChoices" [(ngModel)]="task.choices" placeholder="Bearbeitungshinweise"></textarea>
+          <textarea matInput name="taskHint" [(ngModel)]="task.solution.hint" placeholder="Korrekturhinweis für Tutoren"></textarea>
         </mat-form-field>
       </mat-list-item>
       <mat-divider [inset]="true" class="mb-4"></mat-divider>
       <mat-list-item class="my-4">
+        <!--
         <mat-form-field class="w-100">
-          <textarea matInput name="taskHint" [(ngModel)]="task.solution.hint" placeholder="Korrekturhinweis"></textarea>
+          <textarea matInput name="taskChoices" [(ngModel)]="task.choices" placeholder="Bearbeitungshinweise"></textarea>
+        </mat-form-field>
+        -->
+        <mat-form-field matLine class="w-100">
+          <input matInput name="taskChoices" [(ngModel)]="choice" placeholder="Bearbeitungshinweise für Studenten"
+                (keyup.enter)="onAddChoice(); $event.stopPropagation();">
+          <mat-icon matSuffix (click)="onAddChoice();  $event.stopPropagation();">
+            add
+          </mat-icon>
         </mat-form-field>
       </mat-list-item>
+        <mat-list-item>
+          <mat-list matLine class="w-100" style="overflow: scroll;">
+            <mat-list-item class="w-100" *ngFor="let choice of task.choices; let index = index;">
+              <span matLine>{{choice}} / {{index}}</span>
+              <button mat-icon-button (click)="onRemoveChoice(index)">
+                <mat-icon class="mat-24">delete</mat-icon>
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </mat-list-item>
     </mat-list>
     </form>
   </mat-card-content>

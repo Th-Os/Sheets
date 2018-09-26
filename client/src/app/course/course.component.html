@@ -14,7 +14,7 @@
                                 mode="indeterminate"
                                 [diameter]="50">
           </mat-progress-spinner>
-          <mat-nav-list *ngIf="course && !loadingSheets" class="w-100" 
+          <mat-nav-list *ngIf="course && !loadingSheets" class="w-100">
             <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
               <a mat-line> {{ sheet.name }} </a>
               <button mat-icon-button (click)="update(sheet); $event.stopPropagation();">

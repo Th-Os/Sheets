@@ -5,6 +5,6 @@ export class Task {
   question: string;
   points = 0;
   order: number;
-  choices: string;
+  choices: string[];
   solution: Solution;
 }
