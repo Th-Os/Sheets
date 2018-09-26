@@ -1,9 +1,11 @@
 import {Answer} from "./answer";
 import {Student} from "./student";
+import {User} from './user';
 
 export class Submission {
 	_id: string;
-	user_id: number;
+	user: User;
+  //user: string;
 	student: Student;
 	answers: Answer[];
 	//ui

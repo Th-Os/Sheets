@@ -26,6 +26,9 @@
           <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
 
       </mat-card-content>
+        <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0 && loggInUserRole === 'admin'" style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
+          <mat-icon>person</mat-icon>
+        </button>
       <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">
         <mat-icon>delete</mat-icon>
       </button>
@@ -51,13 +54,15 @@
             </ng-container>
           </mat-list>
         </mat-card-content>
+        <button class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
+                mat-fab color="primary" (click)="downloadSheet()">
+          <mat-icon>get_app</mat-icon>
+        </button>
       </mat-card>
     </div>
-    <div class="col-12 col-lg-4 col-md-4">
+    <div class="col-12 col-lg-4 col-md-4" *ngIf="!loadingSubmissions && sheet.submissions.length > 0">
       <button mat-raised-button color="accent" routerLink="./correction">Starte Korrektur</button>
-    </div>
-        <div class="col-12 col-lg-4 col-md-4">
-      <button mat-raised-button color="accent" (click)="autocorrect()">Starte Autokorrektur</button>
+      <button mat-raised-button (click)="autocorrect()"> - autokorrektur test - </button>
     </div>
 </div>
 </div>

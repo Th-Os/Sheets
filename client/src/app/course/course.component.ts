@@ -4,8 +4,11 @@ import { Location } from '@angular/common';
 
 import { CourseService } from '../services/course.service';
 import {Course} from '../models/course';
+import {Student} from '../models/student';
 import {Sheet} from '../models/sheet';
 import {SheetService} from '../services/sheet.service';
+import {StudentService} from '../services/student.service';
+
 import {ExerciseDialogComponent} from '../exercise-dialog/exercise-dialog.component';
 import {MatDialog} from '@angular/material';
 
@@ -18,6 +21,7 @@ export class CourseComponent implements OnInit {
 
   course: Course;
   sheets: Sheet[];
+  students:Student[] = [];
   loadingSheets: boolean = false;
 
   constructor(
@@ -25,9 +29,10 @@ export class CourseComponent implements OnInit {
     private router: Router,
     private courseService: CourseService,
     private sheetService: SheetService,
+    private studentService: StudentService,
     private location: Location,
     public dialog: MatDialog
-  ) {}
+    ) {}
 
   ngOnInit() {
     this.getCourse();
@@ -38,10 +43,10 @@ export class CourseComponent implements OnInit {
     this.course = new Course('', '', '', 0);
     const id = this.route.snapshot.paramMap.get('id');
     this.courseService.getCourse(id)
-      .subscribe(course => this.course = course);
+    .subscribe(course => this.course = course);
   }
 
-   delete(sheet: Sheet): void {
+  delete(sheet: Sheet): void {
     const sheetIndex = this.course.sheets.indexOf(sheet);
     this.sheetService.deleteSheet(sheet).subscribe(_ => {
       if (this.sheets.length > 1) {
@@ -54,13 +59,35 @@ export class CourseComponent implements OnInit {
     });
   }
 
+  getStudents() {
+    this.sheets.forEach(sheet => {
+      if(sheet.submissions == null || sheet.submissions.length <= 0) return
+      this.sheetService.getSheetSubmissions(sheet._id.toString()).subscribe(subs => {
+        subs.forEach(submission => {
+          this.studentService.getStudent(submission.student).subscribe(
+            student => {
+              //TODO - CHECK MUSS AUF ID UMGESTELLT WERDEN
+              if(this.students.find(el => student.name === el.name) == null) this.students.push(student)
+            },
+            error => console.error( error ),
+            () => {
+            }
+            )
+        })
+      })
+    })
+  }
+
   getCourseSheets(): void {
     this.loadingSheets = true;
     const id = this.route.snapshot.paramMap.get('id');
     this.sheetService.getSheets(id)
-      .subscribe(sheets => {
-        this.sheets = sheets;
-      }).add( () => this.loadingSheets = false );
+    .subscribe(sheets => {
+      this.sheets = sheets;
+    }).add( () => {
+      this.loadingSheets = false
+      this.getStudents()
+    });
   }
 
   deleteSheet(sheet: Sheet): void {

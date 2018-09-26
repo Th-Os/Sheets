@@ -9,7 +9,7 @@ export class FilterusersPipe implements PipeTransform {
   transform(users: User[], role: string): User[] {
     const filteredUsers = [];
     users.forEach(user => {
-      if (user.role === role) {
+      if (user.role.name === role) {
         filteredUsers.push(user);
       }
     });

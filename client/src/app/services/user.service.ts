@@ -72,9 +72,15 @@ export class UserService {
       );
   }
 
-  // Todo: Adjust to Role[] if necessary
-  getRoles(): Observable<string[]> {
-    return this.http.get<string[]>(this.userUrl + '/roles', httpOptions)
+  getRole(roleId: string): Observable<Role> {
+    return this.http.get<Role>(this.userUrl + '/roles/' + roleId, httpOptions)
+      .pipe(
+        catchError(this.handleError<Role>(`getRole id=${roleId}`))
+      );
+  }
+
+  getRoles(): Observable<Role[]> {
+    return this.http.get<Role[]>(this.userUrl + '/roles', httpOptions)
       .pipe(
         catchError(this.handleError('getRoles', []))
       );

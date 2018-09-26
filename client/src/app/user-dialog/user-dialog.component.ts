@@ -15,8 +15,7 @@ import {Role} from '../models/role';
 export class UserDialogComponent implements OnInit {
 
   courses: Course[];
-  //roles: Role[];
-  roles: string[];  // Todo: Replace if role should be objectId
+  roles: Role[];
   user: User;
   saving = false;
   loggedInUser: any;
