@@ -11,6 +11,11 @@ export class Sheet {
   public exercises: Exercise[];
   public min_req_points: number;
   public persistent: boolean;
+  public template: {
+    correctly: true
+    flag: false
+    points: 0
+  };
 
   constructor(){
   	this.submissions = []

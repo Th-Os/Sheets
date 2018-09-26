@@ -23,6 +23,7 @@ export class CreateSheetComponent implements OnInit {
 
   loadingSheet: boolean = false;
   sheet: Sheet;
+  originalSheet: Sheet;
   selectedExercise: string = null;
   selectedTask: string = null;
 
@@ -59,6 +60,7 @@ export class CreateSheetComponent implements OnInit {
                       if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
                         this.selectedExercise = this.sheet.exercises[0]._id;
                       }
+                      this.originalSheet = Object.assign({}, this.sheet);
                       this.loadingSheet = false
                     }
                   }
@@ -76,6 +78,7 @@ export class CreateSheetComponent implements OnInit {
       exercise.tasks.forEach((task, taskIndex) => {
         if (task._id === updatedTask._id) {
           this.sheet.exercises[exerciseIndex].tasks[taskIndex] = updatedTask;
+          this.originalSheet = Object.assign({}, this.sheet);
           this.loadingSheet = false;
           return;
         }
@@ -91,10 +94,27 @@ export class CreateSheetComponent implements OnInit {
         this.taskService.getTasks(exercise._id).subscribe(
           tasks => this.sheet.exercises[exerciseIndex].tasks = tasks,
           error => console.error( error ),
-          () => this.loadingSheet = false
+          () => {
+            this.originalSheet = Object.assign({}, this.sheet);
+            this.loadingSheet = false
+          }
         )
       }
     })
+  }
+
+  onAddExercise() {
+    if (this.sheet.submissions.length === 0) {
+      this.addExercise()
+    } else if (window.confirm('Für das Arbeitsblatt wurden bereits Abgaben hochgeladen. Wenn Sie eine neue Aufgabe erstellen ' +
+                              'werden die Abgaben des Blattes mitgelöscht und müssen neu hochgeladen werden. ' +
+                              'Aufgabe wirklich erstellen?')) {
+      this.sheetService.deleteSubmissions(this.sheet).subscribe(
+        () => this.sheet.submissions = [],
+        error => console.error( error ),
+        () => this.addExercise()
+      )
+    }
   }
 
   addExercise(): void {
@@ -111,13 +131,28 @@ export class CreateSheetComponent implements OnInit {
         exercise =>  this.sheet.exercises.push(exercise[0]),
         error => console.error( error ),
         () => {
+          this.originalSheet = Object.assign({}, this.sheet);
           this.selectedExercise = this.sheet.exercises[this.sheet.exercises.length -1]._id;
           this.addTask()
         });
   }
 
+  onDeleteExercise(exercise: Exercise) {
+    if (this.sheet.submissions.length === 0) {
+      this.deleteExercise(exercise);
+    } else if (window.confirm('Für das Arbeitsblatt wurden bereits Abgaben hochgeladen. Wenn Sie die Aufgabe löschen ' +
+      'werden die Abgaben des Blattes gelöscht und müssen neu hochgeladen werden. ' +
+      'Aufgabe wirklich löschen?')) {
+      this.sheetService.deleteSubmissions(this.sheet).subscribe(
+        () => this.sheet.submissions = [],
+        error => console.error( error ),
+        () => this.deleteExercise(exercise)
+      )
+    }
+  }
+
   deleteExercise(exercise: Exercise): void {
-    if (window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
+    if (this.sheet.submissions.length > 0 || window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
       this.loadingSheet = true;
       let index = this.sheet.exercises.indexOf(exercise);
       this.sheet.exercises.splice(index, 1);
@@ -136,10 +171,25 @@ export class CreateSheetComponent implements OnInit {
               if (this.selectedExercise === exercise._id) {
                 this.selectedExercise = null;
               }
+              this.originalSheet = Object.assign({}, this.sheet);
               this.loadingSheet = false
             }
           );
         }
+      )
+    }
+  }
+
+  onAddTask() {
+    if (this.sheet.submissions.length === 0) {
+      this.addTask()
+    } else if (window.confirm('Für das Arbeitsblatt wurden bereits Abgaben hochgeladen. Wenn Sie eine neue Teilaufgabe erstellen ' +
+      'werden die Abgaben des Blattes gelöscht und müssen neu hochgeladen werden. ' +
+      'Aufgabe wirklich erstellen?')) {
+      this.sheetService.deleteSubmissions(this.sheet).subscribe(
+        () => this.sheet.submissions = [],
+        error => console.error( error ),
+        () => this.addTask()
       )
     }
   }
@@ -167,6 +217,7 @@ export class CreateSheetComponent implements OnInit {
           },
           error => console.error( error ),
           () => {
+            this.originalSheet = Object.assign({}, this.sheet);
             this.selectedExercise = null;
             this.selectedTask = task[0]._id;
             this.loadingSheet = false;
@@ -174,15 +225,29 @@ export class CreateSheetComponent implements OnInit {
       });
   }
 
+  onDeleteTask(exercise: Exercise, task: Task) {
+    if (this.sheet.submissions.length === 0) {
+      this.deleteTask(exercise, task);
+    } else if (window.confirm('Für das Arbeitsblatt wurden bereits Abgaben hochgeladen. Wenn Sie die Teilaufgabe löschen ' +
+      'werden die Abgaben des Blattes gelöscht und müssen neu hochgeladen werden. ' +
+      'Teilaufgabe wirklich löschen?')) {
+      this.sheetService.deleteSubmissions(this.sheet).subscribe(
+        () => this.sheet.submissions = [],
+        error => console.error( error ),
+        () => this.deleteTask(exercise, task)
+      )
+    }
+  }
+
   deleteTask(exercise: Exercise,task: Task) {
     if (exercise.tasks.length === 1) {
       if (window.confirm('Wenn Sie die Teilaufgabe löschen wird automatisch die zugehörige Aufgabe mitgelöscht.' +
-        ' Wollen Sie die Teilaufgabe jetzt löschen?')) {
+        ' Wollen Sie die Teilaufgabe löschen?')) {
         this.selectedTask = null;
         this.deleteExercise(exercise);
       }
     } else {
-      if (window.confirm('Wollen Sie die Teilaufgabe wirklich löschen?')) {
+      if (this.sheet.submissions.length > 0 || window.confirm('Wollen Sie die Teilaufgabe wirklich löschen?')) {
         this.loadingSheet = true;
         let eIndex = this.sheet.exercises.findIndex(e => e._id === exercise._id);
         let tIndex = this.sheet.exercises[eIndex].tasks.findIndex(t => t._id === task._id);
@@ -190,18 +255,19 @@ export class CreateSheetComponent implements OnInit {
         this.exerciseService.updateExercise(exercise).subscribe(
           exercise => console.log(exercise),
           error => {
-            console.error( error );
+            console.error(error);
             this.sheet.exercises[eIndex].tasks.splice(tIndex, 0, task);
             this.loadingSheet = false;
           },
           () => {
             this.taskService.deleteTask(task).subscribe(
               task => console.log(task),
-              error => console.error( error ),
+              error => console.error(error),
               () => {
                 if (this.selectedTask === task._id) {
                   this.selectedTask = null;
                 }
+                this.originalSheet = Object.assign({}, this.sheet);
                 this.loadingSheet = false
               }
             );
@@ -212,13 +278,14 @@ export class CreateSheetComponent implements OnInit {
   }
 
   onSheetUpdate() {
-    this.loadingSheet = true;
     this.sheetService.updateSheet(this.sheet).subscribe(
       null,
-      error => console.log(error),
-      () => this.loadingSheet = false
+      error => {
+        console.log(error);
+        this.sheet = Object.assign({}, this.originalSheet);
+      },
+      () => this.originalSheet = Object.assign({},this.sheet)
     );
-    console.log('change')
   }
 
   goBack(): void {

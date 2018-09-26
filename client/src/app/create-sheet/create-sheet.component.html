@@ -1,120 +1,138 @@
-<div class="container mt-5">
-  <div class="d-flex w-100">
-    <button mat-fab color="primary" class="position-absolute m-5" (click)="goBack()">
-      <i class="material-icons">arrow_back</i>
-    </button>
-  </div>
-  <!--
-  <h3>
-    <mat-form-field id="titleInput" *ngIf="sheet">
-      <input matInput type="text" [(ngModel)]="sheet.name">
-     </mat-form-field>
-  </h3>
-  <div class="input-wrapper">
-    <label style="font-weight: bold">Abgabedatum wählen:&nbsp;</label>
-    <input *ngIf="sheet" [(ngModel)]="sheet.submissiondate"
-           [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
-    <owl-date-time #dtPicker1></owl-date-time>
-    <div style="float: right" *ngIf="sheet">
-      <mat-checkbox [(ngModel)]="sheet.persistent">Immer als Vorlage speichern</mat-checkbox>
-    </div>
-  </div>
-  <br>
-  -->
+<div class="container-fluid mt-5">
   <div class="row">
-    <div class="col-12 mb-3">
-      <mat-card>
-        <mat-card-title *ngIf="!loadingSheet && sheet">
-          <mat-form-field class="w-100">
-            <input matInput [(ngModel)]="sheet.name" >
-          </mat-form-field>
-        </mat-card-title>
-        <mat-card-content *ngIf="!loadingSheet && sheet">
-          <mat-form-field floatLabel="always" class="mx-2">
-            <mat-label>Abgabedatum wählen:&nbsp;</mat-label>
-            <input matInput *ngIf="sheet" [(ngModel)]="sheet.submissiondate"
-                   (dateTimeChange)="onSheetUpdate()"
-                   [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
-            <owl-date-time #dtPicker1></owl-date-time>
-          </mat-form-field>
-          <mat-form-field class="mx-2">
-            <mat-label>Bestanden ab:&nbsp;</mat-label>
-            <input matInput *ngIf="sheet" [(ngModel)]="sheet.min_req_points" min="0" max="100"
-                   (blur)="onSheetUpdate()">
-            <span matSuffix>%</span>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
+    <div class="col-12 col-lg-1 col-md-1">
+      <button mat-fab color="primary" class="m-2" (click)="goBack()">
+        <i class="material-icons">arrow_back</i>
+      </button>
     </div>
-
-    <div class="col-12 col-lg-6 col-md-6">
-      <mat-card>
-        <mat-card-title>Übersicht</mat-card-title>
-        <mat-card-content>
-          <mat-spinner *ngIf="loadingSheet"></mat-spinner>
-          <mat-nav-list *ngIf="!loadingSheet && sheet">
-            <ng-container *ngFor="let exercise of sheet.exercises; let index = index;">
-              <mat-list-item *ngIf="sheet.exercises.length === 0" (click)="getSheet()">
-                Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
-              </mat-list-item>
-              <mat-list-item (click)="selectedExercise = exercise._id; selectedTask = null;"
-                [class.active]="exercise._id === selectedExercise">
-                <span class="exercise" matLine>{{exercise.order + 1}}.) {{exercise.name}}</span>
-                <button type="button" mat-icon-button (click)="deleteExercise(exercise); $event.stopPropagation();">
-                  <mat-icon class="mat-24">delete</mat-icon>
-                </button>
-              </mat-list-item>
-              <mat-list-item *ngFor="let task of exercise.tasks"
-                             (click)="selectedExercise = null; selectedTask = task._id"
-                             [class.active]="task._id === selectedTask"
-                             class="ml-3">
-                <span class="task" matLine>{{task.order | numberToChar}}.) {{task.question}}</span>
-                <button type="button" mat-icon-button (click)="deleteTask(exercise, task); $event.stopPropagation();">
-                  <mat-icon class="mat-24">delete</mat-icon>
-                </button>
-              </mat-list-item>
-              <mat-divider *ngIf="sheet.exercises.length === index" [inset]="true"></mat-divider>
-            </ng-container>
-          </mat-nav-list>
-          <!--
-          <div *ngIf="!sheet.exercises">
-            <div *ngIf="sheet">
-              <h4 style="text-align: center">{{sheet.name}}</h4>
-              <br>
-              <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
-              <br>
-            </div>
-            <ol class="listHeader">
-              <li *ngFor="let exercise of sheet.exercises">
-                <h5><label class="alignLabel">{{exercise.name}} ({{exercise.tasks | pointcalculationPipe}} Punkte)</label></h5>
-                <p>{{exercise.description}}</p>
-                <div *ngIf="exercise.tasks">
-                  <ol  style="list-style-type: lower-alpha">
-                    <li *ngFor="let task of exercise.tasks">
-                      <label style="float: right">{{task.points}} Punkte</label>
-                      <label class="alignLabel">{{task.question}}</label>
-                      <p class="alignLabel">{{task.choices}}</p>
-                    </li>
-                  </ol>
+    <div class="col-12 col-lg-11 col-md-11">
+      <div class="row">
+        <div class="col-12 mb-3">
+          <mat-card>
+            <mat-spinner *ngIf="loadingSheet"></mat-spinner>
+            <mat-card-title *ngIf="!loadingSheet && sheet">
+              <mat-form-field class="w-100">
+                <input matInput [(ngModel)]="sheet.name" type="text"
+                       (blur)="onSheetUpdate()" minlength="1">
+              </mat-form-field>
+            </mat-card-title>
+            <mat-card-content *ngIf="!loadingSheet && sheet">
+              <div class="row align-items-center">
+                <div class="col-12 col-lg-3 col-md-3">
+                  <mat-form-field floatLabel="always" class="mx-2">
+                    <mat-label>Abgabedatum wählen:&nbsp;</mat-label>
+                    <input matInput *ngIf="sheet" [(ngModel)]="sheet.submissiondate"
+                           (dateTimeChange)="onSheetUpdate()"
+                           [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
+                    <owl-date-time #dtPicker1></owl-date-time>
+                  </mat-form-field>
                 </div>
-                <br>
-              </li>
-            </ol>
-          </div>
-          -->
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-button (click)="addExercise()">Neue Aufgabe</button>
-          <button mat-button [disabled]="selectedExercise === null" (click)="addTask()">Neue Unteraufgabe</button>
-        </mat-card-actions>
-      </mat-card>
+                <div class="col-12 col-lg-3 col-md-3">
+                  <mat-form-field class="mx-2">
+                    <mat-label>Bestanden ab:&nbsp;</mat-label>
+                    <input matInput type="number" *ngIf="sheet" [(ngModel)]="sheet.min_req_points" min="0" max="100"
+                           (blur)="onSheetUpdate()">
+                    <span matSuffix>%</span>
+                  </mat-form-field>
+                </div>
+                <div class="col-12 col-lg-6 col-md-6">
+                  <div class="row">
+                    <div class="col-12">
+                      <mat-slide-toggle
+                        class="example-margin"
+                        color="primary"
+                        [(ngModel)]="sheet.template.flag"
+                        (change)="onSheetUpdate()">
+                        Korrektes Template bewerten
+                      </mat-slide-toggle>
+                    </div>
+                    <div class="col-12 ">
+                      <mat-form-field class="w-100 mb-4">
+                        <input type="number" #sheetTemplatePoints name="sheetTemplatePoints" min="0"
+                               class="w-100" matInput placeholder="Punkte..." [(ngModel)]="sheet.template.points"
+                               [required]="sheet.template.flag" [disabled]="!sheet.template.flag"
+                               (blur)="onSheetUpdate()">
+                        <mat-error *ngIf="!sheetTemplatePoints.valid">Bitte Punkte eingeben.</mat-error>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="col-12 col-lg-6 col-md-6">
+          <mat-card>
+            <mat-card-title>Übersicht</mat-card-title>
+            <mat-card-content>
+              <mat-spinner *ngIf="loadingSheet"></mat-spinner>
+              <mat-nav-list *ngIf="!loadingSheet && sheet">
+                <ng-container *ngFor="let exercise of sheet.exercises; let index = index;">
+                  <mat-list-item *ngIf="sheet.exercises.length === 0" (click)="getSheet()">
+                    Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+                  </mat-list-item>
+                  <mat-list-item (click)="selectedExercise = exercise._id; selectedTask = null;"
+                    [class.active]="exercise._id === selectedExercise">
+                    <span class="exercise" matLine>{{exercise.order + 1}}.) {{exercise.name}}</span>
+                    <button type="button" mat-icon-button (click)="onDeleteExercise(exercise); $event.stopPropagation();">
+                      <mat-icon class="mat-24">delete</mat-icon>
+                    </button>
+                  </mat-list-item>
+                  <mat-list-item *ngFor="let task of exercise.tasks"
+                                 (click)="selectedExercise = null; selectedTask = task._id"
+                                 [class.active]="task._id === selectedTask"
+                                 class="ml-3">
+                    <span class="task" matLine>{{task.order | numberToChar}}.) {{task.question}}</span>
+                    <button type="button" mat-icon-button (click)="onDeleteTask(exercise, task); $event.stopPropagation();">
+                      <mat-icon class="mat-24">delete</mat-icon>
+                    </button>
+                  </mat-list-item>
+                  <mat-divider *ngIf="sheet.exercises.length === index" [inset]="true"></mat-divider>
+                </ng-container>
+              </mat-nav-list>
+              <!--
+              <div *ngIf="!sheet.exercises">
+                <div *ngIf="sheet">
+                  <h4 style="text-align: center">{{sheet.name}}</h4>
+                  <br>
+                  <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
+                  <br>
+                </div>
+                <ol class="listHeader">
+                  <li *ngFor="let exercise of sheet.exercises">
+                    <h5><label class="alignLabel">{{exercise.name}} ({{exercise.tasks | pointcalculationPipe}} Punkte)</label></h5>
+                    <p>{{exercise.description}}</p>
+                    <div *ngIf="exercise.tasks">
+                      <ol  style="list-style-type: lower-alpha">
+                        <li *ngFor="let task of exercise.tasks">
+                          <label style="float: right">{{task.points}} Punkte</label>
+                          <label class="alignLabel">{{task.question}}</label>
+                          <p class="alignLabel">{{task.choices}}</p>
+                        </li>
+                      </ol>
+                    </div>
+                    <br>
+                  </li>
+                </ol>
+              </div>
+              -->
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button (click)="onAddExercise()">Neue Aufgabe</button>
+              <button mat-button [disabled]="selectedExercise === null" (click)="onAddTask()">Neue Unteraufgabe</button>
+            </mat-card-actions>
+          </mat-card>
     </div>
-    <div class="col-12 col-lg-6 col-md-6">
-      <app-create-sheet-interface
-        [exercise_id]="selectedExercise"
-        [task_id]="selectedTask"
-        (taskUpdate)="onTaskUpdated($event)"
-        (exerciseUpdate)="onExerciseUpdated($event)"></app-create-sheet-interface>
+        <div class="col-12 col-lg-6 col-md-6">
+          <app-create-sheet-interface
+            [exercise_id]="selectedExercise"
+            [task_id]="selectedTask"
+            (taskUpdate)="onTaskUpdated($event)"
+            (exerciseUpdate)="onExerciseUpdated($event)"></app-create-sheet-interface>
+        </div>
+      </div>
     </div>
   </div>
 </div>
