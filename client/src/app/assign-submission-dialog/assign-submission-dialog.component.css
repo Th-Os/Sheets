@@ -2,20 +2,23 @@
   color: grey;
 }
 
-#submissionList{
-  overflow: auto;
-  flex-grow: 1;
-  max-height: 350px;
+#submissions {
   width: 50%;
   height: 100%;
   float: left;
 }
 
+#submissionList{
+  overflow: auto;
+  flex-grow: 1;
+  max-height: 300px;
+}
+
 #userList{
   overflow: auto;
   flex-grow: 1;
-  max-height: 350px;
-  width: 45%;
+  max-height: 300px;
+  width: 50%;
   height: 100%;
   float: right;
 }

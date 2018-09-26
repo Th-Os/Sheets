@@ -5,6 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class RegexFormatPipe implements PipeTransform {
 
+  // Adds comma after each regex in regex-string for better display
   transform(regexString: string): string {
     const newArray = [];
     const splitArray = regexString.split('/b');

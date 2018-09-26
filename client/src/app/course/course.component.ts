@@ -47,16 +47,18 @@ export class CourseComponent implements OnInit {
   }
 
   delete(sheet: Sheet): void {
-    const sheetIndex = this.course.sheets.indexOf(sheet);
-    this.sheetService.deleteSheet(sheet).subscribe(_ => {
-      if (this.sheets.length > 1) {
-        this.sheets.splice(sheetIndex, 1);
-      } else {
-        this.sheets = [];
-      }
-      this.course.sheets = this.sheets;
-      this.courseService.updateCourse(this.course);
-    });
+    if (window.confirm('Wollen Sie das Aufgabenblatt wirklich löschen?')) {
+      const sheetIndex = this.course.sheets.indexOf(sheet);
+      this.sheetService.deleteSheet(sheet).subscribe(_ => {
+        if (this.sheets.length > 1) {
+          this.sheets.splice(sheetIndex, 1);
+        } else {
+          this.sheets = [];
+        }
+        this.course.sheets = this.sheets;
+        this.courseService.updateCourse(this.course);
+      });
+    }
   }
 
   getStudents() {
