@@ -14,6 +14,7 @@ import {Sheet, Exercise, Task} from '../models/sheet';
 const router = express.Router();
 moment.locale('de');
 
+// TODO: PDF and Word export use ordering starting with 0 and not 1.
 // TODO: refactor RouteError handling. Not working correctly. "HTTP headers set after sending."
 router.get('/pdf/:id', verify, function(req, res) {
     fs.readFile(path.join(__dirname, '../../resources/template.html'), 'utf8', function(err, html) {
@@ -90,34 +91,48 @@ router.get('/word/:id', verify, function(req, res) {
 });
 
 router.get('/csv/:id', verify, function(req, res) {
-    methods.get(req.params.id, Sheet).then((sheet) => {
-        sheet.populateObj().then(() => {
-            let promises = [];
-            for (let submission of sheet.submissions) {
-                promises.push(submission.populateObj());
-            }
-            Promise.all(promises).then(() => {
-                promises = [];
-                for (let s of sheet.submissions) {
-                    for (let a of s.answers) {
-                        promises.push(a.populateObj());
-                    }
+    methods.get(req.params.id, Sheet, [
+        {
+            path: 'exercises',
+            model: 'Exercise',
+            populate:
+                {
+                    path: 'tasks',
+                    model: 'Task',
+                    populate: { path: 'solution' }
                 }
-                Promise.all(promises).then(() => {
-                    let renderer = new CSVRenderer().addHeader();
-                    for (let s of sheet.submissions) {
-                        let maxPoints = 0;
-                        for (let a of s.answers) {
-                            maxPoints += a.task.points;
-                            a.task.exercise = 0;
-                        }
-                        renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints);
+        }, {
+            path: 'submissions',
+            model: 'Submission',
+            populate:
+                [
+                    {
+                        path: 'answers',
+                        model: 'Answer',
+                        populate:
+                            {
+                                path: 'task',
+                                populate: { path: 'solution' }
+                            }
+                    },
+                    {
+                        path: 'student'
                     }
-                    res.attachment('output.csv').type('text/csv').end(renderer.export());
-                }).catch((err) => console.error(err));
-            }).catch((err) => console.error(err));
-        }).catch((err) => console.error(err));
-    });
+                ]
+        }
+    ]).then((sheet) => {
+        let renderer = new CSVRenderer().addHeader();
+        for (let s of sheet.submissions) {
+            let maxPoints = 0;
+            for (let a of s.answers) {
+                maxPoints += a.task.points;
+                a.task.exercise = 0;
+            }
+            if (sheet.template.flag) maxPoints += sheet.template.points;
+            renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints, sheet.template);
+        }
+        res.attachment('output.csv').type('text/csv').end(renderer.export());
+    }).catch((err) => res.status(500).send(err));
 });
 
 router.get('/template/:id', verify, function(req, res) {
@@ -161,7 +176,7 @@ function getTemplate(sheet, mode) {
     template += newLine;
     for (let exercise of sheet.exercises) {
         if (exercise.tasks !== undefined) {
-            template += 'Aufgabe ' + sheet.order + '.' + exercise.order + ':' + newLine;
+            template += 'Aufgabe ' + (sheet.order + 1) + '.' + (exercise.order + 1) + ':' + newLine;
             for (let task of exercise.tasks) {
                 let choices = task.choices.join(' | ');
                 // Should prevent html from being interpreted.
@@ -169,7 +184,7 @@ function getTemplate(sheet, mode) {
                     choices = choices.replace('<', '&lt;');
                     choices = choices.replace('>', '&gt;');
                 }
-                template += toAlphabeticOrder(task.order) + ')  < ' + choices + ' >' + newLine;
+                template += toAlphabeticOrder(task.order + 1) + ')  < ' + choices + ' >' + newLine;
             }
         }
     }
@@ -178,9 +193,9 @@ function getTemplate(sheet, mode) {
 
 function toAlphabeticOrder(numerical) {
     if (numerical < 10) {
-        return String.fromCharCode(('' + numerical).charCodeAt() + 17).toLowerCase();
+        return String.fromCharCode(('' + numerical).charCodeAt() + 16).toLowerCase();
     } else {
-        if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 17).toLowerCase();
+        if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
         return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
     }
 }

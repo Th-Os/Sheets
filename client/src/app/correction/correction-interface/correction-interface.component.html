@@ -18,11 +18,15 @@
       <h3 matSubheader>Antwort</h3>
       <mat-list-item class="mb-1" *ngIf="answer">{{answer.text}}</mat-list-item>
       <mat-divider [inset]="true"></mat-divider>
-      <h3 matSubheader>Lösung</h3>
+      <h3 *ngIf="solution" matSubheader>Lösung</h3>
       <mat-list-item class="mb-1" *ngIf="solution">
         <span *ngIf="solution.type == 'regex'">{{solution.regex}}</span>
         <span *ngIf="solution.type == 'number'">{{solution.number}}</span>
         <span *ngIf="solution.type == 'range'">{{solution.range.from}} - {{solution.range.to}}</span>
+      </mat-list-item>
+      <h3 *ngIf="solution" matSubheader>Korrekturhinweis</h3>
+      <mat-list-item class="mb-1" *ngIf="solution">
+        <span>{{solution.hint}}</span>
       </mat-list-item>
       <mat-divider [inset]="true"></mat-divider>
       <mat-list-item class="w-100" *ngIf="solution">

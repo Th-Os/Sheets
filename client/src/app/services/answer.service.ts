@@ -25,7 +25,7 @@ export class AnswerService {
   ) { }
 
   getAnswer(submission_id: string, task_id: string): Observable<Answer>{
-    const url = `${this.submissionsUrl}/${submission_id}/answers/search?task_id=${task_id}`;
+    const url = `${this.submissionsUrl}/${submission_id}/answers/_search?task=${task_id}`;
     return this.http.get<Answer>(url).pipe(
       catchError(this.handleError<Answer>(`getAnswer of Submission with id=${submission_id} for Task with id=${task_id}`))
     );

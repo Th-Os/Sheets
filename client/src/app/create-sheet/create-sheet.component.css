@@ -1,9 +1,10 @@
+/*
 .mat-grid-tile .mat-figure { justify-content: left !important; }
 
 #title {
   width:90% !important;
 }
-
+*/
 /*ol {
   counter-reset: item;
 }
@@ -19,6 +20,7 @@ ol li:before {
   right: 10px; !* space between number and text *!
 }*/
 
+/*
 .mat-grid-tile-custom {
   overflow: visible!important;
 }
@@ -44,4 +46,4 @@ ol li:before {
 ol li .alignLabel {
   display:block;
 }
-
+*/

@@ -4,17 +4,17 @@
       <mat-card>
         <mat-card-title>Kurse</mat-card-title>
         <mat-card-content>
-          <mat-list>
-            <mat-list-item *ngFor="let course of courses" role="listitem">
-              <a mat-line routerLink="/courses/{{course._id}}"> {{ course.name }} </a>
-              <button mat-icon-button (click)="update(course)">
+          <mat-nav-list>
+            <mat-list-item *ngFor="let course of courses" routerLink="/courses/{{course._id}}" role="listitem">
+              <a mat-line> {{ course.name }} </a>
+              <button mat-icon-button (click)="update(course); $event.stopPropagation();">
                 <mat-icon color="secondary">edit</mat-icon>
               </button>
-              <button mat-icon-button (click)="delete(course)">
+              <button mat-icon-button (click)="delete(course); $event.stopPropagation();">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>
             </mat-list-item>
-          </mat-list>
+          </mat-nav-list>
         </mat-card-content>
         <button class="position-absolute" style="right: 10px;" mat-fab color="primary" (click)="add()">
           <mat-icon>add</mat-icon>

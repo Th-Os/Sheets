@@ -3,7 +3,7 @@ import {Exercise} from './exercise';
 
 
 export class Sheet {
-  public _id: number;
+  public _id: string;
   public name: string;
   public order: number;
   public submissions: Submission[];

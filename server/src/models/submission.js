@@ -30,9 +30,9 @@ submissionSchema.post('remove', function(doc) {
     });
     mongoose.model('Sheet').find({submissions: doc._id}).exec((err, sheets) => {
         if (err) throw err;
-        if (sheets === undefined || sheets === null) throw Error('No Sheet found.');
+        if (sheets === undefined || sheets === null) return;
         let sheet = (sheets instanceof Array) ? sheets[0] : sheets;
-        if (sheet === undefined || sheet === null) throw Error('No Sheet found');
+        if (sheet === undefined || sheet === null) return;
         sheet.submissions = sheet.submissions.filter(e => !(e.equals(doc._id)));
         sheet.save();
     });

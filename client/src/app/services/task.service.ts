@@ -44,6 +44,14 @@ export class TaskService {
     );
   }*/
 
+  updateTask(task: Task): Observable<Task>{
+    return this.http.put<Task>(`${this.tasksUrl}/${task._id}`, task, httpOptions).pipe(
+      tap(_ => this.log(`updated task id=${task._id}`)),
+      catchError(this.handleError<any>('updateTask'))
+    );
+  }
+
+  /*
   updateTask (task: Task): Task {
     let updatedTask = new Task();
     this.http.put<Task>(this.tasksUrl + '/' + task._id, task, httpOptions).pipe(
@@ -52,6 +60,7 @@ export class TaskService {
       .subscribe(res => updatedTask = res);
     return updatedTask;
   }
+  */
 
   addTask (exerciseId: string, task: Task): Observable<Task> {
     const url = `${this.exercisesUrl}/${exerciseId}/tasks`;
