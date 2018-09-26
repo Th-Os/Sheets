@@ -113,17 +113,13 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
 
 
   onAddChoice() {
-    console.log('add');
-    console.log(this.task.choices);
-    this.task.choices.push(Object.assign({}, this.choice));
-    this.choice = '';
-    console.log(this.task.choices);
+    if (this.choice.length > 0) {
+      this.task.choices.push(this.choice);
+      this.choice = '';
+    }
   }
 
   onRemoveChoice(index: number) {
-    console.log('remove');
-    console.log(this.task.choices);
     this.task.choices.splice(index, 1);
-    console.log(this.task.choices);
   }
 }

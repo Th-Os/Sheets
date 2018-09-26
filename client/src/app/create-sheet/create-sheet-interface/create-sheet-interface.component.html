@@ -104,26 +104,27 @@
         -->
         <mat-form-field matLine class="w-100">
           <input matInput name="taskChoices" [(ngModel)]="choice" placeholder="Bearbeitungshinweise für Studenten"
-                (keyup)="onAddChoice(); $event.stopPropagation();">
-          <mat-icon matSuffix (click)="onAddChoice();  $event.stopPropagation();">
+                (keyup.enter)="onAddChoice();">
+          <mat-icon matSuffix (click)="onAddChoice();">
             add
           </mat-icon>
         </mat-form-field>
       </mat-list-item>
-        <mat-list-item>
-          <mat-list matLine class="w-100" style="overflow: scroll;">
-            <mat-list-item class="w-100" *ngFor="let choice of task.choices; let index = index;">
-              <span matLine>{{choice}} / {{index}}</span>
-              <button mat-icon-button (click)="onRemoveChoice(index)">
-                <mat-icon class="mat-24">delete</mat-icon>
-              </button>
-            </mat-list-item>
-          </mat-list>
-        </mat-list-item>
+      <mat-list-item style="overflow-y: scroll" class="mt-3">
+        <mat-list matLine class="w-100">
+          <mat-list-item class="w-100" *ngFor="let choice of task.choices; let index = index;">
+            <span matLine>{{choice}}</span>
+            <button type="button" mat-icon-button (click)="onRemoveChoice(index)">
+              <mat-icon class="mat-24">delete</mat-icon>
+            </button>
+          </mat-list-item>
+        </mat-list>
+      </mat-list-item>
     </mat-list>
     </form>
   </mat-card-content>
-  <button class="position-absolute float-right" style="right: 10px;" mat-fab
+  <button type="button"
+          class="position-absolute float-right" style="right: 10px;" mat-fab
           [disabled]="saving || !editForm.valid || (task && task.solution.type === 'regex' && regex.invalid)"
           (click)="save()">
     <mat-icon>save</mat-icon>

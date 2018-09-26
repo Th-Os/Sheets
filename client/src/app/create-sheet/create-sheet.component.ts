@@ -211,6 +211,16 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
+  onSheetUpdate() {
+    this.loadingSheet = true;
+    this.sheetService.updateSheet(this.sheet).subscribe(
+      null,
+      error => console.log(error),
+      () => this.loadingSheet = false
+    );
+    console.log('change')
+  }
+
   goBack(): void {
     this.location.back();
   }
