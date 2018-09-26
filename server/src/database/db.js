@@ -1,11 +1,13 @@
 // Content taken from "Getting MEAN with Mongo, Express, Angular, and Node" by Simon Holmes
-/* global require, process */
-var mongoose = require('mongoose');
-require('dotenv').config();
-var gracefulShutdown;
-let uri = '';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 mongoose.Promise = Promise;
-function connect(callback) {
+
+let uri = '';
+
+function connect() {
     switch (process.env.MODE) {
         case 'production':
             uri = process.env.DB_URI_PROD;
@@ -20,15 +22,15 @@ function connect(callback) {
             uri = process.env.DB_URI_SERVER;
             break;
     }
-    mongoose.connect(uri, {replicaSet: 'Cluster0-shard-0'}, {
-        useNewUrlParser: true
-    }, function() {
-        if (callback !== undefined) callback();
+    return mongoose.connect(uri, {
+        useNewUrlParser: true,
+        keepAlive: true,
+        keepAliveInitialDelay: 300000
     });
 }
 
 function disconnect() {
-    mongoose.disconnect();
+    return mongoose.disconnect();
 }
 
 // CONNECTION EVENTS
@@ -44,7 +46,7 @@ mongoose.connection.on('disconnected', function() {
 
 // CAPTURE APP TERMINATION / RESTART EVENTS
 // To be called when process is restarted or terminated
-gracefulShutdown = function(msg, callback) {
+let gracefulShutdown = function(msg, callback) {
     mongoose.connection.close(function() {
         console.log('Mongoose disconnected through ' + msg);
         callback();
@@ -69,7 +71,4 @@ process.on('SIGTERM', function() {
     });
 });
 
-// BRING IN SCHEMAS & MODELS
-// require("./user");
-export {connect};
-export {disconnect};
+export {connect, disconnect};

@@ -1,7 +1,7 @@
 import express from 'express';
-import verify from '../auth/verify';
+import verify from '../auth/verification';
 import * as methods from '../utils/methods';
-import {StatusError} from '../utils/error';
+import {StatusError} from '../utils/errors';
 import {Answer} from '../models/submission';
 
 const router = express.Router();

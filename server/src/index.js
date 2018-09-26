@@ -31,7 +31,6 @@ app.use(function(req, res, next) {
 
 app.route('/')
     .get(function(req, res) {
-        console.log(req);
         res.send('Sheets API');
     });
 

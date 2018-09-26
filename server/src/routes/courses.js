@@ -1,7 +1,7 @@
 import express from 'express';
-import verify from '../auth/verify';
+import verify from '../auth/verification';
 import * as methods from '../utils/methods';
-import {StatusError} from '../utils/error';
+import {StatusError} from '../utils/errors';
 import {Course} from '../models/course';
 import {Sheet} from '../models/sheet';
 import {Student, Submission} from '../models/submission';
@@ -19,9 +19,7 @@ router.get('/', verify, function(req, res) {
 router.get('/_search', verify, function(req, res) {
     let sheetId = req.query.sheet;
     if (sheetId !== undefined) {
-        console.log(sheetId);
         Course.find().where('sheets').in(sheetId).exec().then((doc) => {
-            console.log(doc);
             res.send(doc);
         }).catch((err) => res.status(500).send(err));
     }
