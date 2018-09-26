@@ -1,0 +1,21 @@
+.text-grayed {
+  color: grey;
+}
+
+#submissionList{
+  overflow: auto;
+  flex-grow: 1;
+  max-height: 350px;
+  width: 50%;
+  height: 100%;
+  float: left;
+}
+
+#userList{
+  overflow: auto;
+  flex-grow: 1;
+  max-height: 350px;
+  width: 45%;
+  height: 100%;
+  float: right;
+}

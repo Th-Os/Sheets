@@ -31,6 +31,14 @@ export class AnswerService {
     );
   }
 
+  getAnswers(submissionId: any): Observable<Answer[]> {
+    const url = `${this.submissionsUrl}/${submissionId}/answers`;
+    return this.http.get<Answer[]>(url, httpOptions)
+      .pipe(
+        catchError(this.handleError<Answer[]>('getAnswers', []))
+      );
+  }
+
   updateAnswer(answer: Answer): Observable<Answer> {
       return this.http.put<Answer>(this.answersUrl + '/' + answer._id, answer, httpOptions).pipe(
         tap(_ => this.log(`Korrektur gespeichert!`)),

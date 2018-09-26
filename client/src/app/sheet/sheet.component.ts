@@ -14,13 +14,14 @@ import * as JSZip from 'jszip';
 import {MatSnackBar} from '@angular/material';
 import {Inject} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {MatDialog,} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {SubmissionUploadErrorDialogComponent} from "../submission-upload-error-dialog/submission-upload-error-dialog.component";
 import {Exercise} from "../models/exercise";
 import {Task} from "../models/task";
 import {Template} from "../template";
 import {TemplateTask} from "../template-task";
 import {StudentService} from "../services/student.service";
+import {AssignSubmissionDialogComponent} from '../assign-submission-dialog/assign-submission-dialog.component';
 
 
 @Component({
@@ -166,7 +167,7 @@ export class SheetComponent implements OnInit {
       this.submissionTemplate = this.parseTemplate(template);
     });
     */
-    
+
 
   }
 
@@ -347,7 +348,7 @@ export class SheetComponent implements OnInit {
       }
 
       //console.log(text)
-      
+
       if(text.includes(tagTaskStart)) {
         let textTask = "";
 
@@ -374,7 +375,7 @@ export class SheetComponent implements OnInit {
             }
 
             answer.text = answerTextWOLeadingSpace;
-            answer.task_id = parseInt(task.num.toString() + j.toString()); 
+            answer.task_id = parseInt(task.num.toString() + j.toString());
             answer.task = this.findTask(answer);
             answers.push(answer);
           }else{
@@ -498,5 +499,18 @@ export class SheetComponent implements OnInit {
     a) /.*(lehr).*/ # 2
     b) /.*(phil).*/ # 2`;
     return this.parseTemplate(templateString);
+  }
+
+  assignSubmissions(): void {
+    const notAlreadyAssigned = [];
+    this.sheet.submissions.forEach(submission => {
+      if (!submission.user) {
+        notAlreadyAssigned.push(submission);
+      }
+    });
+    this.dialog.open(AssignSubmissionDialogComponent, {
+      width: '500px',
+      data: { submissions: notAlreadyAssigned}
+    });
   }
 }

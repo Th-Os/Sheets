@@ -48,7 +48,6 @@ router.get('/:id/tasks', verify, function(req, res) {
         });
 });
 
-// Test
 router.post('/:id/tasks', verify, function(req, res) {
     methods.deepPost(req.params.id, req.body, Exercise, Task)
         .then((doc) => res.status(200).send(doc))

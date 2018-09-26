@@ -4,7 +4,7 @@ import { MessageSnackbarService } from '../message-snackbar.service';
 import { Observable, of } from 'rxjs';
 
 import {Submission} from '../models/submission';
-import {catchError} from 'rxjs/internal/operators';
+import {catchError, tap} from 'rxjs/internal/operators';
 import {Answer} from '../models/answer';
 
 const httpOptions = {
@@ -17,25 +17,32 @@ const httpOptions = {
 export class SubmissionService {
 
   private submissionsUrl = 'http://localhost:3000/submissions';
-  private answersUrl = 'http://localhost:3000/answers';
 
   constructor(private http: HttpClient,
               private messageSnackbarService: MessageSnackbarService) { }
 
   getSubmissionsForUser(userId: string): Observable<Submission[]> {
-    const url = `${this.submissionsUrl}/search?q=user=${userId}`;
+    const url = `${this.submissionsUrl}/_search?user=${userId}`;
     return this.http.get<Submission[]>(url, httpOptions)
       .pipe(
         catchError(this.handleError('getSubmissionsForUser', []))
       );
   }
 
-  getAnswer(answerId: any): Observable<Answer> {
-    const url = `${this.answersUrl}/${answerId}`;
-    return this.http.get<Answer>(url, httpOptions)
+  /*updateSubmission(submission: Submission): Observable<any> {
+    return this.http.put(`${this.submissionsUrl}/${submission._id}`, httpOptions)
       .pipe(
-        catchError(this.handleError<Answer>(`getAnswer id=${answerId}`))
-      );
+        tap(_ => this.log(`updated submission id=${submission._id}`)),
+        catchError(this.handleError<any>('updateSubmission')));
+  }*/
+
+  updateSubmission (submission: any): Submission {
+    let updatedSubmission = new Submission();
+    this.http.put<Submission>(`${this.submissionsUrl}/${submission._id}`, httpOptions).pipe(
+      tap(_ => this.log(`updated submission id=${submission._id}`)),
+      catchError(this.handleError<any>('updateSubmission')))
+      .subscribe(res => updatedSubmission = res);
+    return updatedSubmission;
   }
 
   private handleError<T> (operation = 'operation', result?: T) {

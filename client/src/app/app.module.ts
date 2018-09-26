@@ -25,6 +25,7 @@ import { UserprofileComponent } from './userprofile/userprofile.component';
 import { UserDialogComponent } from './user-dialog/user-dialog.component';
 import { FilterusersPipe } from './pipes/filterusers.pipe';
 import { NumberToCharPipe } from './pipes/number-to-char.pipe';
+import { AssignSubmissionDialogComponent } from './assign-submission-dialog/assign-submission-dialog.component';
 
 @NgModule({
   declarations: [
@@ -47,12 +48,14 @@ import { NumberToCharPipe } from './pipes/number-to-char.pipe';
     UserDialogComponent,
     FilterusersPipe,
     NumberToCharPipe,
+    AssignSubmissionDialogComponent,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,
     CourseDialogComponent,
     ExerciseDialogComponent,
-    UserDialogComponent
+    UserDialogComponent,
+    AssignSubmissionDialogComponent
   ],
   imports: [
     BrowserModule,

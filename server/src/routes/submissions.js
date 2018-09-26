@@ -6,9 +6,15 @@ import {Submission, Answer} from '../models/submission';
 
 const router = express.Router();
 
+router.put('/:id', verify, function(req, res) {
+    methods.put(req.params.id, req.body, Submission)
+        .then((doc) => res.send(doc))
+        .catch((err) => res.status(500).send(err));
+});
+
 router.get('/:id/answers', verify, function(req, res) {
-    methods.get(req.params.id, Submission)
-        .then((doc) => res.status(200).send(doc))
+    methods.get(req.params.id, Submission, { path: 'answers' })
+        .then((doc) => res.status(200).send(doc.answers))
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
@@ -24,25 +30,24 @@ router.post('/:id/answers', verify, function(req, res) {
         });
 });
 
-router.get('/search', verify, function(req, res) {
-    let query = req.query.q.split('=');
-    if (query[0] === 'user') {
-        let userId = query[1];
+// /submissions/_search?user={ID}
+router.get('/_search', verify, function(req, res) {
+    let userId = req.query.user;
+    if (userId !== undefined) {
         Submission.find({ user: userId }).then((subs) => {
             if (subs === undefined || subs.length === 0) {
                 res.status(404).send('No submissions found');
-            }
-            res.send(subs);
+            } else res.send(subs);
         }).catch((err) => res.status(500).send(err));
     } else {
-        res.send(500).send('Query "' + query[0] + '" not available.');
+        res.send(400).send('Query "' + req.query + '" not available.');
     }
 });
 
-router.get('/:id/answers/search', verify, function(req, res) {
-    let query = req.query.q.split('=');
-    if (query[0] === 'task') {
-        let taskId = query[1];
+// /submissions/:id/answers/_search?task={ID}
+router.get('/:id/answers/_search', verify, function(req, res) {
+    let taskId = req.query.task;
+    if (taskId !== undefined) {
         methods.get(req.params.id, Submission).then((doc) => {
             let promises = [];
             let answers = [];
@@ -65,7 +70,7 @@ router.get('/:id/answers/search', verify, function(req, res) {
             else res.status(500).send(err);
         });
     } else {
-        res.send(500).send('Query "' + query[0] + '" not available.');
+        res.send(400).send('Query "' + req.query + '" not available.');
     }
 });
 
