@@ -267,7 +267,7 @@ export class SheetComponent implements OnInit {
         tempSheet = sheet;
         res.map(sub => tempSheet.submissions.push(sub._id))
         this.sheetService.updateSheet(tempSheet).subscribe(res => {
-          res.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+          //res.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
           this.loadInProgress = false;
           this.displayMessage("Abgaben erfolgreich hochgeladen")
         })
