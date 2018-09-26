@@ -91,5 +91,4 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
       () => this.loadingAnswer = false
     )
   }
-
 }

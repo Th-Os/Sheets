@@ -7,16 +7,16 @@
           <mat-nav-list>
             <mat-list-item *ngFor="let course of courses" routerLink="/courses/{{course._id}}" role="listitem">
               <a mat-line> {{ course.name }} </a>
-              <button mat-icon-button (click)="update(course); $event.stopPropagation();">
+              <button mat-icon-button matTooltip="Kurs editieren" (click)="update(course); $event.stopPropagation();">
                 <mat-icon color="secondary">edit</mat-icon>
               </button>
-              <button mat-icon-button (click)="delete(course); $event.stopPropagation();">
+              <button mat-icon-button matTooltip="Kurs löschen" (click)="delete(course); $event.stopPropagation();">
                 <mat-icon color="secondary">delete</mat-icon>
               </button>
             </mat-list-item>
           </mat-nav-list>
         </mat-card-content>
-        <button class="position-absolute" style="right: 10px;" mat-fab color="primary" (click)="add()">
+        <button class="position-absolute" matTooltip="Neuen Kurs hinzufügen" style="right: 10px;" mat-fab color="primary" (click)="add()">
           <mat-icon>add</mat-icon>
         </button>
       </mat-card>

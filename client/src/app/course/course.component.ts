@@ -62,19 +62,30 @@ export class CourseComponent implements OnInit {
   getStudents() {
     this.sheets.forEach(sheet => {
       if(sheet.submissions == null || sheet.submissions.length <= 0) return
-      this.sheetService.getSheetSubmissions(sheet._id.toString()).subscribe(subs => {
-        subs.forEach(submission => {
-          this.studentService.getStudent(submission.student).subscribe(
-            student => {
+        this.sheetService.getSheetSubmissions(sheet._id.toString()).subscribe(subs => {
+          subs.forEach(submission => {
+            this.studentService.getStudent(submission.student).subscribe(
+              student => {
               //TODO - CHECK MUSS AUF ID UMGESTELLT WERDEN
-              if(this.students.find(el => student.name === el.name) == null) this.students.push(student)
+              if(this.students.find(el => student.name === el.name) == null) {
+
+                if(student.status == 1){
+                  student.statusIcon = "done"
+                  student.statusString = "bestanden"
+                }else{
+                  student.statusIcon = "clear"
+                   student.statusString = "nicht bestanden"
+                }
+
+                this.students.push(student)
+              }
             },
             error => console.error( error ),
             () => {
             }
             )
+          })
         })
-      })
     })
   }
 

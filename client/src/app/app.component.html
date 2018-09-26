@@ -6,12 +6,12 @@
       <span class="fill-space"></span>
       <div *ngIf="userLoggedIn">
         <span>
-          <button mat-icon-button id="accountIcon" title="Profil" (click)="goToProfile()">
+          <button matTooltip="Accountverwaltung" mat-icon-button id="accountIcon" title="Profil" (click)="goToProfile()">
             <mat-icon [inline]="true" color="secondary">account_circle</mat-icon>
           </button>
         </span>
         <span>
-          <button mat-icon-button id="logoutIcon" title="Logout" (click)="logout()">
+          <button matTooltip="Logout" mat-icon-button id="logoutIcon" title="Logout" (click)="logout()">
             <mat-icon [inline]="true" color="secondary">exit_to_app</mat-icon>
           </button>
         </span>
