@@ -67,7 +67,9 @@ export class CourseComponent implements OnInit {
             this.studentService.getStudent(submission.student).subscribe(
               student => {
               //TODO - CHECK MUSS AUF ID UMGESTELLT WERDEN
-              if(this.students.find(el => student.name === el.name) == null) {
+              //console.log(this.students)
+              //console.log(student)
+              if(this.students.find(el => student._id.toString() === el._id.toString()) == null) {
 
                 if(student.status == 1){
                   student.statusIcon = "done"

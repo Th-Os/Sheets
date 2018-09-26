@@ -9,7 +9,6 @@ const router = express.Router();
 router.get('/:id', verify, function(req, res) {
     let subId = req.params.id;
     Submission.findById(subId).populate({ path: 'answers', populate: { path: 'task', populate: { path: 'solution' } } }).exec().then((submission) => {
-        console.log(submission);
         beginCorrection(submission.answers).then(() => {
             Submission.findById(subId).populate({ path: 'answers' }).exec().then((doc) => {
                 res.send(doc);
