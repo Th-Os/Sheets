@@ -38,7 +38,7 @@ export class SubmissionService {
 
   updateSubmission (submission: any): Submission {
     let updatedSubmission = new Submission();
-    this.http.put<Submission>(`${this.submissionsUrl}/${submission._id}`, httpOptions).pipe(
+    this.http.put<Submission>(`${this.submissionsUrl}/${submission._id}`, submission, httpOptions).pipe(
       tap(_ => this.log(`updated submission id=${submission._id}`)),
       catchError(this.handleError<any>('updateSubmission')))
       .subscribe(res => updatedSubmission = res);

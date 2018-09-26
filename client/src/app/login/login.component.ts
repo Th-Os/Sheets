@@ -29,9 +29,4 @@ export class LoginComponent implements OnInit {
       this.loginValid = false;
       });
   }
-
-  skipLogin(): void {
-    this.router.navigateByUrl('/courses');
-  }
-
 }

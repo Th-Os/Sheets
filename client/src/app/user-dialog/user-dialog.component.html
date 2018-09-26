@@ -19,7 +19,7 @@
         Username is required
       </div>
     </div>
-    <div class="form-group" *ngIf="(data.create && !data.addCourse) || data.user._id === loggedInUser._id">
+    <div class="form-group" *ngIf="(data.create && !data.addCourse) || (data.user._id === loggedInUser._id && !data.addCourse)">
       <label for="password">Passwort</label>
       <input type="password" class="form-control" id="password"
              required
