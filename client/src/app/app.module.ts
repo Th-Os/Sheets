@@ -27,6 +27,8 @@ import { FilterusersPipe } from './pipes/filterusers.pipe';
 import { NumberToCharPipe } from './pipes/number-to-char.pipe';
 import { CreateSheetInterfaceComponent } from './create-sheet/create-sheet-interface/create-sheet-interface.component';
 import { AssignSubmissionDialogComponent } from './assign-submission-dialog/assign-submission-dialog.component';
+import { CheckCoursesPipe } from './pipes/check-courses.pipe';
+import { CheckSubmissionsPipe } from './pipes/check-submissions.pipe';
 
 @NgModule({
   declarations: [
@@ -51,6 +53,8 @@ import { AssignSubmissionDialogComponent } from './assign-submission-dialog/assi
     NumberToCharPipe,
     AssignSubmissionDialogComponent,
     CreateSheetInterfaceComponent,
+    CheckCoursesPipe,
+    CheckSubmissionsPipe,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,

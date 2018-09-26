@@ -20,7 +20,7 @@ function connect(callback) {
             uri = process.env.DB_URI_SERVER;
             break;
     }
-    mongoose.connect(uri, {replicaSet: 'Cluster0-shard-0'}, {
+    mongoose.connect(uri, {
         useNewUrlParser: true
     }, function() {
         if (callback !== undefined) callback();

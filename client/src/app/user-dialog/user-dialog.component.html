@@ -23,7 +23,6 @@
       <label for="password">Passwort</label>
       <input type="password" class="form-control" id="password"
              required
-
              [(ngModel)]="user.password" name="password"
              #password="ngModel">
       <div [hidden]="password.valid || password.pristine"

@@ -201,7 +201,7 @@ export class SheetComponent implements OnInit {
         if(!proceed){
           this.clearInput();
           return;
-        } 
+        }
 
         this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
           this.submissionValidationResults = [];
@@ -468,9 +468,11 @@ export class SheetComponent implements OnInit {
   }
 
   clearSubmissions() {
-    this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
-      this.getSheetWithSubmissions()
-    });
+    if (window.confirm('Wollen Sie die Abgaben wirklich löschen?')) {
+      this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
+        this.getSheetWithSubmissions();
+      });
+    }
   }
 
   numberToArray(number: number){

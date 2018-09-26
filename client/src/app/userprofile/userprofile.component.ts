@@ -23,9 +23,19 @@ export class UserprofileComponent implements OnInit {
   usersCourses: Course[];
   loadingUsers = false;
   loggedInUser: any;
-  viewProfile = false;
+
+  // For submission progress overview when normal user
   submissionProgress = [];
+  loadingSubmissionProgress = false;
+
+  // For whole progress overview when admin
   userProgress = [];
+
+  // For admin when viewing single user progress
+  showUserProgress = false;
+  progressOfSingleUser = [];
+  singleUser: User;
+  loadingSingleUserProgress = false;
 
   constructor(private location: Location,
               private userService: UserService,
@@ -56,7 +66,7 @@ export class UserprofileComponent implements OnInit {
     this.getUsers().then(_ =>  this.calculateProgressForUsers());
 
     // Calculate progress for logged in user
-    this.calculateProgressForSubmissions();
+    this.calculateProgressForSubmissions(this.loggedInUser._id, this.submissionProgress);
   }
 
   // Get all users
@@ -123,23 +133,32 @@ export class UserprofileComponent implements OnInit {
   }
 
   // Calculate correction progress for each submission
-  calculateProgressForSubmissions(): void {
-    this.getSubmissionsForUser(this.loggedInUser._id).then(submissions => {
-      this.getStudents(submissions).then(submissionsWithStudents => {
-        this.getAnswers(submissionsWithStudents).then(submissionsWithAnswers => {
-          submissionsWithAnswers.forEach(submission => {
-            let answerCount = 0;
-            let corrected = 0;
-            submission.answers.forEach(answer => {
-              answerCount++;
-              if (answer.corrected) {
-                corrected++;
-              }
+  calculateProgressForSubmissions(userId: string, progressArray: any[]): Promise<boolean> {
+    this.loadingSubmissionProgress = true;
+    return new Promise<boolean>(resolve => {
+      this.getSubmissionsForUser(userId).then(submissions => {
+        if (submissions.length < 1) {
+          this.loadingSingleUserProgress = false;
+          this.loadingSubmissionProgress = false;
+        }
+        this.getStudents(submissions).then(submissionsWithStudents => {
+          this.getAnswers(submissionsWithStudents).then(submissionsWithAnswers => {
+            submissionsWithAnswers.forEach(submission => {
+              let answerCount = 0;
+              let corrected = 0;
+              submission.answers.forEach(answer => {
+                answerCount++;
+                if (answer.corrected) {
+                  corrected++;
+                }
+              });
+              // Todo: Add sheet name if possible to sort by sheet?
+              progressArray.push({sheetName: '',
+                studentName: `${submission.student.name} ${submission.student.lastname}` ,
+                progress: (corrected / answerCount) * 100});
             });
-            // Todo: Add sheet name if possible to sort by sheet?
-            this.submissionProgress.push({sheetName: '',
-              studentName: `${submission.student.name} ${submission.student.lastname}` ,
-              progress: (corrected / answerCount) * 100});
+            this.loadingSubmissionProgress = false;
+            resolve(true);
           });
         });
       });
@@ -179,7 +198,7 @@ export class UserprofileComponent implements OnInit {
   }
 
   // Get correction progress for a user from array calculated before
-  getUserProgress(userId: string): number {
+  getWholeUserProgress(userId: string): number {
     let progress = 0;
     this.userProgress.forEach(user => {
       if (user.userId === userId) {
@@ -187,6 +206,18 @@ export class UserprofileComponent implements OnInit {
       }
     });
     return progress;
+  }
+
+  showSingleUserProgress(user: User): void {
+    this.showUserProgress = true;
+    this.progressOfSingleUser = [];
+    this.singleUser = user;
+    this.loadingSingleUserProgress = true;
+    this.calculateProgressForSubmissions(this.singleUser._id, this.progressOfSingleUser).then(_ => this.loadingSingleUserProgress = false);
+  }
+
+  closeCard(): void {
+    this.showUserProgress = false;
   }
 
   // Check if user needs help
@@ -202,14 +233,16 @@ export class UserprofileComponent implements OnInit {
 
   // Delete user
   delete(user: User): void {
-    const userIndex = this.users.indexOf(user);
-    this.userService.deleteUser(user).subscribe(_ => {
-      if (this.users.length > 0) {
-        this.users.splice(userIndex, 1);
-      } else {
-        this.users = [];
-      }
-    });
+    if (window.confirm('Wollen Sie den User wirklich löschen?')) {
+      const userIndex = this.users.indexOf(user);
+      this.userService.deleteUser(user).subscribe(_ => {
+        if (this.users.length > 0) {
+          this.users.splice(userIndex, 1);
+        } else {
+          this.users = [];
+        }
+      });
+    }
   }
 
   // Show dialog to add user

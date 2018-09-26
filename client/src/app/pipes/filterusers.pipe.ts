@@ -6,6 +6,7 @@ import {User} from '../models/user';
 })
 export class FilterusersPipe implements PipeTransform {
 
+  // Filter users depending on role
   transform(users: User[], role: string): User[] {
     const filteredUsers = [];
     users.forEach(user => {

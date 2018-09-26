@@ -92,7 +92,9 @@ export class ExerciseDialogComponent implements OnInit {
 
   create(): void {
     const newSheet = new Sheet();
-    newSheet.submissiondate = moment().toISOString();
+    let submissiondate = moment();
+    submissiondate = submissiondate.minutes(55).hour(23);
+    newSheet.submissiondate = submissiondate.toISOString();
     newSheet.min_req_points = 0;
     newSheet.persistent = false;
     newSheet.exercises = [];

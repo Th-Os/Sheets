@@ -19,6 +19,9 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatTreeModule} from '@angular/material/tree';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatSliderModule} from '@angular/material/slider';
+import 'hammerjs';
 
 @NgModule({
   imports: [
@@ -33,6 +36,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
     MatDatepickerModule, MatNativeDateModule,
     MatTreeModule, MatProgressBarModule,
     MatButtonToggleModule, MatCheckboxModule,
+    MatTabsModule, MatSliderModule,
   ],
   exports: [
     MatToolbarModule, MatCardModule,
@@ -46,6 +50,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
     MatDatepickerModule, MatNativeDateModule,
     MatTreeModule, MatProgressBarModule,
     MatButtonToggleModule, MatCheckboxModule,
+    MatTabsModule, MatSliderModule,
   ],
 })
 export class SheetsMaterialComponentsModule { }

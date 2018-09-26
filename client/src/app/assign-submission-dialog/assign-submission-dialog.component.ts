@@ -1,5 +1,5 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef, MatSelectionList} from '@angular/material';
 
 import {UserService} from '../services/user.service';
 import {SubmissionService} from '../services/submission.service';
@@ -13,10 +13,14 @@ import {Submission} from '../models/submission';
 })
 export class AssignSubmissionDialogComponent implements OnInit {
 
+  @ViewChild('submissionsList') submissionsList: MatSelectionList;
+
   submissions: Submission[];
   users: User[];
   selectedSubmissions: Submission[];
   selectedUser: User[];
+  // selectAll = false;
+  numberToAssign = -1;
 
   constructor(private userService: UserService,
               private submissionService: SubmissionService,
@@ -28,20 +32,66 @@ export class AssignSubmissionDialogComponent implements OnInit {
     this.getUsers();
   }
 
+  // Get all users to assign submissions to
   getUsers(): void {
     this.userService.getUsers().subscribe(users => {
       this.users = users;
     });
   }
 
+  /*selectSubmissions(): void {
+    if (this.selectAll) {
+      this.submissionsList.selectAll();
+    } else {
+      this.submissionsList.deselectAll();
+    }
+  }*/
+
+  // Select multiple submissions by slider
+  selectPercentage(): void {
+    this.submissionsList.options.forEach((option, index) => {
+      if (index <= this.numberToAssign) {
+        option._setSelected(true);
+      } else {
+        option._setSelected(false);
+      }
+    });
+  }
+
+  // Select multiple submissions by holding down shift-key
+  selectMultiple(event: MouseEvent): void {
+    if (event.shiftKey) {
+      const selectedOptions = this.submissionsList.selectedOptions.selected;
+      if (selectedOptions.length === 2) {
+        let indexFirstOption: number;
+        let indexSecondOption: number;
+        this.submissionsList.options.forEach((option, index) => {
+          if (selectedOptions[0] === option) {
+            indexFirstOption = index;
+          }
+          if (selectedOptions[1] === option) {
+            indexSecondOption = index;
+          }
+        });
+        this.submissionsList.options.forEach((option, index) => {
+          if (index >= indexFirstOption && index <= indexSecondOption) {
+            option._setSelected(true);
+          }
+        });
+      } else if (selectedOptions.length > 2) {
+        this.submissionsList.options.forEach(option => option._setSelected(false));
+      }
+    }
+  }
+
+  // When pressing save-button assign user to submissions
   onSubmit(): void {
-    const updatedSubmissons = [];
+    const updatedSubmissions = [];
     this.selectedSubmissions.forEach(submission => {
       submission.user = this.selectedUser[0];
-      updatedSubmissons.push(this.submissionService.updateSubmission(submission));
+      updatedSubmissions.push(this.submissionService.updateSubmission(submission));
     });
-    // Todo: Give back array of updated submissions to replace in sheet component
-    this.dialogRef.close(updatedSubmissons);
+    this.dialogRef.close(updatedSubmissions);
   }
 
   onClose(): void {

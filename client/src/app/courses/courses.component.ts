@@ -52,7 +52,9 @@ export class CoursesComponent implements OnInit {
   }
 
   delete(course: Course): void {
-    this.courses = this.courses.filter(c => c !== course);
-    this.courseService.deleteCourse(course).subscribe();
+    if (window.confirm('Wollen Sie den Kurs wirklich löschen?')) {
+      this.courses = this.courses.filter(c => c !== course);
+      this.courseService.deleteCourse(course).subscribe();
+    }
   }
 }

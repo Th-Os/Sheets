@@ -85,7 +85,7 @@
             <mat-list-item *ngIf="submissions.length === 0" (click)="getSubmissions()">
               Abgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
             </mat-list-item>
-            <mat-list-item *ngFor="let submission of submissions" role="listitem" class="list-selectable"
+            <mat-list-item *ngFor="let submission of submissions | checkSubmissionsPipe" role="listitem" class="list-selectable"
                            [class.active]="submission._id === selected_submission"
                            (click)="selected_submission = submission._id">
               <h3 mat-line *ngIf="submission.student != null">

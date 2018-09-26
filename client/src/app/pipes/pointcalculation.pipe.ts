@@ -9,6 +9,7 @@ export class PointcalculationPipe implements PipeTransform {
 
  constructor () {}
 
+ // Calculate points for exercise by sum of points for each task
   transform(tasks: Task[]): number {
     let points = 0;
     tasks.forEach(task => {
