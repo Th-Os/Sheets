@@ -1,5 +1,5 @@
 import express from 'express';
-import verify from '../auth/verify';
+import verify from '../auth/verification';
 import {Submission} from '../models/submission';
 
 class CorrectionError extends Error {}
