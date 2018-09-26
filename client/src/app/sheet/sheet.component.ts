@@ -182,34 +182,57 @@ export class SheetComponent implements OnInit {
   onFilesAdded(fileList: FileList): void {
     if(fileList.length <= 0){
       this.displayMessage(this.uploadErrorMsg);
+      this.clearInput()
       return;
     }
 
     if(this.submissionTemplate == null){
       this.displayMessage(this.noTemplateErrorMsg);
+      this.clearInput();
       return;
     }
 
     if(fileList.length == 1 && this.isZip(fileList[0])){
-      this.submissionValidationResults = [];
-      this.readZipFolder(fileList[0]);
+
+      var proceed = true;
+
+      if(this.sheet.submissions.length > 0){
+        proceed = confirm("Bestehende Abgaben werden ersetzt. Mit Upload fortfahren?");
+        if(!proceed){
+          this.clearInput();
+          return;
+        } 
+
+        this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
+          this.submissionValidationResults = [];
+          this.readZipFolder(fileList[0]);
+        });
+      }else{
+        this.submissionValidationResults = [];
+        this.readZipFolder(fileList[0]);
+      }
+
     }else{
       this.displayMessage(this.uploadErrorMsg);
     }
-
-    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
   }
 
   isZip(file): boolean {
     return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
   }
 
+  clearInput() {
+    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
+  }
+
   readZipFolder(file): void {
+    let fileToLoad = file;
+    this.clearInput();
     let submissions = [];
     var reader = new FileReader();
     reader.onload = (e) => {
       var zip = new JSZip();
-      zip.loadAsync(file).then((zip) => {
+      zip.loadAsync(fileToLoad).then((zip) => {
         let promises = [];
         Object.keys(zip.files).forEach((filename) => {
           if(filename.split("/").length < 3) return;
@@ -259,7 +282,7 @@ export class SheetComponent implements OnInit {
       });
     };
 
-    reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(fileToLoad);
   }
 
   uploadAndCorrectSubmissions() {
