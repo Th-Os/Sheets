@@ -17,6 +17,10 @@ const submissionSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: false
+    },
+    grips_id: {
+        type: String,
+        required: true
     }
 });
 
