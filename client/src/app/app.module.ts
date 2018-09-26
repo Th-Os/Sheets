@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {Form, FormsModule} from '@angular/forms';
+import { ReactiveFormsModule, FormsModule} from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SheetsMaterialComponentsModule } from './sheets-material-components.module';
 import { HttpClientModule } from '@angular/common/http';
@@ -25,6 +25,7 @@ import { UserprofileComponent } from './userprofile/userprofile.component';
 import { UserDialogComponent } from './user-dialog/user-dialog.component';
 import { FilterusersPipe } from './pipes/filterusers.pipe';
 import { NumberToCharPipe } from './pipes/number-to-char.pipe';
+import { CreateSheetInterfaceComponent } from './create-sheet/create-sheet-interface/create-sheet-interface.component';
 import { AssignSubmissionDialogComponent } from './assign-submission-dialog/assign-submission-dialog.component';
 
 @NgModule({
@@ -49,6 +50,7 @@ import { AssignSubmissionDialogComponent } from './assign-submission-dialog/assi
     FilterusersPipe,
     NumberToCharPipe,
     AssignSubmissionDialogComponent,
+    CreateSheetInterfaceComponent,
   ],
   entryComponents: [
     SubmissionUploadErrorDialogComponent,
@@ -60,6 +62,7 @@ import { AssignSubmissionDialogComponent } from './assign-submission-dialog/assi
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     BrowserAnimationsModule,
     SheetsMaterialComponentsModule,
     SheetsOtherComponentsModule,

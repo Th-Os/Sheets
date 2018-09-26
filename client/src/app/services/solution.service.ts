@@ -45,13 +45,11 @@ export class SolutionService {
     );
   }*/
 
-  updateSolution (solution: Solution): Solution {
-    let updatedSolution = new Solution();
-    this.http.put<Solution>(this.solutionsUrl + '/' + solution._id, solution, httpOptions).pipe(
+  updateSolution (solution: Solution): Observable<Solution> {
+    return this.http.put<Solution>(this.solutionsUrl + '/' + solution._id, solution, httpOptions).pipe(
       tap(_ => this.log(`updated solution id=${solution._id}`)),
-      catchError(this.handleError<any>('updateSolution')))
-      .subscribe(res => updatedSolution = res);
-    return updatedSolution;
+      catchError(this.handleError<any>('updateSolution'))
+    );
   }
 
   addSolution(taskId: string, solution: Solution): Observable<Solution> {

@@ -26,8 +26,8 @@ export class ExerciseDialogComponent implements OnInit {
   courses: Course[];
   sheets = [];
   useTemplate: boolean;
-  selectedCourseId: number;
-  selectedSheetId: number;
+  selectedCourseId: string;
+  selectedSheetId: string;
   fetchedSheet: Sheet;
 
   constructor(
@@ -80,7 +80,7 @@ export class ExerciseDialogComponent implements OnInit {
     this.courses = courses;
   }
 
-  findCourseIdOfSheet(courses: Course[], sheetId: number): void {
+  findCourseIdOfSheet(courses: Course[], sheetId: string): void {
     courses.forEach(course => {
       course.sheets.forEach(sheet => {
         if (sheet._id === sheetId) {
@@ -108,7 +108,7 @@ export class ExerciseDialogComponent implements OnInit {
       });
     } else {
       newSheet.name = 'Neues Aufgabenblatt';
-      this.sheetService.getSheets(this.selectedCourseId.toString()).subscribe(sheets => newSheet.order = sheets.length);
+      this.sheetService.getSheets(this.data.courseId).subscribe(sheets => newSheet.order = sheets.length);
       this.sheetService.addSheet(this.data.courseId, newSheet)
         .subscribe(sheet => this.router.navigateByUrl('/sheet/' + sheet[0]._id + '/create'));
       this.dialogRef.close();

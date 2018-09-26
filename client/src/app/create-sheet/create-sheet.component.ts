@@ -21,14 +21,10 @@ import {SolutionService} from '../services/solution.service';
 })
 export class CreateSheetComponent implements OnInit {
 
+  loadingSheet: boolean = false;
   sheet: Sheet;
-  regexToAdd = '';
-  regexToDelete = '';
-  // Todo: Use correct pattern
-  regexPattern = '[a-zA-Z0-9]+/+b$';
-  regexValidToAdd = true;
-  regexValidToDelete = true;
-  loadingSheet = false;
+  selectedExercise: string = null;
+  selectedTask: string = null;
 
   constructor(
     private location: Location,
@@ -40,66 +36,70 @@ export class CreateSheetComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.getSheet();
+  }
+
+  getSheet(): void {
+    const id = this.route.snapshot.paramMap.get('id');
     this.loadingSheet = true;
-    this.sheet = new Sheet();
-    this.sheetService.getSheetComplete(this.route.snapshot.paramMap.get('id')).subscribe(sheet => {
-      this.sheet = sheet;
-      this.loadingSheet = false;
-    });
-    // this.getSheet(this.route.snapshot.paramMap.get('id'));
-  }
-
-  /*getSheet(sheetId: string): void {
-    this.sheetService.getSheet(sheetId)
-      .subscribe(sheet => {
-        this.sheet = sheet;
-
-        if (Array.isArray(this.sheet.exercises) && this.sheet.exercises.length > 0) {
-          this.getExercises(sheetId);
-        } else if (!Array.isArray(this.sheet.exercises)) {
-          this.sheet.exercises = [];
-        }
-      });
-  }
-
-  getExercises(sheetId: string): void {
-    this.exerciseService.getExercises(sheetId).subscribe(exercises => {
-      this.sheet.exercises = exercises;
-
-      this.sheet.exercises.forEach(ex => {
-        if (Array.isArray(ex.tasks) && ex.tasks.length > 0) {
-          this.getTasks(ex._id.toString(), ex);
-        } else if (!Array.isArray(ex.tasks)) {
-          ex.tasks = [];
-        }
-      });
-    });
-  }
-
-  getTasks(exerciseId: string, exercise: Exercise): void {
-    this.taskService.getTasks(exerciseId).subscribe(tasks => {
-      this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks = tasks;
-
-      this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks.forEach(task => {
-        if (task.solution) {
-          this.getSolution(task._id.toString(), exercise, task);
-        }
-      });
-    });
-  }
-
-  getSolution(taskId: string, exercise: Exercise, task: Task): void {
-    this.solutionService.getSolution(taskId).subscribe( solution => {
-      if (solution[0].regex === undefined) {
-        solution[0].regex = '';
+    this.sheetService.getSheet(id).subscribe(
+      sheet => this.sheet = sheet,
+      error => console.log(error),
+      () => {
+        this.sheetService.getSheetExercises(this.sheet._id).subscribe(
+          exercises => this.sheet.exercises = exercises,
+          error => console.error( error ),
+          () => {
+            this.sheet.exercises.forEach( (exercise, index) => {
+                this.taskService.getTasks(exercise._id).subscribe(
+                  tasks => this.sheet.exercises[index].tasks = tasks,
+                  error => console.error( error ),
+                  () => {
+                    if (this.sheet.exercises.length - 1 === index) {
+                      if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
+                        this.selectedExercise = this.sheet.exercises[0]._id;
+                      }
+                      this.loadingSheet = false
+                    }
+                  }
+                )
+            });
+          }
+        );
       }
-        this.sheet.exercises[this.getIndexOfExercise(exercise)].tasks[this.getIndexOfTask(exercise, task)].solution = solution[0];
-    });
-  }*/
+    );
+  }
+
+  onTaskUpdated(updatedTask: Task): void {
+    this.loadingSheet = true;
+    this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
+      exercise.tasks.forEach((task, taskIndex) => {
+        if (task._id === updatedTask._id) {
+          this.sheet.exercises[exerciseIndex].tasks[taskIndex] = updatedTask;
+          this.loadingSheet = false;
+          return;
+        }
+      })
+    })
+  }
+
+  onExerciseUpdated(updatedExercise: Exercise): void {
+    this.loadingSheet = true;
+    this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
+      if (exercise._id === updatedExercise._id) {
+        this.sheet.exercises[exerciseIndex] = updatedExercise;
+        this.taskService.getTasks(exercise._id).subscribe(
+          tasks => this.sheet.exercises[exerciseIndex].tasks = tasks,
+          error => console.error( error ),
+          () => this.loadingSheet = false
+        )
+      }
+    })
+  }
 
   addExercise(): void {
-    const newExercise = new Exercise();
-
+    this.loadingSheet = true;
+    let newExercise = new Exercise();
     newExercise.name = 'Neue Aufgabe';
     newExercise.description = 'Beschreibung';
     newExercise.order = this.sheet.exercises.length;
@@ -107,114 +107,108 @@ export class CreateSheetComponent implements OnInit {
     newExercise.persistent = false;
 
     this.exerciseService.addExercise(this.route.snapshot.paramMap.get('id'), newExercise)
-      .subscribe(exercise => {
-        this.sheet.exercises.push(exercise[0]);
-        this.sheetService.updateSheet(this.sheet);
-      });
+      .subscribe(
+        exercise =>  this.sheet.exercises.push(exercise[0]),
+        error => console.error( error ),
+        () => {
+          this.selectedExercise = this.sheet.exercises[this.sheet.exercises.length -1]._id;
+          this.addTask()
+        });
   }
 
   deleteExercise(exercise: Exercise): void {
-    const index = this.getIndexOfExercise(exercise);
-
     if (window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
-      if (index >= 0) {
-        this.exerciseService.deleteExercise(exercise).subscribe(res => {
-          this.sheet.exercises.splice(index, 1);
-          this.sheetService.updateSheet(this.sheet);
-        });
-      }
+      this.loadingSheet = true;
+      let index = this.sheet.exercises.indexOf(exercise);
+      this.sheet.exercises.splice(index, 1);
+      this.sheetService.updateSheet(this.sheet).subscribe(
+        sheet => console.log(sheet),
+        error => {
+          console.error( error );
+          this.sheet.exercises.splice(index, 0, exercise)
+          this.loadingSheet = false;
+        },
+        () => {
+          this.exerciseService.deleteExercise(exercise).subscribe(
+            exercise => console.log(exercise),
+            error => console.error( error ),
+            () => {
+              if (this.selectedExercise === exercise._id) {
+                this.selectedExercise = null;
+              }
+              this.loadingSheet = false
+            }
+          );
+        }
+      )
     }
   }
 
-  addTask(exercise: Exercise): void {
-
-    const exerciseIndex = this.getIndexOfExercise(exercise);
+  addTask(): void {
+    this.loadingSheet = true;
+    let index = this.sheet.exercises.findIndex(e => e._id === this.selectedExercise);
 
     const newTask = new Task();
     newTask.question = 'Neue Unteraufgabe';
-    newTask.order = this.sheet.exercises[exerciseIndex].tasks.length;
+    newTask.order = this.sheet.exercises[index].tasks.length;
     newTask.points = 0;
 
-    this.taskService.addTask(exercise._id.toString(), newTask)
+    this.taskService.addTask(this.selectedExercise, newTask)
       .subscribe(task => {
         const newSolution = new Solution();
         newSolution.type = 'none';
         newSolution.range = new SolutionRange(0, 0);
         newSolution.regex = '';
         newSolution.hint = '';
-        this.solutionService.addSolution(task[0]._id.toString(), newSolution).subscribe(solution => {
-          task[0].solution = solution[0];
-          this.sheet.exercises[exerciseIndex].tasks.push(task[0]);
-          this.sheetService.updateSheet(this.sheet);
-        });
+        this.solutionService.addSolution(task[0]._id, newSolution).subscribe(
+          solution => {
+            task[0].solution = solution[0];
+            this.sheet.exercises[index].tasks.push(task[0]);
+          },
+          error => console.error( error ),
+          () => {
+            this.selectedExercise = null;
+            this.selectedTask = task[0]._id;
+            this.loadingSheet = false;
+          });
       });
   }
 
-  deleteTask(exercise: Exercise, task: Task): void {
-    const exerciseIndex = this.getIndexOfExercise(exercise);
-    const taskIndex = this.getIndexOfTask(exercise, task);
-
-    if (window.confirm('Wollen Sie die Teilaufgabe wirklich löschen?')) {
-      if (taskIndex >= 0) {
-        this.taskService.deleteTask(task).subscribe(res => {
-          this.sheet.exercises[exerciseIndex].tasks.splice(taskIndex, 1);
-          this.sheetService.updateSheet(this.sheet);
-        });
+  deleteTask(exercise: Exercise,task: Task) {
+    if (exercise.tasks.length === 1) {
+      if (window.confirm('Wenn Sie die Teilaufgabe löschen wird automatisch die zugehörige Aufgabe mitgelöscht.' +
+        ' Wollen Sie die Teilaufgabe jetzt löschen?')) {
+        this.selectedTask = null;
+        this.deleteExercise(exercise);
+      }
+    } else {
+      if (window.confirm('Wollen Sie die Teilaufgabe wirklich löschen?')) {
+        this.loadingSheet = true;
+        let eIndex = this.sheet.exercises.findIndex(e => e._id === exercise._id);
+        let tIndex = this.sheet.exercises[eIndex].tasks.findIndex(t => t._id === task._id);
+        this.sheet.exercises[eIndex].tasks.splice(tIndex, 1);
+        this.exerciseService.updateExercise(exercise).subscribe(
+          exercise => console.log(exercise),
+          error => {
+            console.error( error );
+            this.sheet.exercises[eIndex].tasks.splice(tIndex, 0, task);
+            this.loadingSheet = false;
+          },
+          () => {
+            this.taskService.deleteTask(task).subscribe(
+              task => console.log(task),
+              error => console.error( error ),
+              () => {
+                if (this.selectedTask === task._id) {
+                  this.selectedTask = null;
+                }
+                this.loadingSheet = false
+              }
+            );
+          }
+        )
       }
     }
-  }
-
-  saveProgress(): void {
-    this.sheetService.updateSheet(this.sheet);
-    this.sheet.exercises.forEach(exercise => {
-      this.exerciseService.updateExercise(exercise);
-      exercise.tasks.forEach(task => {
-        this.taskService.updateTask(task);
-        this.solutionService.updateSolution(task.solution);
-      });
-    });
-  }
-
-  checkAndAddRegex(task: Task): void {
-    if (this.regexToAdd.match(this.regexPattern)) {
-      this.regexValidToAdd = true;
-      task.solution.regex += this.regexToAdd;
-      this.regexToAdd = '';
-    } else {
-      this.regexValidToAdd = false;
-    }
-  }
-
-  deleteRegexFromString(task: Task): void {
-    if ((task.solution.regex.search(this.regexToDelete) !== -1) && this.regexToDelete.match(this.regexPattern)) {
-      task.solution.regex = task.solution.regex.replace(this.regexToDelete, '');
-      this.regexValidToDelete = true;
-      this.regexToDelete = '';
-    } else {
-      this.regexValidToDelete = false;
-    }
-  }
-
-  private getIndexOfExercise(exercise: Exercise): number {
-    let exerciseIndex = -1;
-
-    this.sheet.exercises.forEach(ex => {
-      exerciseIndex = this.sheet.exercises.indexOf(exercise, 0);
-    });
-    return exerciseIndex;
-  }
-
-  private getIndexOfTask(exercise: Exercise, task: Task): number {
-    let exerciseIndex = -1;
-    let taskIndex = -1;
-
-    this.sheet.exercises.forEach(ex => {
-      exerciseIndex = this.sheet.exercises.indexOf(exercise, 0);
-    });
-    this.sheet.exercises[exerciseIndex].tasks.forEach(ta => {
-      taskIndex = this.sheet.exercises[exerciseIndex].tasks.indexOf(task, 0);
-    });
-    return taskIndex;
   }
 
   goBack(): void {

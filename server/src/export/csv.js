@@ -17,27 +17,29 @@ CSVRenderer.prototype.addHeader = function(header) {
  * @param {*} sheetOrder
  * @param {*} requiredPoints
  * @param {*} maxPoints
+ * @param {*} template defines whether a template exercise was chosen. This case needs an extra line.
  */
-CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder, requiredPoints, maxPoints) {
+CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder, requiredPoints, maxPoints, template) {
     let line = '';
-    line += 'Teilnehmer/in' + submission.student.grips_id + ',' + hasPassed(submission, requiredPoints) + ',"nicht bestanden\nbestanden",,"\n';
+    line += 'Teilnehmer/in' + submission.student.grips_id + ',' + hasPassed(submission, requiredPoints, (template.flag && template.correctly) ? template.points : 0) + ',"nicht bestanden\nbestanden",,"\n';
     line += '<p> ' + getOverallFeedback(submission, requiredPoints, maxPoints) + ' </p>\n';
     let length = submission.answers.length;
+    sheetOrder += 1;
     for (let i = 0; i < length; i++) {
         let answer = submission.answers[i];
-
-        if (i === length - 1 && (answer.text === undefined || answer.text === '')) {
-            line += '<p> Aufgabe ' + sheetOrder + '.' + answer.task.exercise.order;
-            line += ' ist korrekt! </p>';
-            break;
-        }
-        line += '<p> Aufgabe ' + sheetOrder + '.' + getExerciseOrder(exercises, answer.task._id) + toAlphabeticOrder(answer.task.order) + '): ';
+        line += '<p> Aufgabe ' + sheetOrder + '.' + (getExerciseOrder(exercises, answer.task._id) + 1) + toAlphabeticOrder(answer.task.order + 1) + '): ';
         let txt = toCSVString(answer.text);
         if (txt.length !== 0) line += '(' + txt + ')';
         else line += 'fehlt.';
         let feedback = (answer.feedback !== undefined) ? answer.feedback : 'Kein Feedback angegeben.';
         line += ' ' + feedback + ' </p>';
         line += '\n';
+    }
+    if (template.flag) {
+        line += '<p> Aufgabe ' + sheetOrder + '.' + submission.answers.length;
+        line += ' ist ';
+        line += (template.correctly) ? 'korrekt' : 'falsch';
+        line += '! </p>\n';
     }
     if (submission.user !== null) {
         line += '<p> Korrigiert von ' + submission.user.forename + ' ' + submission.user.lastname + ' </p>';
@@ -50,11 +52,12 @@ CSVRenderer.prototype.export = function() {
     return this.csv;
 };
 
-function hasPassed(submission, requiredPoints) {
+function hasPassed(submission, requiredPoints, templatePoints) {
     let points;
     for (let answer of submission.answers) {
         points += answer.achieved_points;
     }
+    points += templatePoints;
     if (points >= requiredPoints) return 'bestanden';
     else return 'nicht bestanden';
 }

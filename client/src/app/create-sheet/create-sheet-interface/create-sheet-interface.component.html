@@ -1,0 +1,112 @@
+<mat-card>
+  <mat-card-title>Erstellen</mat-card-title>
+  <mat-card-content>
+    <div *ngIf="task_id === null && exercise_id === null" class="d-flex justify-content-center align-items-center">
+      Aufgabe oder Teilausgabe auswählen
+    </div>
+    <mat-spinner *ngIf="loading || (!exercise && !task) && (task_id !== null || exercise_id !== null)"></mat-spinner>
+    <form #editForm="ngForm">
+      <mat-list *ngIf="!loading && exercise" class="mt-3">
+        <mat-list-item>
+          <mat-form-field class="w-100">
+            <input matInput type="text" name="exerciseName" [(ngModel)]="exercise.name" placeholder="Aufgabentitel">
+          </mat-form-field>
+        </mat-list-item>
+        <mat-divider [inset]="true" class="mb-4"></mat-divider>
+        <mat-list-item>
+          <mat-form-field class="w-100">
+            <textarea matInput name="exerciseDescription" [(ngModel)]="exercise.description" placeholder="Aufgabenbeschreibung"></textarea>
+          </mat-form-field>
+        </mat-list-item>
+      </mat-list>
+      <mat-list *ngIf="!loading && task" class="mt-3">
+      <mat-list-item class="my-4">
+        <mat-form-field class="w-100">
+          <input matInput type="text" name="taskQuestion" [(ngModel)]="task.question" placeholder="Frage">
+        </mat-form-field>
+      </mat-list-item>
+      <mat-divider [inset]="true" class="mb-4"></mat-divider>
+      <mat-list-item class="my-4">
+        <mat-form-field class="w-50 mr-1">
+          <mat-label>Aufgabentyp</mat-label>
+          <mat-select placeholder="Typ wählen" name="taskType" [(ngModel)]="task.solution.type">
+            <mat-option value="freetext">Freitext</mat-option>
+            <mat-option value="number">Zahl</mat-option>
+            <mat-option value="range">Zahlenbereich</mat-option>
+            <mat-option value="regex">Regex</mat-option>
+            <mat-option value="none">Keine</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="ml-1 w-50">
+          <input type="number" #points name="points" class="w-100" min="0" matInput placeholder="Punkte..."
+                 [(ngModel)]="task.points" required>
+          <mat-error *ngIf="!points.valid">Bitte Punktzahl eingeben.</mat-error>
+        </mat-form-field>
+      </mat-list-item>
+      <ng-container *ngIf="task.solution.type && task.solution.type != 'none'">
+        <mat-divider [inset]="true" class="mb-4"></mat-divider>
+        <!-- REGEX INPUT -->
+        <mat-list-item *ngIf="task.solution.type === 'regex'" class="w-100 my-4">
+          <mat-form-field class="w-100 mb-4">
+            <input type="text" class="w-100" name="taskRegex" matInput placeholder="Regex hinzufügen" [formControl]="regex"
+                   (blur)="task.solution.regex = regex.value" required>
+            <mat-error *ngIf="regex.invalid">{{getRegexErrorMessage()}}</mat-error>
+          </mat-form-field>
+        </mat-list-item>
+        <!-- NUMBER INPUT -->
+        <mat-list-item *ngIf="task.solution.type === 'number'" class="w-100 my-4">
+          <mat-form-field class="w-100 mb-4">
+            <input type="number" #solutionNumber name="taskNumber"
+                   class="w-100" matInput placeholder="Zahl..." [(ngModel)]="task.solution.number" required>
+            <mat-error *ngIf="!solutionNumber.valid">Bitte Nummer eingeben.</mat-error>
+          </mat-form-field>
+        </mat-list-item>
+        <!-- RANGE INPUT -->
+        <mat-list-item *ngIf="task.solution.type === 'range'" class="w-100 my-4">
+          <mat-form-field class="w-50 mr-1">
+            <mat-label>Von</mat-label>
+            <input type="number" id="from" name="from" #from matInput placeholder="Von..."
+                   [(ngModel)]="task.solution.range.from" required>
+            <mat-error *ngIf="!from.valid">Bitte Nummer eingeben.</mat-error>
+          </mat-form-field>
+          <mat-form-field class="w-50 ml-1">
+            <mat-label>Bis</mat-label>
+            <input type="number" id="to" name="to" #to matInput placeholder="Bis..."
+                   [(ngModel)]="task.solution.range.to" required>
+            <mat-error *ngIf="!to.valid">Bitte Nummer eingeben.</mat-error>
+          </mat-form-field>
+        </mat-list-item>
+        <h3 matSubheader *ngIf="task.solution.type === 'freetext'">Standardmäßig</h3>
+        <mat-list-item *ngIf="task.solution.type === 'freetext'" class="w-100 my-4">
+          <mat-radio-group matLine name="taskFreetext" [(ngModel)]="task.solution.default_free_text" required
+                           class="d-inline-flex flex-column">
+            <mat-radio-button [value]="true">
+              Volle Punktzahl
+            </mat-radio-button>
+            <mat-radio-button [value]="false">
+              Kein Punkte
+            </mat-radio-button>
+          </mat-radio-group>
+        </mat-list-item>
+      </ng-container>
+      <mat-divider [inset]="true" class="mb-4"></mat-divider>
+      <mat-list-item class="my-4">
+        <mat-form-field class="w-100">
+          <textarea matInput name="taskChoices" [(ngModel)]="task.choices" placeholder="Bearbeitungshinweise"></textarea>
+        </mat-form-field>
+      </mat-list-item>
+      <mat-divider [inset]="true" class="mb-4"></mat-divider>
+      <mat-list-item class="my-4">
+        <mat-form-field class="w-100">
+          <textarea matInput name="taskHint" [(ngModel)]="task.solution.hint" placeholder="Korrekturhinweis"></textarea>
+        </mat-form-field>
+      </mat-list-item>
+    </mat-list>
+    </form>
+  </mat-card-content>
+  <button class="position-absolute float-right" style="right: 10px;" mat-fab
+          [disabled]="saving || !editForm.valid || (task && task.solution.type === 'regex' && regex.invalid)"
+          (click)="save()">
+    <mat-icon>save</mat-icon>
+  </button>
+</mat-card>

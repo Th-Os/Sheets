@@ -8,7 +8,9 @@ const router = express.Router();
 
 router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Submission)
-        .then((doc) => res.send(doc))
+        .then((doc) => {
+            res.send(doc);
+        })
         .catch((err) => res.status(500).send(err));
 });
 
@@ -45,7 +47,7 @@ router.get('/_search', verify, function(req, res) {
 });
 
 // /submissions/:id/answers/_search?task={ID}
-router.get('/:id/answers/_search', verify, function(req, res) {
+router.get('/:id/answers/_search', verify, function(req, res, next) {
     let taskId = req.query.task;
     if (taskId !== undefined) {
         methods.get(req.params.id, Submission).then((doc) => {
@@ -53,8 +55,10 @@ router.get('/:id/answers/_search', verify, function(req, res) {
             let answers = [];
             for (let answerId of doc.answers) {
                 promises.push(Answer.findById(answerId).exec().then((answer) => {
-                    if (answer.task.equals(taskId)) {
+                    if (answer.task && answer.task.equals(taskId)) {
                         answers.push(answer);
+                        res.send(answer);
+                        next();
                     }
                 }).catch((err) => {
                     res.status(500).send(err);
@@ -65,9 +69,6 @@ router.get('/:id/answers/_search', verify, function(req, res) {
             }).catch((err) => {
                 res.status(500).send(err);
             });
-        }).catch((err) => {
-            if (err.name === StatusError.name) res.status(err.status).send(err.message);
-            else res.status(500).send(err);
         });
     } else {
         res.send(400).send('Query "' + req.query + '" not available.');

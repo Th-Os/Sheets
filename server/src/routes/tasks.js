@@ -20,8 +20,14 @@ router.get('/:id/_aggregate', verify, function(req, res) {
 
 router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Task)
-        .then((doc) => res.status(200).send(doc))
-        .catch((err) => {
+        .then(
+            Task.findById(req.params.id).populate({ path: 'solution' })
+                .exec()
+                .then((doc) => {
+                    res.send(doc);
+                })
+                .catch((err) => res.status(500).send(err))
+        ).catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });

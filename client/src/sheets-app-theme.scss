@@ -46,6 +46,10 @@ $corporate-design-ur: (
 $sheets-app-primary: mat-palette($mat-blue-gray);
 $sheets-app-accent:  mat-palette($corporate-design-ur, 500, A100, A400);
 
+//$sheets-app-primary: mat-palette($corporate-design-ur);
+//$sheets-app-accent:  mat-palette($mat-blue-gray, 500, A100, A400);
+
+
 // The warn palette is optional (defaults to red).
 $sheets-app-warn:    mat-palette($mat-red);
 

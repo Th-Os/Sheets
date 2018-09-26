@@ -14,7 +14,7 @@
         [ngClass]="{'active': dropzoneActive}">
 
           <mat-spinner *ngIf="loadingSubmissions || loadingSheet"></mat-spinner>
-          <mat-list id="submissionsList" *ngIf="!loadingSubmissions && !loadingSheet" >
+          <mat-list id="submissionsList" *ngIf="!loadingSubmissions && !loadingSheet && !loadInProgress" >
             <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
               <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
               <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
@@ -54,10 +54,15 @@
             </ng-container>
           </mat-list>
         </mat-card-content>
+        <button class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
+                mat-fab color="primary" (click)="downloadSheet()">
+          <mat-icon>get_app</mat-icon>
+        </button>
       </mat-card>
     </div>
-    <div class="col-12 col-lg-4 col-md-4">
+    <div class="col-12 col-lg-4 col-md-4" *ngIf="!loadingSubmissions && sheet.submissions.length > 0">
       <button mat-raised-button color="accent" routerLink="./correction">Starte Korrektur</button>
+      <button mat-raised-button (click)="autocorrect()"> - autokorrektur test - </button>
     </div>
 </div>
 </div>
