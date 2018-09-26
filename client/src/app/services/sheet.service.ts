@@ -129,11 +129,11 @@ export class SheetService {
       );
   }
 
-  autocorrectSubmissions(submission: Submission): Observable<any> {
-        const url = `${this.correctionUrl}/${submission}`;
+  autocorrectSubmission(submissionID: string): Observable<any> {
+        const url = `${this.correctionUrl}/${submissionID}`;
 
       return this.http.get(url, httpOptions).pipe(
-      tap(_ => this.log(`corrected submission id=${submission}`)),
+      tap(_ => this.log(`corrected submission id=${submissionID}`)),
       catchError(this.handleError<any>('correction')))
 /*
     let promises = [];

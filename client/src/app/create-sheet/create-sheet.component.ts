@@ -32,7 +32,7 @@ export class CreateSheetComponent implements OnInit {
     private sheetService: SheetService,
     private exerciseService: ExerciseService,
     private taskService: TaskService,
-    private solutionService: SolutionService
+    private solutionService: SolutionService,
   ) { }
 
   ngOnInit() {
@@ -71,6 +71,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   onTaskUpdated(updatedTask: Task): void {
+    this.checkSubmissionCorrection();
     this.loadingSheet = true;
     this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
       exercise.tasks.forEach((task, taskIndex) => {
@@ -84,6 +85,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   onExerciseUpdated(updatedExercise: Exercise): void {
+    this.checkSubmissionCorrection();
     this.loadingSheet = true;
     this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
       if (exercise._id === updatedExercise._id) {
@@ -98,6 +100,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   addExercise(): void {
+    if(!this.checkSubmissions()) return;
     this.loadingSheet = true;
     let newExercise = new Exercise();
     newExercise.name = 'Neue Aufgabe';
@@ -117,6 +120,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   deleteExercise(exercise: Exercise): void {
+    if(!this.checkSubmissions()) return;
     if (window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
       this.loadingSheet = true;
       let index = this.sheet.exercises.indexOf(exercise);
@@ -145,6 +149,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   addTask(): void {
+    if(!this.checkSubmissions()) return;
     this.loadingSheet = true;
     let index = this.sheet.exercises.findIndex(e => e._id === this.selectedExercise);
 
@@ -175,6 +180,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   deleteTask(exercise: Exercise,task: Task) {
+    if(!this.checkSubmissions()) return;
     if (exercise.tasks.length === 1) {
       if (window.confirm('Wenn Sie die Teilaufgabe löschen wird automatisch die zugehörige Aufgabe mitgelöscht.' +
         ' Wollen Sie die Teilaufgabe jetzt löschen?')) {
@@ -211,8 +217,35 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
+  checkSubmissions(): boolean {
+    if(this.sheet.submissions != null){
+      if(this.sheet.submissions.length > 0){
+        let proceed = confirm("Für dieses Aufgabenblatt wurden bereits Abgaben hochgeladen. Wird die Struktur des Aufgabenblattes nachträglich verändert, werden alle bereits hochgeladenen Abgaben gelöscht. Wirklich fortfahren?");
+
+        if(proceed){
+          this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
+            this.sheet.submissions = []
+          });
+          return true;
+        }else{
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  checkSubmissionCorrection(){
+    if(this.sheet.submissions == null) return;
+    if(this.sheet.submissions.length <= 0) return;
+
+    if(!confirm("Sie haben ein Übungsblatt mit bestehenden Abgaben editiert. Autokorrektur neu ausführen?")) return;
+    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmission(sub.toString()).subscribe())
+    console.log("autocorrect")
+  }
+
   goBack(): void {
     this.location.back();
   }
-
 }

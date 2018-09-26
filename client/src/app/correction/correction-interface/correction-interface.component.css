@@ -1,3 +1,13 @@
 .correction-list > .mat-list-item {
   height: auto;
 }
+
+.color-red{
+	color: red;
+	background-color: red;
+}
+
+.color-green{
+	color: green;
+	background-color: green;
+}
