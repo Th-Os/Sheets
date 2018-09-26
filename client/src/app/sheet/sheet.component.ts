@@ -52,6 +52,8 @@ export class SheetComponent implements OnInit {
   loadingExercisesWithTasks: boolean = false;
   exercises: Exercise[];
 
+  loggInUserRole: string;
+
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -67,29 +69,31 @@ export class SheetComponent implements OnInit {
     this.getSheetWithSubmissions();
     this.getExercisesWithTasks();
     this.getSubmissionTemplate();
+
+    this.loggInUserRole = JSON.parse(localStorage.getItem('currentUser')).role.name;
   }
 
   getExercisesWithTasks() {
     this.loadingExercisesWithTasks = true;
     const id = this.route.snapshot.paramMap.get('id');
     this.sheetService.getSheetExercises(id)
-      .subscribe(
-        exercises => this.exercises = exercises,
-        error => console.error( error ),
-        () => {
-          this.exercises.forEach((exercise, index) => {
-            if (exercise.tasks.length > 0) {
-              this.taskService.getTasks(exercise._id).subscribe(
-                tasks => exercise.tasks = tasks,
-                error => console.error(error),
-                () => {
-                  this.exercises[index] = exercise;
-                  if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
-                }
+    .subscribe(
+      exercises => this.exercises = exercises,
+      error => console.error( error ),
+      () => {
+        this.exercises.forEach((exercise, index) => {
+          if (exercise.tasks.length > 0) {
+            this.taskService.getTasks(exercise._id).subscribe(
+              tasks => exercise.tasks = tasks,
+              error => console.error(error),
+              () => {
+                this.exercises[index] = exercise;
+                if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
+              }
               );
-            }
-          });
-        }
+          }
+        });
+      }
       );
   }
 
@@ -97,26 +101,26 @@ export class SheetComponent implements OnInit {
     this.sheet.exercises = []
 
     this.sheetService.getSheetExercises(this.route.snapshot.paramMap.get('id'))
-      .subscribe( exercises => {
-          exercises.forEach(ex =>{
-          let sheetExercise: Exercise = new Exercise();
-          sheetExercise._id = ex._id;
-          sheetExercise.description = ex.description;
-          sheetExercise.name = ex.name;
-          sheetExercise.order = ex.order;
-          sheetExercise.tasks = []
-          this.sheet.exercises.push(sheetExercise);
+    .subscribe( exercises => {
+      exercises.forEach(ex =>{
+        let sheetExercise: Exercise = new Exercise();
+        sheetExercise._id = ex._id;
+        sheetExercise.description = ex.description;
+        sheetExercise.name = ex.name;
+        sheetExercise.order = ex.order;
+        sheetExercise.tasks = []
+        this.sheet.exercises.push(sheetExercise);
 
-          ex.tasks.forEach(task => {
-            this.taskService.getTask(task).subscribe(t => {
-              sheetExercise.tasks.push(t)
-            })
+        ex.tasks.forEach(task => {
+          this.taskService.getTask(task).subscribe(t => {
+            sheetExercise.tasks.push(t)
           })
         })
       })
-      .add( () => {
-        this.loadingExercisesWithTasks = false;
-      })
+    })
+    .add( () => {
+      this.loadingExercisesWithTasks = false;
+    })
   }
 
   displayMessage(text: string) {
@@ -150,11 +154,11 @@ export class SheetComponent implements OnInit {
                 () => {
                   if (index === this.sheet.submissions.length - 1) this.loadingSubmissions = false;
                 }
-              )
+                )
             })
           });
       }
-    )
+      )
   }
 
   getSubmissionTemplate() {
@@ -178,34 +182,57 @@ export class SheetComponent implements OnInit {
   onFilesAdded(fileList: FileList): void {
     if(fileList.length <= 0){
       this.displayMessage(this.uploadErrorMsg);
+      this.clearInput()
       return;
     }
 
     if(this.submissionTemplate == null){
       this.displayMessage(this.noTemplateErrorMsg);
+      this.clearInput();
       return;
     }
 
     if(fileList.length == 1 && this.isZip(fileList[0])){
-      this.submissionValidationResults = [];
-      this.readZipFolder(fileList[0]);
+
+      var proceed = true;
+
+      if(this.sheet.submissions.length > 0){
+        proceed = confirm("Bestehende Abgaben werden ersetzt. Mit Upload fortfahren?");
+        if(!proceed){
+          this.clearInput();
+          return;
+        } 
+
+        this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
+          this.submissionValidationResults = [];
+          this.readZipFolder(fileList[0]);
+        });
+      }else{
+        this.submissionValidationResults = [];
+        this.readZipFolder(fileList[0]);
+      }
+
     }else{
       this.displayMessage(this.uploadErrorMsg);
     }
-
-    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
   }
 
   isZip(file): boolean {
     return file.type == "application/zip" || file.type =="application/octet-stream" || file.type =="application/x-zip-compressed" || file.type =="multipart/x-zip";
   }
 
+  clearInput() {
+    (<HTMLInputElement>document.getElementById("fileToUpload")).value = "";
+  }
+
   readZipFolder(file): void {
+    let fileToLoad = file;
+    this.clearInput();
     let submissions = [];
     var reader = new FileReader();
     reader.onload = (e) => {
       var zip = new JSZip();
-      zip.loadAsync(file).then((zip) => {
+      zip.loadAsync(fileToLoad).then((zip) => {
         let promises = [];
         Object.keys(zip.files).forEach((filename) => {
           if(filename.split("/").length < 3) return;
@@ -255,7 +282,7 @@ export class SheetComponent implements OnInit {
       });
     };
 
-    reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(fileToLoad);
   }
 
   uploadAndCorrectSubmissions() {
@@ -267,9 +294,10 @@ export class SheetComponent implements OnInit {
         tempSheet = sheet;
         res.map(sub => tempSheet.submissions.push(sub._id))
         this.sheetService.updateSheet(tempSheet).subscribe(res => {
-          this.sheetService.autocorrectSubmissions(res).then( () => {
-            this.loadInProgress = false;
-            this.displayMessage("Abgaben erfolgreich hochgeladen")})})
+          //res.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+          this.loadInProgress = false;
+          this.displayMessage("Abgaben erfolgreich hochgeladen")
+        })
       });
     }
     );
@@ -292,7 +320,8 @@ export class SheetComponent implements OnInit {
   }
 
   autocorrect(){
-    this.sheetService.autocorrectSubmissions(this.sheet)
+    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+
     console.log("autocorrect")
   }
 
@@ -520,9 +549,21 @@ export class SheetComponent implements OnInit {
         notAlreadyAssigned.push(submission);
       }
     });
-    this.dialog.open(AssignSubmissionDialogComponent, {
+    const dialogRef = this.dialog.open(AssignSubmissionDialogComponent, {
       width: '500px',
       data: { submissions: notAlreadyAssigned}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) {
+        return;
+      } else {
+        result.forEach(submission => {
+          const submissionIndex = this.sheet.submissions.findIndex(s => s._id === submission._id);
+          // Update submission
+          this.sheet.submissions[submissionIndex] = submission;
+        });
+      }
     });
   }
 }

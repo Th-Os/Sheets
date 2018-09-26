@@ -71,7 +71,6 @@ export class CourseComponent implements OnInit {
             },
             error => console.error( error ),
             () => {
-
             }
             )
         })
