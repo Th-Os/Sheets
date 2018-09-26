@@ -501,6 +501,18 @@ export class SheetComponent implements OnInit {
     return this.parseTemplate(templateString);
   }
 
+  downloadSheet(): void {
+    this.sheetService.downloadSheet(this.route.snapshot.paramMap.get('id')).subscribe(
+      data => {
+        let blob = new Blob([data], { type: 'application/pdf' });
+        let url= window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error => console.error( error ),
+      () => console.log('file downloaded')
+    )
+  }
+
   assignSubmissions(): void {
     const notAlreadyAssigned = [];
     this.sheet.submissions.forEach(submission => {

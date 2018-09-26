@@ -166,6 +166,12 @@ console.log("corr")
       );
   }
 
+  downloadSheet(id: string): Observable<Blob> {
+    return this.http.get(`${this.sheetsUrl}/${id}/export`, {responseType: 'blob'}).pipe(
+
+    )
+  }
+
   /**
    * Handle Http operation that failed.
    * Let the app continue.

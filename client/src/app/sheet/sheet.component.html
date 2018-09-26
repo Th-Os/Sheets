@@ -54,6 +54,10 @@
             </ng-container>
           </mat-list>
         </mat-card-content>
+        <button class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
+                mat-fab color="primary" (click)="downloadSheet()">
+          <mat-icon>get_app</mat-icon>
+        </button>
       </mat-card>
     </div>
     <div class="col-12 col-lg-4 col-md-4" *ngIf="!loadingSubmissions && sheet.submissions.length > 0">
