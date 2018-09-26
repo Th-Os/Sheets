@@ -129,12 +129,12 @@ export class SheetService {
       );
   }
 
-  autocorrectSubmissions(sheet: Sheet): Promise<any> {
-console.log("corr")
+  autocorrectSubmissions(submission: Submission): Observable<any> {
+        const url = `${this.correctionUrl}/${submission._id}`;
 
-      this.http.post<Submission>(this.correctionUrl, sheet.submissions[0],httpOptions).pipe(
+      return this.http.get(url, httpOptions).pipe(
       tap(_ => this.log(`corrected submission`)),
-      catchError(this.handleError<any>('correction'))).subscribe(res => console.log(res))
+      catchError(this.handleError<any>('correction')))
 /*
     let promises = [];
     sheet.submissions.forEach(sub => {
@@ -147,7 +147,6 @@ console.log("corr")
 
     return Promise.all(promises);
     */
-    return null
   }
 
   getAnswers (submission: Submission): Observable<any> {

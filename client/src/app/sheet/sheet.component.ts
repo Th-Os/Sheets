@@ -77,23 +77,23 @@ export class SheetComponent implements OnInit {
     this.loadingExercisesWithTasks = true;
     const id = this.route.snapshot.paramMap.get('id');
     this.sheetService.getSheetExercises(id)
-      .subscribe(
-        exercises => this.exercises = exercises,
-        error => console.error( error ),
-        () => {
-          this.exercises.forEach((exercise, index) => {
-            if (exercise.tasks.length > 0) {
-              this.taskService.getTasks(exercise._id).subscribe(
-                tasks => exercise.tasks = tasks,
-                error => console.error(error),
-                () => {
-                  this.exercises[index] = exercise;
-                  if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
-                }
+    .subscribe(
+      exercises => this.exercises = exercises,
+      error => console.error( error ),
+      () => {
+        this.exercises.forEach((exercise, index) => {
+          if (exercise.tasks.length > 0) {
+            this.taskService.getTasks(exercise._id).subscribe(
+              tasks => exercise.tasks = tasks,
+              error => console.error(error),
+              () => {
+                this.exercises[index] = exercise;
+                if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
+              }
               );
-            }
-          });
-        }
+          }
+        });
+      }
       );
   }
 
@@ -101,26 +101,26 @@ export class SheetComponent implements OnInit {
     this.sheet.exercises = []
 
     this.sheetService.getSheetExercises(this.route.snapshot.paramMap.get('id'))
-      .subscribe( exercises => {
-          exercises.forEach(ex =>{
-          let sheetExercise: Exercise = new Exercise();
-          sheetExercise._id = ex._id;
-          sheetExercise.description = ex.description;
-          sheetExercise.name = ex.name;
-          sheetExercise.order = ex.order;
-          sheetExercise.tasks = []
-          this.sheet.exercises.push(sheetExercise);
+    .subscribe( exercises => {
+      exercises.forEach(ex =>{
+        let sheetExercise: Exercise = new Exercise();
+        sheetExercise._id = ex._id;
+        sheetExercise.description = ex.description;
+        sheetExercise.name = ex.name;
+        sheetExercise.order = ex.order;
+        sheetExercise.tasks = []
+        this.sheet.exercises.push(sheetExercise);
 
-          ex.tasks.forEach(task => {
-            this.taskService.getTask(task).subscribe(t => {
-              sheetExercise.tasks.push(t)
-            })
+        ex.tasks.forEach(task => {
+          this.taskService.getTask(task).subscribe(t => {
+            sheetExercise.tasks.push(t)
           })
         })
       })
-      .add( () => {
-        this.loadingExercisesWithTasks = false;
-      })
+    })
+    .add( () => {
+      this.loadingExercisesWithTasks = false;
+    })
   }
 
   displayMessage(text: string) {
@@ -154,11 +154,11 @@ export class SheetComponent implements OnInit {
                 () => {
                   if (index === this.sheet.submissions.length - 1) this.loadingSubmissions = false;
                 }
-              )
+                )
             })
           });
       }
-    )
+      )
   }
 
   getSubmissionTemplate() {
@@ -271,9 +271,10 @@ export class SheetComponent implements OnInit {
         tempSheet = sheet;
         res.map(sub => tempSheet.submissions.push(sub._id))
         this.sheetService.updateSheet(tempSheet).subscribe(res => {
-          this.sheetService.autocorrectSubmissions(res).then( () => {
-            this.loadInProgress = false;
-            this.displayMessage("Abgaben erfolgreich hochgeladen")})})
+          //res.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+          this.loadInProgress = false;
+          this.displayMessage("Abgaben erfolgreich hochgeladen")
+        })
       });
     }
     );
@@ -296,7 +297,8 @@ export class SheetComponent implements OnInit {
   }
 
   autocorrect(){
-    this.sheetService.autocorrectSubmissions(this.sheet)
+    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+
     console.log("autocorrect")
   }
 
