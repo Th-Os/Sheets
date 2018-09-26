@@ -93,37 +93,21 @@ sheetSchema.methods.setPersistence = function(isPersistent, callback) {
     });
 };
 
-// TODO: Test
 sheetSchema.methods.getMaxPoints = function() {
     return new Promise((resolve, reject) => {
-        mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
+        mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, exercises) => {
             if (err) throw err;
             let points = 0;
             let promises = [];
-            for (let doc of docs) {
-                let promise = doc.getMaxPoints();
-                promise.then((res) => {
+            for (let exercise of exercises) {
+                promises.push(exercise.getMaxPoints().then((res) => {
                     points += res;
-                });
-                promises.append(promise);
+                }));
             }
             Promise.all(promises).then(() => {
                 resolve(points);
             }).catch((err) => reject(err));
         });
-    });
-};
-
-sheetSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Exercise').find().where('_id').in(this.exercises).exec().then((docs) => {
-            this.exercises = docs;
-        }).catch((err) => { throw err; }));
-        promises.push(mongoose.model('Submission').find().where('_id').in(this.submissions).exec().then((docs) => {
-            this.submissions = docs;
-        }).catch((err) => { throw err; }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
     });
 };
 
@@ -185,24 +169,14 @@ exerciseSchema.methods.setPersistence = function(isPersistent, callback) {
 
 exerciseSchema.methods.getMaxPoints = function() {
     return new Promise((resolve, reject) => {
-        mongoose.model('Task').find().where('_id').in(this.tasks).exec((err, docs) => {
+        mongoose.model('Task').find().where('_id').in(this.tasks).exec((err, tasks) => {
             if (err) reject(err);
             let points = 0;
-            for (let doc of docs) {
-                points += doc.points;
+            for (let task of tasks) {
+                points += task.points;
             }
             resolve(points);
         });
-    });
-};
-
-exerciseSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Task').find().where('_id').in(this.tasks).exec().then((docs) => {
-            this.tasks = docs;
-        }).catch((err) => { throw err; }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
     });
 };
 
@@ -255,19 +229,8 @@ taskSchema.post('remove', (doc) => {
     });
 });
 
-// TODO: Test
 taskSchema.methods.getExercise = function() {
     return mongoose.model('Exercise').find().where('tasks').in(this._id);
-};
-
-taskSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Solution').findById(this.solution).then((docs) => {
-            this.tasks = docs;
-        }).catch((err) => { throw err; }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
-    });
 };
 
 const solutionSchema = new mongoose.Schema({
