@@ -1,3 +1,8 @@
+/**
+ * @overview The routing of the courses API.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import verify from '../auth/verification';
 import * as methods from '../utils/methods';

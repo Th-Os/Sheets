@@ -1,3 +1,8 @@
+/**
+ * @overview The routing of the students API.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import verify from '../auth/verification';
 import * as methods from '../utils/methods';
@@ -8,6 +13,14 @@ import {Course} from '../models/course';
 
 const router = express.Router();
 
+/**
+ * Gets a student by id.
+ * @param {string} req.params.id: ID of a student.
+ * @returns {Student}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Student)
         .then((doc) => res.status(200).send(doc))
@@ -17,6 +30,14 @@ router.get('/:id', verify, function(req, res) {
         });
 });
 
+/**
+ * Creates students.
+ * @param {Array} req.body with {Student}
+ * @returns {Array} of @see {Student}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.post('/', verify, function(req, res) {
     methods.post(req.body, Student)
         .then((doc) => res.status(200).send(doc))
@@ -26,6 +47,15 @@ router.post('/', verify, function(req, res) {
         });
 });
 
+/**
+ * Updates a student by id.
+ * @param {string} req.params.id: ID of a student.
+ * @param {Student} req.body with updated values.
+ * @returns {Student}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Student)
         .then((doc) => res.status(200).send(doc))
@@ -35,6 +65,14 @@ router.put('/:id', verify, function(req, res) {
         });
 });
 
+/**
+ * Deletes a student by id.
+ * @param {string} req.params.id: ID of a student.
+ * @returns {string} success message.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, res, Student)
         .then((msg) => res.status(200).send(msg))
@@ -44,6 +82,14 @@ router.delete('/:id', verify, function(req, res) {
         });
 });
 
+/**
+ * Gets all submissions of a student by id.
+ * @param {string} req.params.id: ID of a student.
+ * @returns {Array} of @see {Submission}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id/submissions', verify, function(req, res) {
     Submission.find({'student': req.params.id}, (err, subs) => {
         if (err) res.status(400).send(err);
@@ -51,6 +97,14 @@ router.get('/:id/submissions', verify, function(req, res) {
     });
 });
 
+/**
+ * Gets all courses of a student by id.
+ * @param {string} req.params.id: ID of a student.
+ * @returns {Array} of @see {Courses}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id/courses', verify, function(req, res) {
     Submission.find({'student': req.params.id}, (err, subs) => {
         let ids = subs.map((s) => s._id);

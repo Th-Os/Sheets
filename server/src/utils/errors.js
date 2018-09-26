@@ -1,5 +1,12 @@
-// https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Error
+/**
+ * @overview collection of custom error implementations.
+ * @see https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Error
+ * @author Thomas Oswald
+ */
 
+/**
+ * @class StatusError for failures in the routing process.
+ */
 class StatusError extends Error {
     constructor(status, msg, ...params) {
         super(...params);
@@ -13,6 +20,9 @@ class StatusError extends Error {
     }
 }
 
+/**
+ * @class StatusError for failures in the routing process.
+ */
 class CorrectionError extends Error {
     constructor(correction, msg, ...params) {
         super(...params);

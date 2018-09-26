@@ -1,3 +1,8 @@
+/**
+ * @overview The routing of the exports API.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import fs from 'fs';
 import path from 'path';

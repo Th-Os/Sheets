@@ -1,10 +1,10 @@
 /**
- * @summary methods is an accumulation of functions that display a middleware between the routings and the mongoose framework.
+ * @overview methods is an accumulation of functions that display a middleware between the routings and the mongoose framework.
  * @author Thomas Oswald
  */
 
 import {StatusError} from '../utils/errors';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose'; // eslint-disable-line no-unused-vars
 
 /**
  * Gets a mongoose document.
@@ -100,6 +100,7 @@ function put(id, body, model) {
  * Deletes a document.
  * @param {string} id of the document.
  * @param {Model} model its mongoose model.
+ * @returns {string} success message.
  */
 function del(id, model) {
     return new Promise((resolve, reject) => {
@@ -108,16 +109,43 @@ function del(id, model) {
             if (doc === null) reject(new StatusError(404, 'No ' + model.modelName + ' with ' + id + ' was found.'));
             else {
                 doc.remove();
-                resolve();
+                resolve('Deleted ' + model.modelName + ' with id: ' + id + ' successfully.');
             }
         });
     });
 }
 
 /**
- * Creates a new document by the model.
+ * Deletes child documents of a parent document.
+ * @param {string} id of the document.
+ * @param {Model} model its mongoose model.
+ * @returns {string} success message.
+ */
+function deepDel(id, parentModel, childModel, isSingle) {
+    return new Promise((resolve, reject) => {
+        let path = childModel.modelName.toLowerCase();
+        path += (isSingle) ? '' : 's';
+        parentModel.findById(id).populate({ path: path }).exec()
+            .then((parent) => {
+                if (parent[path] === null || (parent[path] instanceof Array && parent[path].length === 0)) {
+                    reject(new StatusError(404, 'No ' + path + ' found within ' + parentModel.modelName + ' with id: ' + id));
+                }
+                for (let doc of parent[path]) {
+                    if (doc.persistent === undefined || !doc.persistent) doc.remove();
+                }
+                parent[path] = (isSingle) ? null : [];
+                parent.save().then((doc) => {
+                    resolve('Deleted ' + path + ' of ' + parentModel.modelName + ' with id: ' + id + ' successfully.');
+                });
+            }).catch((err) => reject(err));
+    });
+}
+
+/**
+ * Creates one or more new documents with the model.
  * @param {object} body of the new document.
  * @param {Model} model its mongoose model.
+ * @returns {Array} Array of documents.
  */
 function post(body, model) {
     return new Promise((resolve, reject) => {
@@ -136,6 +164,7 @@ function post(body, model) {
  * @param {Model} parent model of the existing document.
  * @param {Model} child model of the soon to be children or child.
  * @param {boolean} isSingle indicates whether one or multiple children are created.
+ * @returns {Array} Array of childs.
  */
 function deepPost(id, body, parent, child, isSingle) {
     return new Promise((resolve, reject) => {
@@ -225,4 +254,4 @@ function bulkPost(id, body, parentModel, childModel) {
     });
 }
 
-export {get, deepGet, getAll, put, del, post, deepPost, bulkPost};
+export {get, deepGet, getAll, put, del, deepDel, post, deepPost, bulkPost};

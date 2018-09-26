@@ -1,3 +1,8 @@
+/**
+ * @overview The routing of the solutions API.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import verify from '../auth/verification';
 import * as methods from '../utils/methods';
@@ -6,6 +11,15 @@ import {Solution} from '../models/sheet';
 
 const router = express.Router();
 
+/**
+ * Updates a solution by id.
+ * @param {string} req.params.id: ID of a solution.
+ * @param {Solution} req.body with updated values.
+ * @returns {Solution}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Solution)
         .then((doc) => res.status(200).send(doc))
@@ -15,9 +29,17 @@ router.put('/:id', verify, function(req, res) {
         });
 });
 
+/**
+ * Deletes a solution by id.
+ * @param {string} req.params.id: ID of a solution.
+ * @returns {string} success message.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, Solution)
-        .then((doc) => res.status(200).send(doc))
+        .then((msg) => res.status(200).send(msg))
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
