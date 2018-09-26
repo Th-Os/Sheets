@@ -123,7 +123,7 @@ router.post('/:id/submissions/_bulk', verify, function(req, res) {
 
 router.get('/:id/submissions', verify, function(req, res) {
     methods.deepGet(req.params.id, Sheet, Submission)
-        .then((docs) => { res.status(200).send(docs) })
+        .then((docs) => { res.status(200).send(docs); })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
