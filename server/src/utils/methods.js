@@ -1,4 +1,4 @@
-import {StatusError} from '../utils/error';
+import {StatusError} from '../utils/errors';
 import mongoose from 'mongoose';
 
 /**

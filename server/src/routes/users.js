@@ -3,7 +3,7 @@ import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import bcrypt from 'bcryptjs';
 import {User, Role} from '../models/user';
-import { StatusError } from '../utils/error';
+import { StatusError } from '../utils/errors';
 
 const router = express.Router();
 

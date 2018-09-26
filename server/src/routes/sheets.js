@@ -2,7 +2,7 @@ import express from 'express';
 import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {Sheet, Exercise} from '../models/sheet';
-import {StatusError} from '../utils/error';
+import {StatusError} from '../utils/errors';
 import {Submission} from '../models/submission';
 
 const router = express.Router();
