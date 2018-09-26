@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 /**
  * @param {*} id
  * @param {*} model
+ * @see in reference to http://frontendcollisionblog.com/mongodb/2016/01/24/mongoose-populate.html
  */
 function get(id, model, populateObj) {
     return new Promise((resolve, reject) => {
@@ -41,21 +42,6 @@ function deepGet(id, parent, child, isSingle) {
             child.find().where('_id').in(doc[ids]).exec((err, docs) => {
                 if (err) reject(new StatusError(400, err));
                 if (docs === undefined) reject(new StatusError(404, child.modelName + ' not found.'));
-                else resolve(docs);
-            });
-        });
-    });
-}
-
-// Todo: Probably integrate in deepGet-Function above
-function deepGetSolution(id, parent, child) {
-    return new Promise((resolve, reject) => {
-        parent.findById(id, (err, doc) => {
-            if (err) reject(new StatusError(400, err));
-            if (doc === undefined || doc === null) reject(new StatusError(404, parent.modelName + ' not found.'));
-            child.find().where('_id').in(doc.solution).exec((err, docs) => {
-                if (err) reject(new StatusError(400, err));
-                if (docs === undefined || docs.length === 0) reject(new StatusError(404, child.modelName + ' not found.'));
                 else resolve(docs);
             });
         });
@@ -225,4 +211,4 @@ function bulkPost(id, body, parentModel, model) {
     });
 }
 
-export {get, deepGet, deepGetSolution, getAll, put, del, post, deepPost, bulkPost};
+export {get, deepGet, getAll, put, del, post, deepPost, bulkPost};

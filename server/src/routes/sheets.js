@@ -17,7 +17,7 @@ router.get('/:id', verify, function(req, res) {
 });
 
 router.get('/:id/_aggregate', verify, function(req, res) {
-    Sheet.findById(req.params.id).populate([
+    methods.get(req.params.id, Sheet, [
         {
             path: 'exercises',
             model: 'Exercise',
@@ -46,7 +46,7 @@ router.get('/:id/_aggregate', verify, function(req, res) {
                     }
                 ]
         }
-    ]).exec().then((doc) => {
+    ]).then((doc) => {
         res.send(doc);
     }).catch((err) => res.status(500).send(err));
 });
