@@ -1,15 +1,24 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div class="container-fluid">
-  <mat-toolbar color="primary">
+<div class="container-fluid p-0 h-100">
+  <mat-toolbar color="primary" class="shadow-lg" >
     <mat-toolbar-row>
       <span>Custom Toolbar</span>
-    </mat-toolbar-row>
-
-    <mat-toolbar-row>
-      <span>Second Line</span>
-      <span class="example-spacer"></span>
+      <span class="fill-space"></span>
+      <div *ngIf="userLoggedIn">
+        <span>
+          <button mat-icon-button id="accountIcon" title="Profil" (click)="goToProfile()">
+            <mat-icon [inline]="true" color="secondary">account_circle</mat-icon>
+          </button>
+        </span>
+        <span>
+          <button mat-icon-button id="logoutIcon" title="Logout" (click)="logout()">
+            <mat-icon [inline]="true" color="secondary">exit_to_app</mat-icon>
+          </button>
+        </span>
+      </div>
     </mat-toolbar-row>
   </mat-toolbar>
+  <router-outlet></router-outlet>
 </div>
 
 

@@ -1,0 +1,30 @@
+<div id="loginDiv">
+  <form #loginForm="ngForm">
+    <div class="form-group">
+      <label for="userName">Benutzername</label>
+      <input type="text" class="form-control" id="userName"
+             required
+             [(ngModel)]="username" name="userName"
+             #userName="ngModel">
+      <div [hidden]="userName.valid || userName.pristine"
+           class="alert alert-danger">
+        Benutzername fehlt!
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="passWord">Passwort</label>
+      <input type="password" class="form-control" id="passWord"
+             required
+             [(ngModel)]="password" name="passWord"
+             #passWord="ngModel">
+      <div [hidden]="passWord.valid || passWord.pristine"
+           class="alert alert-danger">
+        Passwort fehlt!
+      </div>
+    </div>
+    <div *ngIf="!loginValid">
+      <label style="color: red">Benutzername oder Passwort falsch!</label>
+    </div>
+    <button mat-button mat-raised-button color="primary" (click)="login()">Login</button>
+  </form>
+</div>

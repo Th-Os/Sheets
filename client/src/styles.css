@@ -1,2 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "./assets/material-icons/material-icons.css";
+@import "~ng-pick-datetime/assets/style/picker.min.css";
+
+.exercise {
+  font-size: 1.5rem;
+}
+
+.task {
+  font-size: 1rem;
+}
+
+.active {
+  background-color: #9c004b1f;
+  color: #9C004B;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

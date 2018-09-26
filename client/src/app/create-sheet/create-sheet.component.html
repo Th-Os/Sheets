@@ -1,0 +1,264 @@
+<button mat-fab color="primary" class="position-absolute m-5" (click)="goBack()">
+  <i class="material-icons">arrow_back</i>
+</button>
+
+<div class="container mt-5">
+  <h3>
+    <mat-form-field id="titleInput" *ngIf="sheet">
+      <input matInput type="text" [(ngModel)]="sheet.name">
+     </mat-form-field>
+  </h3>
+  <div class="input-wrapper">
+    <label style="font-weight: bold">Abgabedatum wählen:&nbsp;</label>
+    <input *ngIf="sheet" [(ngModel)]="sheet.submissiondate"
+           [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
+    <owl-date-time #dtPicker1></owl-date-time>
+    <div style="float: right" *ngIf="sheet">
+      <mat-checkbox [(ngModel)]="sheet.persistent">Immer als Vorlage speichern</mat-checkbox>
+    </div>
+  </div>
+{{selectedExercise}}
+  <br>
+  <div class="row">
+    <div class="col-12 col-lg-5 col-md-5">
+      <mat-card>
+        <mat-card-title>Übersicht</mat-card-title>
+        <mat-card-content>
+          <mat-spinner *ngIf="loadingSheet"></mat-spinner>
+          <mat-nav-list *ngIf="!loadingSheet && sheet">
+            <ng-container *ngFor="let exercise of sheet.exercises; let index = index;">
+              <mat-list-item *ngIf="sheet.exercises.length === 0" (click)="getSheet()">
+                Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+              </mat-list-item>
+              <mat-list-item (click)="selectedExercise = exercise._id; selectedTask = null;"
+                [class.active]="exercise._id === selectedExercise">
+                <span class="exercise" matLine>{{exercise.order + 1}}.) {{exercise.name}}</span>
+                <button mat-icon-button (click)="deleteExercise(exercise); $event.stopPropagation();">
+                  <mat-icon class="mat-24">delete</mat-icon>
+                </button>
+              </mat-list-item>
+              <mat-list-item *ngFor="let task of exercise.tasks"
+                             (click)="selectedExercise = null; selectedTask = task._id"
+                             [class.active]="task._id === selectedTask"
+                             class="ml-3">
+                <span class="task" matLine>{{task.order | numberToChar}}.) {{task.question}}</span>
+                <button mat-icon-button (click)="deleteTask(exercise, task); $event.stopPropagation();">
+                  <mat-icon class="mat-24">delete</mat-icon>
+                </button>
+              </mat-list-item>
+              <mat-divider *ngIf="sheet.exercises.length === index" [inset]="true"></mat-divider>
+            </ng-container>
+          </mat-nav-list>
+          <!--
+          <div *ngIf="!sheet.exercises">
+            <div *ngIf="sheet">
+              <h4 style="text-align: center">{{sheet.name}}</h4>
+              <br>
+              <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
+              <br>
+            </div>
+            <ol class="listHeader">
+              <li *ngFor="let exercise of sheet.exercises">
+                <h5><label class="alignLabel">{{exercise.name}} ({{exercise.tasks | pointcalculationPipe}} Punkte)</label></h5>
+                <p>{{exercise.description}}</p>
+                <div *ngIf="exercise.tasks">
+                  <ol  style="list-style-type: lower-alpha">
+                    <li *ngFor="let task of exercise.tasks">
+                      <label style="float: right">{{task.points}} Punkte</label>
+                      <label class="alignLabel">{{task.question}}</label>
+                      <p class="alignLabel">{{task.choices}}</p>
+                    </li>
+                  </ol>
+                </div>
+                <br>
+              </li>
+            </ol>
+          </div>
+          -->
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button (click)="addExercise()">Neue Aufgabe</button>
+          <button mat-button [disabled]="selectedExercise === null" (click)="addTask()">Neue Unteraufgabe</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+    <div class="col-12 col-lg-6 col-md-6">
+      <app-create-sheet-interface
+        [exercise_id]="selectedExercise"
+        [task_id]="selectedTask"
+        (taskUpdate)="onTaskUpdated($event)"
+        (exerciseUpdate)="onExerciseUpdated($event)"></app-create-sheet-interface>
+      <!--
+      <mat-card>
+        <mat-card-title>Erstellen</mat-card-title>
+        <mat-card-content>
+          <mat-divider></mat-divider><br>
+          <mat-progress-spinner *ngIf="loadingSheet"
+                                color="primary"
+                                mode="indeterminate"
+                                [diameter]="100"
+                                style="margin:0 auto;">
+          </mat-progress-spinner>
+          <div *ngIf="sheet.exercises">
+            <ol>
+              <li *ngFor="let exercises of sheet.exercises">
+                <mat-form-field>
+                  <input matInput type="text" [(ngModel)]="exercises.name" placeholder="Aufgabentitel">
+                </mat-form-field>
+                <button mat-icon-button title="Aufgabe entfernen" style="float: right" (click)="deleteExercise(exercises)">
+                  <mat-icon color="secondary">delete</mat-icon>
+                </button>
+                <div>
+                  <mat-grid-list [cols]="2" rowHeight="70px">
+                    <mat-grid-tile>
+                      <label>Frage:</label>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                      <mat-form-field>
+                        <textarea matInput [(ngModel)]="exercises.description" placeholder="Aufgabenbeschreibung"></textarea>
+                      </mat-form-field>
+                    </mat-grid-tile>
+                  </mat-grid-list>
+                  <br>
+                  <div>
+                    <div *ngIf="exercises.tasks && exercises.tasks.length > 0">
+                      <ol style="list-style-type: lower-alpha">
+                        <li *ngFor="let tasks of exercises.tasks">
+                          <mat-form-field>
+                            <input matInput type="text"  [(ngModel)]="tasks.question" placeholder="Titel Teilaufgabe">
+                          </mat-form-field>
+                          <button mat-icon-button title="Unteraufgabe entfernen" style="float: right" (click)="deleteTask(exercises, tasks)">
+                            <mat-icon color="secondary">delete</mat-icon>
+                          </button>
+                          <div *ngIf="tasks.solution">
+                            <mat-grid-list [cols]="2" rowHeight="70px">
+                              <mat-grid-tile>
+                                <label>Antworttyp:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <mat-form-field>
+                                  <mat-select placeholder="Typ wählen" [(ngModel)]="tasks.solution.type">
+                                    <mat-option value="freetext">Freitext</mat-option>
+                                    <mat-option value="number">Zahl</mat-option>
+                                    <mat-option value="range">Zahlenbereich</mat-option>
+                                    <mat-option value="regex">Regex</mat-option>
+                                    <mat-option value="none">Keine</mat-option>
+                                  </mat-select>
+                                </mat-form-field>
+                              </mat-grid-tile>
+                              <div *ngIf="tasks.solution.type && tasks.solution.type != 'none'">
+                                <mat-grid-tile>
+                                  <label>Antworten:</label>
+                                  <div *ngIf="tasks.solution.type === 'regex'">
+                                    <br>
+                                    <p style="font-size: 80%">Bitte in folgendem Format eingeben: Wort/b</p>
+                                  </div>
+                                </mat-grid-tile>
+                                <mat-grid-tile class="mat-grid-tile-custom">
+                                  <div *ngIf="tasks.solution.type === 'freetext'">
+                                    <label>Antworten geben:</label>
+                                    <mat-radio-group [(ngModel)]="tasks.solution.default_free_text">
+                                      <mat-radio-button [value]="true">Volle Punkte</mat-radio-button>
+                                      <mat-radio-button [value]="false">Keine Punkte</mat-radio-button>
+                                    </mat-radio-group>
+                                  </div>
+                                  <div *ngIf="tasks.solution.type === 'number'">
+                                    <mat-form-field>
+                                      <input matInput type="number" placeholder="Zahl..." [(ngModel)]="tasks.solution.number">
+                                    </mat-form-field>
+                                  </div>
+                                  <div *ngIf="tasks.solution.type === 'range'">
+                                    <label>Von:&nbsp;</label>
+                                    <mat-form-field class="rangeInput">
+                                      <input matInput type="number" [(ngModel)]="tasks.solution.range.from">
+                                    </mat-form-field>
+                                    <label>&nbsp;Bis:&nbsp;</label>
+                                    <mat-form-field class="rangeInput">
+                                      <input matInput type="number" [(ngModel)]="tasks.solution.range.to">
+                                    </mat-form-field>
+                                  </div>
+                                  <div *ngIf="tasks.solution.type === 'regex'">
+                                    <mat-form-field class="regexInput">
+                                       <input matInput type="text" placeholder="Regex hinzufügen" [(ngModel)]="regexToAdd"><br>
+                                    </mat-form-field>
+                                    <label *ngIf="!regexValidToAdd" style="color: red">Falsches Format!</label>
+                                    <button mat-icon-button title="RegEx hinzufügen" style="float: right" (click)="checkAndAddRegex(tasks)">
+                                      <mat-icon color="secondary">add</mat-icon>
+                                    </button>
+                                    <br>
+                                    <mat-form-field class="regexInput">
+                                      <input matInput type="text" placeholder="Regex löschen" [(ngModel)]="regexToDelete"><br>
+                                    </mat-form-field>
+                                    <label *ngIf="!regexValidToDelete" style="color: red">Eintrag nicht gefunden!</label>
+                                    <button mat-icon-button title="RegEx entfernen" style="float: right" (click)="deleteRegexFromString(tasks)">
+                                      <mat-icon color="secondary">delete</mat-icon>
+                                    </button>
+                                  </div>
+                                </mat-grid-tile>
+                                <div *ngIf="tasks.solution.type === 'regex'">
+                                  <mat-grid-tile>
+                                    <label>Gespeicherte Regex-Einträge:</label>
+                                  </mat-grid-tile>
+                                  <mat-grid-tile>
+                                    <label>{{tasks.solution.regex | regexFormatPipe}}</label>
+                                  </mat-grid-tile>
+                                </div>
+                              </div>
+                              <mat-grid-tile>
+                                <label>Punkte:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <mat-form-field>
+                                  <input matInput type="number" [(ngModel)]="tasks.points">
+                                </mat-form-field>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                              <label>Bearbeitungshinweise:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <mat-form-field>
+                                  <textarea matInput [(ngModel)]="tasks.choices" ></textarea>
+                                </mat-form-field>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+                                <label>Korrekturhinweise:</label>
+                              </mat-grid-tile>
+                              <mat-grid-tile>
+
+                                <mat-form-field>
+                                  <textarea matInput [(ngModel)]="tasks.solution.hint" ></textarea>
+                                </mat-form-field>
+                              </mat-grid-tile>
+                            </mat-grid-list>
+                          </div>
+                          <br>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                  <br>
+                  <button mat-icon-button title="Unteraufgabe hinzufügen" style="float: right; position: relative; bottom:15px" (click)="addTask(exercises)">
+                    <mat-icon color="secondary">add</mat-icon>
+                  </button>
+                </div>
+                <br>
+                <mat-divider></mat-divider>
+                <br>
+              </li>
+            </ol>
+            <button mat-icon-button title="Aufgabe hinzufügen" (click)="addExercise()">
+              <mat-icon color="secondary">add</mat-icon>
+            </button>
+            <button style="float: right" (click)="saveProgress()">
+              Save
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      -->
+    </div>
+  </div>
+</div>
+
+
+

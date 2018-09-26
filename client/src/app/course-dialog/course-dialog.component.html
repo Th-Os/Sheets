@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>
+  {{(data.create === false) ? 'Kurs bearbeiten' : 'Kurs erstellen'}}
+</h2>
+<mat-dialog-content>
+  <form #courseForm="ngForm">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" id="name"
+             required
+             [(ngModel)]="course.name" name="name"
+             #name="ngModel">
+      <div [hidden]="name.valid || name.pristine"
+           class="alert alert-danger">
+        Name is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="faculty">Fakultät</label>
+      <input type="text" class="form-control" id="faculty"
+             [(ngModel)]="course.faculty" name="faculty">
+    </div>
+
+    <div class="form-group">
+      <label for="semester">Semester</label>
+      <input type="text" class="form-control" id="semester"
+             [(ngModel)]="course.semester" name="semester">
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onClose()">Abbrechen</button>
+  <button mat-button (click)="onSubmit()" [disabled]="!courseForm.form.valid || saving">
+    <span *ngIf="!saving">
+      {{ (data.create === false) ? 'Speichern' : 'Erstellen' }}
+    </span>
+    <mat-progress-spinner *ngIf="saving"
+      color="primary"
+      mode="indeterminate"
+      [diameter]="20">
+    </mat-progress-spinner>
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,15 @@
+#editIcon {
+  float: right;
+  font-size: 48px;
+}
+
+.tileClass {
+  justify-content: right !important;
+  float: left !important;
+  text-align: left !important;
+}
+
+#toggleButton {
+  left: 170px;
+  top: 50px;
+}

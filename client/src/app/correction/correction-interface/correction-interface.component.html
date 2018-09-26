@@ -1,0 +1,61 @@
+<mat-card>
+  <mat-card-content class="justify-content-center align-items-center h-100">
+
+    <mat-spinner *ngIf="loadingTask || loadingSolution || loadingAnswer"></mat-spinner>
+
+    <div class="d-flex h-100 justify-content-center align-items-center"
+         *ngIf="(!answer || !task || !solution) && (!loadingAnswer && !loadingTask && !loadingSolution)">
+      Beim Laden ist ein Fehler aufgetreten.
+      <button mat-fab color="accent" (click)="getCorrection()">
+        <mat-icon>reload</mat-icon>
+      </button>
+    </div>
+
+    <mat-list *ngIf="answer && task && solution
+                      && !loadingAnswer && !loadingTask && !loadingSolution" class="correction-list">
+      <h3 matSubheader>Aufgabe</h3>
+      <mat-list-item class="mb-1" *ngIf="task"><h3>{{task.order | numberToChar }}.) {{task.question}}</h3></mat-list-item>
+      <h3 matSubheader>Antwort</h3>
+      <mat-list-item class="mb-1" *ngIf="answer">{{answer.text}}</mat-list-item>
+      <mat-divider [inset]="true"></mat-divider>
+      <h3 *ngIf="solution" matSubheader>Lösung</h3>
+      <mat-list-item class="mb-1" *ngIf="solution">
+        <span *ngIf="solution.type == 'regex'">{{solution.regex}}</span>
+        <span *ngIf="solution.type == 'number'">{{solution.number}}</span>
+        <span *ngIf="solution.type == 'range'">{{solution.range.from}} - {{solution.range.to}}</span>
+      </mat-list-item>
+      <h3 *ngIf="solution" matSubheader>Korrekturhinweis</h3>
+      <mat-list-item class="mb-1" *ngIf="solution">
+        <span>{{solution.hint}}</span>
+      </mat-list-item>
+      <mat-divider [inset]="true"></mat-divider>
+      <mat-list-item class="w-100" *ngIf="solution">
+        <div class="row w-100 mt-2">
+          <div class="col-12 col-md-8 col-lg-8">
+            <mat-form-field class="w-100">
+              <mat-label>Feedback</mat-label>
+              <textarea matInput
+                        cdkTextareaAutosize
+                        #autosize="cdkTextareaAutosize"
+                        cdkAutosizeMinRows="1"
+                        cdkAutosizeMaxRows="5"
+                        [(ngModel)]="answer.feedback"
+                        [value]="answer.feedback"></textarea>
+            </mat-form-field>
+          </div>
+          <div class="col-12 col-md-4 col-lg-4">
+            <mat-form-field class="w-100">
+              <input matInput type="number" placeholder="Punkte" min="0" [max]="task.points"
+                     [(ngModel)]="answer.achieved_points" [value]="answer.achieved_points">
+              <span matSuffix>von {{task.points}}</span>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <button class="position-absolute float-right" style="right: 10px;" mat-fab [disabled]="saving"
+          (click)="saveAnswer()">
+    <mat-icon>save</mat-icon>
+  </button>
+</mat-card>
