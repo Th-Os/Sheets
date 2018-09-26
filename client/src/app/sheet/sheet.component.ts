@@ -163,16 +163,11 @@ export class SheetComponent implements OnInit {
 
   getSubmissionTemplate() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.submissionTemplate = this.testTemplate(); // TODO: only for testing!
-    /*
-    //TODO: release!!!
+    //this.submissionTemplate = this.testTemplate();
     this.sheetService.getSubmissionTemplate(id).subscribe(template =>{
       //console.log(template)
       this.submissionTemplate = this.parseTemplate(template);
     });
-    */
-
-
   }
 
   goBack(): void {
@@ -241,10 +236,12 @@ export class SheetComponent implements OnInit {
             let submission = new Submission();
             let student = new Student();
             let name = this.readAuthorName(filename);
+            let gripsID = this.readGripsID(filename);
 
             student.name = name.split(" ")[0];
             student.lastname = name.split(" ")[name.split(" ").length - 1];
             submission.student = student;
+            submission.grips_id = gripsID;
 
             if(filename.includes(".txt")){
               promises.push(zip.files[filename].async('string').then((fileData) => {
@@ -294,7 +291,9 @@ export class SheetComponent implements OnInit {
         tempSheet = sheet;
         res.map(sub => tempSheet.submissions.push(sub._id))
         this.sheetService.updateSheet(tempSheet).subscribe(res => {
-          //res.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+          res.submissions.forEach(newSubmission => {
+            this.sheetService.autocorrectSubmission(newSubmission.toString()).subscribe()
+          })
           this.loadInProgress = false;
           this.displayMessage("Abgaben erfolgreich hochgeladen")
         })
@@ -319,15 +318,25 @@ export class SheetComponent implements OnInit {
     return NaN;
   }
 
-  autocorrect(){
-    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+  readGripsID(fileName: string){
+    let res = null;
+    let pathSlices = fileName.split("/");
 
+    if(pathSlices.length < 2) return null;
+
+    //"Vorname0 Nachname0_1327627_assignsubmission_file_"
+    let relevantFolderName: string = pathSlices[pathSlices.length - 2];
+    res = relevantFolderName.split("_")[1];
+    return parseInt(res);
+  }
+
+  autocorrect(){
+    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmission(sub._id).subscribe(res => console.log(res)))
     console.log("autocorrect")
   }
 
   parseTemplate(text: string): Template {
     let result = new Template();
-
     let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
     let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
 
@@ -352,8 +361,10 @@ export class SheetComponent implements OnInit {
       }
 
       //Kriterien verletzt
-      console.log("Error parsing Template at line: " + i + " --> " + line)
-      return null;
+      if(line != ""){
+        console.log("Error parsing Template at line: " + i + " --> " + line)
+      return null;      
+    }
     }
 
     //console.log(result)

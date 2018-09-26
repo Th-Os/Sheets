@@ -47,7 +47,7 @@
         <mat-divider [inset]="true" class="mb-4"></mat-divider>
         <!-- REGEX INPUT -->
         <mat-list-item *ngIf="task.solution.type === 'regex'" class="w-100 my-4">
-          <mat-form-field class="w-100 mb-4">
+          <mat-form-field matTooltip="Auf Groß- und Kleinschreibung achten!" class="w-100 mb-4">
             <input type="text" class="w-100" name="taskRegex" matInput placeholder="Regex hinzufügen" [formControl]="regex"
                    (blur)="task.solution.regex = regex.value" required>
             <mat-error *ngIf="regex.invalid">{{getRegexErrorMessage()}}</mat-error>
@@ -123,8 +123,7 @@
     </mat-list>
     </form>
   </mat-card-content>
-  <button type="button"
-          class="position-absolute float-right" style="right: 10px;" mat-fab
+  <button class="position-absolute float-right" matTooltip="Alle Eingaben speichern" style="right: 10px;" mat-fab
           [disabled]="saving || !editForm.valid || (task && task.solution.type === 'regex' && regex.invalid)"
           (click)="save()">
     <mat-icon>save</mat-icon>

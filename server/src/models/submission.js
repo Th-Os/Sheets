@@ -127,6 +127,10 @@ const studentSchema = new mongoose.Schema({
     grips_id: {
         type: Number,
         required: false
+    },
+    status: {
+        type: Number,
+        required: false
     }
 });
 

@@ -13,36 +13,41 @@
                                 color="primary"
                                 mode="indeterminate"
                                 [diameter]="50">
-          </mat-progress-spinner>
-          <mat-nav-list *ngIf="course && !loadingSheets" class="w-100">
-            <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
-              <a mat-line> {{ sheet.name }} </a>
-              <button mat-icon-button (click)="update(sheet); $event.stopPropagation();">
-                <mat-icon color="secondary">edit</mat-icon>
-              </button>
-              <button mat-icon-button (click)="delete(sheet); $event.stopPropagation();">
-                <mat-icon color="secondary">delete</mat-icon>
-              </button>
-            </mat-list-item>
-          </mat-nav-list>
-        </mat-card-content>
-        <button (click)="add()" class="position-absolute" style="right: 10px;" mat-fab color="primary">
-          <mat-icon>add</mat-icon>
-        </button>
-      </mat-card>
-    </div>
-
-    <div class="col-12 col-lg-6 col-md-6">
-      <mat-card>
-        <mat-card-title>Studenten</mat-card-title>
-        <mat-card-content>
-          <mat-list>
-            <mat-list-item *ngFor="let student of students" role="listitem">
-              <h3 mat-line> {{ student.name }} </h3>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
-    </div>
+        </mat-progress-spinner>
+        <mat-nav-list *ngIf="course && !loadingSheets" >
+          <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
+            <a mat-line> {{ sheet.name }} </a>
+            <button mat-icon-button matTooltip="Übungsblatt editieren" (click)="update(sheet); $event.stopPropagation();">
+              <mat-icon color="secondary">edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Übungsblatt löschen" (click)="delete(sheet); $event.stopPropagation();">
+              <mat-icon color="secondary">delete</mat-icon>
+            </button>
+          </mat-list-item>
+        </mat-nav-list>
+      </mat-card-content>
+      <button (click)="add()" matTooltip="Übungsblatt hinzufügen" class="position-absolute" style="right: 10px;" mat-fab color="primary">
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-card>
   </div>
+>>>>>>> dev
+
+  <div class="col-12 col-lg-6 col-md-6">
+    <mat-card>
+      <mat-card-title>Studenten</mat-card-title>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item *ngFor="let student of students" role="listitem">
+            <h3 mat-line> {{ student.name }} {{ student.lastname }} </h3>
+            <p>
+                <mat-icon matTooltip="{{ student.statusString }}">{{ student.statusIcon }}</mat-icon>
+            </p>
+            <p mat-line class="text-grayed" *ngIf="student != null"> {{ student.mat_nr }} </p>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
 </div>

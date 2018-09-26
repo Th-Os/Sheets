@@ -4,6 +4,41 @@
       <button mat-fab color="primary" class="m-2" (click)="goBack()">
         <i class="material-icons">arrow_back</i>
       </button>
+    <div class="col-12 col-lg-5 col-md-5">
+      <mat-card>
+        <mat-card-title>Übersicht</mat-card-title>
+        <mat-card-content>
+          <mat-spinner *ngIf="loadingSheet"></mat-spinner>
+          <mat-nav-list *ngIf="!loadingSheet && sheet">
+            <ng-container *ngFor="let exercise of sheet.exercises; let index = index;">
+              <mat-list-item *ngIf="sheet.exercises.length === 0" (click)="getSheet()">
+                Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+              </mat-list-item>
+              <mat-list-item (click)="selectedExercise = exercise._id; selectedTask = null;"
+                [class.active]="exercise._id === selectedExercise">
+                <span class="exercise" matLine>{{exercise.order + 1}}.) {{exercise.name}}</span>
+                <button mat-icon-button matTooltip="Aufgabe löschen" (click)="deleteExercise(exercise); $event.stopPropagation();">
+                  <mat-icon class="mat-24">delete</mat-icon>
+                </button>
+              </mat-list-item>
+              <mat-list-item *ngFor="let task of exercise.tasks"
+                             (click)="selectedExercise = null; selectedTask = task._id"
+                             [class.active]="task._id === selectedTask"
+                             class="ml-3">
+                <span class="task" matLine>{{task.order | numberToChar}}.) {{task.question}}</span>
+                <button mat-icon-button matTooltip="Unteraufgabe löschen" (click)="deleteTask(exercise, task); $event.stopPropagation();">
+                  <mat-icon class="mat-24">delete</mat-icon>
+                </button>
+              </mat-list-item>
+              <mat-divider *ngIf="sheet.exercises.length === index" [inset]="true"></mat-divider>
+            </ng-container>
+          </mat-nav-list>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button (click)="addExercise()">Neue Aufgabe</button>
+          <button mat-button [disabled]="selectedExercise === null" (click)="addTask()">Neue Unteraufgabe</button>
+        </mat-card-actions>
+      </mat-card>
     </div>
     <div class="col-12 col-lg-11 col-md-11">
       <div class="row">
@@ -92,32 +127,6 @@
                   <mat-divider *ngIf="sheet.exercises.length === index" [inset]="true"></mat-divider>
                 </ng-container>
               </mat-nav-list>
-              <!--
-              <div *ngIf="!sheet.exercises">
-                <div *ngIf="sheet">
-                  <h4 style="text-align: center">{{sheet.name}}</h4>
-                  <br>
-                  <label style="font-weight: bold">Abgabe: {{sheet.submissiondate | momentPipe:'dddd, DD.MM.YYYY, HH:mm'}}</label>
-                  <br>
-                </div>
-                <ol class="listHeader">
-                  <li *ngFor="let exercise of sheet.exercises">
-                    <h5><label class="alignLabel">{{exercise.name}} ({{exercise.tasks | pointcalculationPipe}} Punkte)</label></h5>
-                    <p>{{exercise.description}}</p>
-                    <div *ngIf="exercise.tasks">
-                      <ol  style="list-style-type: lower-alpha">
-                        <li *ngFor="let task of exercise.tasks">
-                          <label style="float: right">{{task.points}} Punkte</label>
-                          <label class="alignLabel">{{task.question}}</label>
-                          <p class="alignLabel">{{task.choices}}</p>
-                        </li>
-                      </ol>
-                    </div>
-                    <br>
-                  </li>
-                </ol>
-              </div>
-              -->
             </mat-card-content>
             <mat-card-actions>
               <button mat-button (click)="onAddExercise()">Neue Aufgabe</button>
@@ -136,6 +145,3 @@
     </div>
   </div>
 </div>
-
-
-

@@ -33,7 +33,7 @@ export class CreateSheetComponent implements OnInit {
     private sheetService: SheetService,
     private exerciseService: ExerciseService,
     private taskService: TaskService,
-    private solutionService: SolutionService
+    private solutionService: SolutionService,
   ) { }
 
   ngOnInit() {
@@ -73,6 +73,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   onTaskUpdated(updatedTask: Task): void {
+    this.checkSubmissionCorrection();
     this.loadingSheet = true;
     this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
       exercise.tasks.forEach((task, taskIndex) => {
@@ -87,6 +88,7 @@ export class CreateSheetComponent implements OnInit {
   }
 
   onExerciseUpdated(updatedExercise: Exercise): void {
+    this.checkSubmissionCorrection();
     this.loadingSheet = true;
     this.sheet.exercises.forEach( (exercise, exerciseIndex) => {
       if (exercise._id === updatedExercise._id) {
@@ -284,12 +286,20 @@ export class CreateSheetComponent implements OnInit {
         console.log(error);
         this.sheet = Object.assign({}, this.originalSheet);
       },
-      () => this.originalSheet = Object.assign({},this.sheet)
+      () => this.originalSheet = Object.assign({}, this.sheet)
     );
+  }
+
+  checkSubmissionCorrection(){
+    if(this.sheet.submissions == null) return;
+    if(this.sheet.submissions.length <= 0) return;
+
+    if(!confirm("Sie haben ein Übungsblatt mit bestehenden Abgaben editiert. Autokorrektur neu ausführen?")) return;
+    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmission(sub.toString()).subscribe())
+    console.log("autocorrect")
   }
 
   goBack(): void {
     this.location.back();
   }
-
 }
