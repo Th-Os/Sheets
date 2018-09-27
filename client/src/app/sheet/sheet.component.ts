@@ -286,11 +286,11 @@ export class SheetComponent implements OnInit {
                 }
 
                 if(index >= maxIndex){
-                  console.log("done reading zip");
+                  //console.log("done reading zip");
+                  //console.log("validation ok");
+                  //console.log("uploading with data: ");
                   this.sheet.submissions = submissions;
-                  console.log("validation ok");
-                  console.log("uploading with data: ");
-                  console.log(this.sheet)
+                  //console.log(this.sheet)
                   this.uploadAndCorrectSubmissions();
                 }
               })
@@ -386,8 +386,8 @@ export class SheetComponent implements OnInit {
       //Kriterien verletzt
       if(line != ""){
         console.log("Error parsing Template at line: " + i + " --> " + line)
-      return null;      
-    }
+        return null;      
+      }
     }
 
     //console.log(result)
@@ -450,29 +450,29 @@ export class SheetComponent implements OnInit {
           }
         }
       }else{
-              //Kriterien verletzt
-              //console.log("Validation Error at: " + tagTaskStart)
-              let res = new SubmissionValidationResult();
-              res.errorTaskNum = task.num;
-              return res;
-            }
-          }
+        //Kriterien verletzt
+        //console.log("Validation Error at: " + tagTaskStart)
+        let res = new SubmissionValidationResult();
+        res.errorTaskNum = task.num;
+        return res;
+      }
+    }
 
-          let res = new SubmissionValidationResult();
-          res.answers = answers;
-          //console.log(answers)
-          return res;
-        }
+    let res = new SubmissionValidationResult();
+    res.answers = answers;
+    //console.log(answers)
+    return res;
+  }
 
-        formatRegExp(str) {
-          return new RegExp(str);
-        }
+  formatRegExp(str) {
+    return new RegExp(str);
+  }
 
-        readAuthorName(fileName): string {
-          let res = null;
-          let pathSlices = fileName.split("/");
+  readAuthorName(fileName): string {
+    let res = null;
+    let pathSlices = fileName.split("/");
 
-          if(pathSlices.length < 2) return null;
+    if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
     let relevantFolderName: string = pathSlices[pathSlices.length - 2];
@@ -571,7 +571,7 @@ export class SheetComponent implements OnInit {
       },
       error => console.error( error ),
       () => console.log('file downloaded')
-    )
+      )
   }
 
   assignSubmissions(): void {

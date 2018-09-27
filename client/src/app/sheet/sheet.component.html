@@ -40,7 +40,7 @@
                   <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
                 </mat-list-item>
               </mat-list>
-              <div id="dropzone" *ngIf="!loadingSubmissions && sheet.submissions.length === 0">
+              <div id="dropzone" *ngIf="!loadInProgress && !loadingSubmissions && sheet.submissions.length === 0">
                 Abgaben hinzufügen
               </div>
               <p *ngIf="loadInProgress">

@@ -21,6 +21,9 @@
                 color="accent" (click)="onHelpWanted()">
           Kursleiter um Hilfe bitten
         </button>
+                <p *ngIf="answer.corrected">
+          <mat-icon matTooltip="Aufgabe wurde bereits besucht und als korrigiert vermerkt">done</mat-icon>
+        </p>
       </mat-list-item>
       <h3 matSubheader>Aufgabe</h3>
       <mat-list-item class="mb-1" *ngIf="task">
