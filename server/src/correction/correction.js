@@ -1,9 +1,22 @@
+/**
+ * @overview The routing of the correction API.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import verify from '../auth/verification';
 import {Submission} from '../models/submission';
 import {CorrectionError} from '../utils/errors';
 const router = express.Router();
 
+/**
+ * Corrects a submission by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {Submission} and depending on the correction an {Array} of {CorrectionError}.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id', verify, function(req, res) {
     let subId = req.params.id;
     Submission.findById(subId).populate({ path: 'answers', populate: { path: 'task', populate: { path: 'solution' } } }).exec().then((submission) => {
@@ -22,6 +35,11 @@ router.get('/:id', verify, function(req, res) {
     });
 });
 
+/**
+ * Starts the correction process with each answer.
+ * @param {Array} answers Array of {Answer}.
+ * @returns {Promise}
+ */
 function beginCorrection(answers) {
     return new Promise((resolve, reject) => {
         let promises = [];
@@ -42,10 +60,11 @@ function beginCorrection(answers) {
 }
 
 /**
- * Returns achieved points or boolean indicating if true or false.
- * @param {*} answer
- * @param {*} solution
- * @param {*} task
+ * Validates each answer, saves new points and return the errors of this process.
+ * @param {Answer} answer
+ * @param {Solution} solution
+ * @param {Task} task
+ * @returns {Array} of {CorrectionError}
  */
 function checkAnswer(answer, solution, task) {
     return new Promise((resolve, reject) => {
@@ -78,5 +97,5 @@ function checkAnswer(answer, solution, task) {
     });
 }
 
-export {beginCorrection};
+export {beginCorrection}; // for the auto_correction_test.
 export default router;

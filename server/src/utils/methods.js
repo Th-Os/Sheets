@@ -210,6 +210,7 @@ function deepPost(id, body, parent, child, isSingle) {
 function bulkPost(id, body, parentModel, childModel) {
     return new Promise((resolve, reject) => {
         parentModel.findById(id).exec().then((parent) => {
+            if (parent === null) reject(new StatusError(400, 'No ' + parentModel.modelName + ' with id: ' + id + ' found.'));
             if (!(body instanceof Array)) body = [body];
             let grandChildModel;
             let promises = [];
@@ -237,6 +238,9 @@ function bulkPost(id, body, parentModel, childModel) {
                         promises.push(grandChildModel.create(child[key]).then((doc) => {
                             child[key] = doc._id;
                         }).catch((err) => reject(err)));
+                    } else {
+                        if (mongoose.Types.ObjectId.isValid(child[key]))
+                            child[key] = mongoose.Types.ObjectId(child[key]);
                     }
                 }
             }

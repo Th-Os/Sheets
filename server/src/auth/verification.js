@@ -1,3 +1,8 @@
+/**
+ * @overview The verification process checks the token sent by the client and acts accordingly.
+ * @author Thomas Oswald
+ */
+
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 

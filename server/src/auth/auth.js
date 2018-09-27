@@ -1,3 +1,8 @@
+/**
+ * @overview The authentication handles login and logout requests.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -12,7 +17,7 @@ router.use(bodyParser.urlencoded({
 router.use(bodyParser.json());
 
 /**
- * Login route.
+ * Login route that generates a token for the client.
  * @param req.body.username the username of the user.
  * @param req.body.password the password of the user.
  */
