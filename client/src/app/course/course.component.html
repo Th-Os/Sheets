@@ -18,37 +18,38 @@
             <mat-card-title>Übungsblätter</mat-card-title>
             <mat-card-content class="h-100" [class.d-flex.justify-content-center.align-items-center]="loadingSheets">
               <mat-progress-spinner *ngIf="loadingSheets"
-                                    color="primary"
-                                    mode="indeterminate"
-                                    [diameter]="50">
-              </mat-progress-spinner>
-              <mat-nav-list *ngIf="course && !loadingSheets" >
-                <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
-                  <a mat-line> {{ sheet.name }} </a>
-                  <button mat-icon-button matTooltip="Übungsblatt editieren" (click)="update(sheet); $event.stopPropagation();">
-                    <mat-icon color="secondary">edit</mat-icon>
-                  </button>
-                  <button mat-icon-button matTooltip="Übungsblatt löschen" (click)="delete(sheet); $event.stopPropagation();">
-                    <mat-icon color="secondary">delete</mat-icon>
-                  </button>
-                </mat-list-item>
-              </mat-nav-list>
-            </mat-card-content>
-            <button (click)="add()" matTooltip="Übungsblatt hinzufügen" class="position-absolute" style="right: 10px;" mat-fab color="primary">
-              <mat-icon>add</mat-icon>
-            </button>
-          </mat-card>
-        </div>
-        <!-- GRID STUDENTS -->
-        <div class="col-12 col-lg-6 col-md-6 mb-5">
+              color="primary"
+              mode="indeterminate"
+              [diameter]="50">
+            </mat-progress-spinner>
+            <mat-nav-list *ngIf="course && !loadingSheets" >
+              <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
+                <a mat-line> {{ sheet.name }} </a>
+                <button mat-icon-button matTooltip="Übungsblatt editieren" (click)="update(sheet); $event.stopPropagation();">
+                  <mat-icon color="secondary">edit</mat-icon>
+                </button>
+                <button mat-icon-button matTooltip="Übungsblatt löschen" (click)="delete(sheet); $event.stopPropagation();">
+                  <mat-icon color="secondary">delete</mat-icon>
+                </button>
+              </mat-list-item>
+            </mat-nav-list>
+          </mat-card-content>
+          <button (click)="add()" matTooltip="Übungsblatt hinzufügen" class="position-absolute" style="right: 10px;" mat-fab color="primary">
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-card>
+      </div>
+      <!-- GRID STUDENTS -->
+      <div class="col-12 col-lg-6 col-md-6 mb-5">
+        <button id="calcbutton" *ngIf="students.length > 0" mat-raised-button (click)="calculateCourseResults()" matTooltip="Bestehen der Kursteinehmer berechnen" color="accent">Kurs auswerten</button>
           <mat-card>
             <mat-card-title>Studenten</mat-card-title>
             <mat-card-content>
               <mat-list>
                 <mat-list-item *ngFor="let student of students" role="listitem">
                   <h3 mat-line> {{ student.name }} {{ student.lastname }} </h3>
-                  <p>
-                    <mat-icon matTooltip="{{ student.statusString }}">{{ student.statusIcon }}</mat-icon>
+                  <p> {{student.status}}
+                    <!--<mat-icon  matTooltip="{{ student.status }}">{{ student.statusIcon }}</mat-icon>-->
                   </p>
                   <p mat-line class="text-grayed" *ngIf="student != null"> {{ student.mat_nr }} </p>
                 </mat-list-item>

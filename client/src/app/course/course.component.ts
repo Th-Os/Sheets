@@ -8,7 +8,8 @@ import {Student} from '../models/student';
 import {Sheet} from '../models/sheet';
 import {SheetService} from '../services/sheet.service';
 import {StudentService} from '../services/student.service';
-
+import {AnswerService} from '../services/answer.service';
+import {TaskService} from '../services/task.service';
 import {ExerciseDialogComponent} from '../exercise-dialog/exercise-dialog.component';
 import {MatDialog} from '@angular/material';
 
@@ -30,6 +31,8 @@ export class CourseComponent implements OnInit {
     private courseService: CourseService,
     private sheetService: SheetService,
     private studentService: StudentService,
+    private answerService: AnswerService,
+    private taskService: TaskService,
     private location: Location,
     public dialog: MatDialog
     ) {}
@@ -68,26 +71,27 @@ export class CourseComponent implements OnInit {
           subs.forEach(submission => {
             this.studentService.getStudent(submission.student).subscribe(
               student => {
-              //TODO - CHECK MUSS AUF ID UMGESTELLT WERDEN
-              //console.log(this.students)
-              //console.log(student)
-              if(this.students.find(el => student._id.toString() === el._id.toString()) == null) {
+                if(this.students.find(el => student.mat_nr.toString() === el.mat_nr.toString()) == null) {
 
-                if(student.status == 1){
-                  student.statusIcon = "done"
-                  student.statusString = "bestanden"
-                }else{
-                  student.statusIcon = "clear"
-                   student.statusString = "nicht bestanden"
+                  student.status = ""
+                  //this.calculateStudentStatus(student)
+                  /*
+                  if(student.status == 1){
+                    student.statusIcon = "done"
+                    student.statusString = "bestanden"
+                  }else{
+                    student.statusIcon = "clear"
+                    student.statusString = "nicht bestanden"
+                  }
+                  */
+
+                  this.students.push(student)
                 }
-
-                this.students.push(student)
+              },
+              error => console.error( error ),
+              () => {
               }
-            },
-            error => console.error( error ),
-            () => {
-            }
-            )
+              )
           })
         })
     })
@@ -123,6 +127,56 @@ export class CourseComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  calculateCourseResults(){
+    this.students.forEach(std => {
+      this.calculateStudentStatus(std);
+    })
+  }
+
+  calculateStudentStatus(student: Student): void {
+    student.status = "nicht bestanden"
+    let passedSheets = [];
+    let numSheetsRequiredToPass = this.course.min_req_sheets;
+    console.log(numSheetsRequiredToPass)
+
+    this.studentService.getStudentSubmissions(student._id).subscribe(res => {
+      res.forEach(sub => {
+        let achievedPoints = 0;
+        let maxPoints = 0;
+        let passPercentage = 0.5;
+
+        this.answerService.getAnswers(sub._id).subscribe(answers => {
+          answers.forEach(answer => {
+            if(answer.corrected){
+              achievedPoints += answer.achieved_points;
+
+              //console.log(answer)
+
+              this.taskService.getTask(answer.task).subscribe(task => {
+                maxPoints += task.points;
+
+                //console.log("New answer:")
+                //console.log(maxPoints)
+                //console.log(achievedPoints)
+
+                if(achievedPoints >= maxPoints * passPercentage){
+                  //console.log(passedSheets)
+                  if(!passedSheets.includes(sub._id)){
+                    passedSheets.push(sub._id);
+                    if(passedSheets.length >= numSheetsRequiredToPass) {
+                      student.status = "bestanden"
+                      return;
+                    }
+                  } 
+                }
+              })
+            }
+          })
+        })
+      })
+    })
   }
 
 }
