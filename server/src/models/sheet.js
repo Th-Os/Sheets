@@ -86,36 +86,6 @@ sheetSchema.post('remove', (doc) => {
     });
 });
 
-sheetSchema.methods.setPersistence = function(isPersistent, callback) {
-    this.persistent = isPersistent;
-    mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
-        if (err) throw err;
-        for (let doc of docs) {
-            doc.persistent = isPersistent;
-            doc.save();
-        }
-        this.save(callback);
-    });
-};
-
-sheetSchema.methods.getMaxPoints = function() {
-    return new Promise((resolve, reject) => {
-        mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, exercises) => {
-            if (err) throw err;
-            let points = 0;
-            let promises = [];
-            for (let exercise of exercises) {
-                promises.push(exercise.getMaxPoints().then((res) => {
-                    points += res;
-                }));
-            }
-            Promise.all(promises).then(() => {
-                resolve(points);
-            }).catch((err) => reject(err));
-        });
-    });
-};
-
 const exerciseSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -166,24 +136,6 @@ exerciseSchema.post('remove', (doc) => {
         }
     });
 });
-
-exerciseSchema.methods.setPersistence = function(isPersistent, callback) {
-    this.persistent = isPersistent;
-    this.save(callback);
-};
-
-exerciseSchema.methods.getMaxPoints = function() {
-    return new Promise((resolve, reject) => {
-        mongoose.model('Task').find().where('_id').in(this.tasks).exec((err, tasks) => {
-            if (err) reject(err);
-            let points = 0;
-            for (let task of tasks) {
-                points += task.points;
-            }
-            resolve(points);
-        });
-    });
-};
 
 const taskSchema = new mongoose.Schema({
     question: {

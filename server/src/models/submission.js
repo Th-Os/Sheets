@@ -46,37 +46,6 @@ submissionSchema.post('remove', function(doc) {
     });
 });
 
-submissionSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Student').findById(this.student).then((student) => {
-            this.student = student;
-        }));
-        promises.push(mongoose.model('Answer').find().where('_id').in(this.answers).exec().then((answers) => {
-            if (!(answers instanceof Array)) answers = [answers];
-            this.answers = answers;
-        }));
-        promises.push(mongoose.model('User').findById(this.user).then((user) => {
-            this.user = user;
-        }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
-    });
-};
-
-submissionSchema.methods.hasPassed = function(requiredPoints) {
-    return new Promise((resolve, reject) => {
-        mongoose.model('Answer').find().where('_id').in(this.answers).exec((err, docs) => {
-            if (err) reject(err);
-            let points = 0;
-            for (let doc of docs) {
-                points += doc.achieved_points;
-            }
-            if (points >= requiredPoints) resolve(true);
-            else resolve(false);
-        });
-    });
-};
-
 const answerSchema = new mongoose.Schema({
     text: {
         type: String,
@@ -108,12 +77,6 @@ const answerSchema = new mongoose.Schema({
         required: false
     }
 });
-
-answerSchema.methods.populateObj = function() {
-    return mongoose.model('Task').findById(this.task).then((task) => {
-        this.task = task;
-    });
-};
 
 const studentSchema = new mongoose.Schema({
     name: {
