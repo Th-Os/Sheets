@@ -29,9 +29,13 @@ const submissionSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On submission removal answers and reference in sheet are deleted.
+ */
 submissionSchema.post('remove', function(doc) {
     mongoose.model('Answer').find().where('_id').in(doc.answers).exec((err, docs) => {
         if (err) throw err;
+        if (docs === undefined || docs.length === undefined || docs.length === 0) return;
         for (let doc of docs) {
             doc.remove();
         }
@@ -78,6 +82,20 @@ const answerSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On submission removal reference in sheet is deleted.
+ */
+answerSchema.post('remove', function(doc) {
+    mongoose.model('Submission').find({answers: doc._id}).exec((err, submissions) => {
+        if (err) throw err;
+        if (submissions === undefined || submissions === null) return;
+        let submission = (submissions instanceof Array) ? submissions[0] : submissions;
+        if (submission === undefined || submission === null) return;
+        submission.answers = submission.answers.filter(e => !(e.equals(doc._id)));
+        submission.save();
+    });
+});
+
 const studentSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -91,6 +109,20 @@ const studentSchema = new mongoose.Schema({
         type: Number,
         required: true
     }
+});
+
+/**
+ * On student removal reference in submission is deleted.
+ */
+studentSchema.post('remove', function(doc) {
+    mongoose.model('Submission').find({student: doc._id}).exec((err, submissions) => {
+        if (err) throw err;
+        if (submissions === undefined || submissions === null) return;
+        let submission = (submissions instanceof Array) ? submissions[0] : submissions;
+        if (submission === undefined || submission === null) return;
+        submission.student = null;
+        submission.save();
+    });
 });
 
 export let Submission = mongoose.model('Submission', submissionSchema);

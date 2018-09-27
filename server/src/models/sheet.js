@@ -54,6 +54,9 @@ const sheetSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On sheet removal exercises, submissions and the reference in the course are deleted.
+ */
 sheetSchema.post('remove', (doc) => {
     mongoose.model('Exercise').find().where('_id').in(doc.exercises).exec((err, docs) => {
         if (err) throw err;
@@ -110,6 +113,9 @@ const exerciseSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On exercise removal tasks and reference in sheet are deleted.
+ */
 exerciseSchema.post('remove', (doc) => {
     mongoose.model('Task').find().where('_id').in(doc.tasks).exec((err, docs) => {
         if (err) throw err;
@@ -161,6 +167,9 @@ const taskSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On task removal solution and reference in exercise are deleted.
+ */
 taskSchema.post('remove', (doc) => {
     mongoose.model('Solution').findById(doc.solution, (err, solution) => {
         if (err) throw err;
@@ -185,10 +194,6 @@ taskSchema.post('remove', (doc) => {
         }
     });
 });
-
-taskSchema.methods.getExercise = function() {
-    return mongoose.model('Exercise').find().where('tasks').in(this._id);
-};
 
 const solutionSchema = new mongoose.Schema({
     type: {
