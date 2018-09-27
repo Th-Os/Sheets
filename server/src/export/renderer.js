@@ -6,12 +6,15 @@
 import report from 'jsreport-core';
 import docx from 'jsreport-html-embedded-in-docx';
 
+/**
+ * @class Renderer defines jsreport specific template values and extensions.
+ */
 function Renderer() {
     this.obj = {
         template: {
             content: 'localhost:' + process.env.PORT + '/resources/pdf.html',
             engine: 'handlebars',
-            recipe: 'chrome-pdf',
+            recipe: '',
             helpers: ''
         },
         data: {},
@@ -48,6 +51,10 @@ Renderer.prototype.name = function(name) {
     return this;
 };
 
+/**
+ * Adds a helper function to use in the template html.
+ * @param {Function} helper function with name.
+ */
 Renderer.prototype.addHelper = function(helper) {
     this.obj.template.helpers += String(helper);
     return this;
@@ -58,10 +65,24 @@ Renderer.prototype.addHelper = function(helper) {
  * @param {string} type ('docx'|'pdf')
  */
 Renderer.prototype.output = function(type) {
+    switch (type) {
+        case 'docx':
+            this.obj.template.recipe = 'html';
+            break;
+        case 'pdf':
+        default:
+            this.obj.template.recipe = 'chrome-pdf';
+            break;
+    }
     this.obj.output = type;
     return this;
 };
 
+/**
+ * Sends a pdf or docx depending on the type.
+ * When docx is selected, jsreport will render the html output
+ * @param {object} res express response object.
+ */
 Renderer.prototype.send = function(res) {
     this.renderer.init().then(() => {
         this.renderer.render({
