@@ -81,7 +81,7 @@ router.get('/csv/:id', verify, function(req, res) {
                 ]
         }
     ]).then((sheet) => {
-        let renderer = new CSVRenderer().addHeader();
+        let renderer = new CSVRenderer().addHeader().addToAlphabeticOrder(toAlphabeticOrder);
         for (let s of sheet.submissions) {
             let maxPoints = 0;
             for (let a of s.answers) {
@@ -153,7 +153,6 @@ function sendReport(id, type, res) {
             .output(type)
             .send(res);
     }).catch((err) => {
-        console.log(err);
         if (err.name === StatusError.name) res.status(err.status).send(err.message);
         else res.status(500).send(err);
     });

@@ -38,7 +38,7 @@ router.get('/:id', verify, function(req, res) {
 /**
  * Starts the correction process with each answer.
  * @param {Array} answers Array of {Answer}.
- * @returns {Promise}
+ * @returns {Promise} Promise.
  */
 function beginCorrection(answers) {
     return new Promise((resolve, reject) => {
@@ -47,10 +47,12 @@ function beginCorrection(answers) {
         for (let answer of answers) {
             let task = answer.task;
             let solution = task.solution;
-            promises.push(checkAnswer(answer, solution, task));
+            promises.push(checkAnswer(answer, solution, task).then((err) => {
+                if (err) errors.push(err);
+            }));
         }
-        Promise.all(promises).then((errors) => {
-            if (errors) resolve(errors);
+        Promise.all(promises).then(() => {
+            if (errors.length > 0) resolve(errors);
             else resolve();
         }).catch((err) => {
             errors.push(err);
@@ -69,31 +71,31 @@ function beginCorrection(answers) {
 function checkAnswer(answer, solution, task) {
     return new Promise((resolve, reject) => {
         let points = 0;
-        let errors = [];
+        let error;
         switch (solution.type) {
             case 'freetext':
             case 'none':
-                if (solution.default_free_text === undefined) errors.push(new CorrectionError('free text task has not set a default'));
+                if (solution.default_free_text === undefined) error = new CorrectionError('free text task has not set a default');
                 if (solution.default_free_text) points = task.points;
                 break;
             case 'regex':
                 if (answer.text.match(solution.regex)) points = task.points;
-                else errors.push(new CorrectionError('regex "' + solution.regex + '" does not match "' + answer.text + '"'));
+                else error = new CorrectionError('regex "' + solution.regex + '" does not match "' + answer.text + '"');
                 break;
             case 'range':
                 let value = Number(answer.text);
                 if (value >= solution.range.from && value <= solution.range.to) points = task.points;
-                else errors.push(new CorrectionError('range "' + solution.range + '" does not match "' + answer.text + '"'));
+                else error = new CorrectionError('range "' + solution.range + '" does not match "' + answer.text + '"');
                 break;
             case 'number':
                 if (answer.text === solution.number.toString()) points = task.points;
-                else errors.push(new CorrectionError('number "' + solution.number + '" does not match "' + answer.text + '"'));
+                else error = new CorrectionError('number "' + solution.number + '" does not match "' + answer.text + '"');
                 break;
             default:
-                errors.push(Error('No specified type found'));
+                error = Error('No specified type found');
         }
         answer.set({achieved_points: points, auto_corrected: true});
-        answer.save().then(() => resolve(errors)).catch((err) => reject(err));
+        answer.save().then(() => resolve(error)).catch((err) => reject(err));
     });
 }
 
