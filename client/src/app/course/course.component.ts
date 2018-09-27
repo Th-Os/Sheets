@@ -72,19 +72,7 @@ export class CourseComponent implements OnInit {
             this.studentService.getStudent(submission.student).subscribe(
               student => {
                 if(this.students.find(el => student.mat_nr.toString() === el.mat_nr.toString()) == null) {
-
                   student.status = ""
-                  //this.calculateStudentStatus(student)
-                  /*
-                  if(student.status == 1){
-                    student.statusIcon = "done"
-                    student.statusString = "bestanden"
-                  }else{
-                    student.statusIcon = "clear"
-                    student.statusString = "nicht bestanden"
-                  }
-                  */
-
                   this.students.push(student)
                 }
               },

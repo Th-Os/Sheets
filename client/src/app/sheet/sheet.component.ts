@@ -270,7 +270,7 @@ export class SheetComponent implements OnInit {
         });
 
         Promise.all(promises).then(() => {
-          if(this.submissionValidationResults.length <= 100){ //TODO: 0 for release, 100 for test!
+          if(this.submissionValidationResults.length <= 0){ //TODO: 0 for release, 100 for test!
             console.log("done reading zip");
             this.sheet.submissions = submissions;
             console.log("validation ok");
