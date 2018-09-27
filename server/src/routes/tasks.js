@@ -44,7 +44,7 @@ router.delete('/:id', verify, function(req, res) {
 
 router.get('/:id/solutions', verify, function(req, res) {
     methods.deepGet(req.params.id, Task, Solution, true)
-        .then((docs) => res.status(200).send(docs))
+        .then((docs) => res.status(200).send(docs[0]))
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);

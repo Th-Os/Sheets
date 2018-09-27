@@ -82,7 +82,7 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
   getSolution(): void {
     this.loadingSolution = true;
     this.solutionService.getSolution(this.task_id).subscribe(
-      solution => this.solution = solution,
+      solution => { if (!isArray(solution)) this.solution = solution },
       error => console.error( error ),
       () => this.loadingSolution = false
     )

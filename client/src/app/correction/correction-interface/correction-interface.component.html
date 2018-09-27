@@ -7,7 +7,7 @@
 
     <div class="d-flex h-100 justify-content-center align-items-center"
          *ngIf="(!answer || !task || !solution) && (!loadingAnswer && !loadingTask && !loadingSolution)">
-      Beim Laden ist ein Fehler aufgetreten. <br>
+      Beim Laden ist ein Fehler aufgetreten.
       <button mat-fab color="accent" (click)="getCorrection()">
         <mat-icon>refresh</mat-icon>
       </button>
@@ -18,17 +18,19 @@
       <h3 matSubheader>Aufgabe</h3>
       <mat-list-item class="mb-1" *ngIf="task"><h3>{{task.order | numberToChar }}.) {{task.question}}</h3></mat-list-item>
       <h3 matSubheader>Antwort</h3>
-      <mat-list-item class="mb-1" *ngIf="answer"><span matLine>{{answer.text}}</span></mat-list-item>
+      <mat-list-item class="mb-1" *ngIf="answer">
+        <span matLine>{{answer.text}}</span>
+      </mat-list-item>
       <mat-divider [inset]="true"></mat-divider>
       <h3 *ngIf="solution" matSubheader>Lösung</h3>
       <mat-list-item class="mb-1" *ngIf="solution">
-        <span *ngIf="solution.type == 'regex'" matLine>{{solution.regex}}</span>
+        <span *ngIf="solution.type === 'regex'" matLine>{{solution.regex}}</span>
         <span *ngIf="solution.type == 'number'" matLine>{{solution.number}}</span>
         <span *ngIf="solution.type == 'range'" matLine>{{solution.range.from}} - {{solution.range.to}}</span>
       </mat-list-item>
-      <h3 *ngIf="solution" matSubheader>Korrekturhinweis</h3>
+      <h3 *ngIf="solution && solution.hint && solution.hint.length > 0" matSubheader>Korrekturhinweis</h3>
       <mat-list-item class="mb-1" *ngIf="solution">
-        <span maLine>{{solution.hint}}</span>
+        <span matLine>{{solution.hint}}</span>
       </mat-list-item>
       <mat-divider [inset]="true"></mat-divider>
       <mat-list-item class="w-100" *ngIf="solution">
