@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
 import {Submission} from "../models/submission";
 import {Exercise} from "../models/exercise";
@@ -7,6 +7,7 @@ import {TaskService} from "../services/task.service";
 import {Sheet} from "../models/sheet";
 import {CorrectionInterfaceComponent} from "./correction-interface/correction-interface.component";
 import {StudentService} from "../services/student.service";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'app-correction',
@@ -17,6 +18,8 @@ export class CorrectionComponent implements OnInit {
 
   @ViewChild(CorrectionInterfaceComponent)
   private correctionInterfaceComponent: CorrectionInterfaceComponent;
+
+  correctionMode: boolean = false;
 
   loadingSheet: boolean = false;
   loadingSubmissions: boolean = false;
@@ -32,7 +35,7 @@ export class CorrectionComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    private location: Location,
     private sheetService: SheetService,
     private studentService: StudentService,
     private taskService: TaskService,
@@ -149,8 +152,8 @@ export class CorrectionComponent implements OnInit {
     }
   }
 
-  exit (): void {
-    this.router.navigate([`/sheets/${this.route.snapshot.paramMap.get('id')}`])
+  goBack (): void {
+    this.location.back();
   }
 
 

@@ -45,6 +45,12 @@ export class AnswerService {
         catchError(this.handleError<any>('updateSheet')))
   }
 
+  helpWanted(answer: Answer): Observable<Answer> {
+    return this.http.put<Answer>(this.answersUrl + '/' + answer._id, answer, httpOptions).pipe(
+      tap(_ => this.log(`Korrektur gespeichert!`)),
+      catchError(this.handleError<any>('updateSheet')))
+  }
+
   private handleError<T> (operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
