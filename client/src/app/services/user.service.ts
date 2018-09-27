@@ -22,6 +22,7 @@ export class UserService {
               private messageSnackbarService: MessageSnackbarService
   ) { }
 
+  // Get single user by id
   getUser(userId: string): Observable<User> {
     const url = `${this.userUrl}/${userId}`;
     return this.http.get<User>(url, httpOptions)
@@ -30,6 +31,7 @@ export class UserService {
       );
   }
 
+  // Get all users
   getUsers(): Observable<User[]> {
     return this.http.get<User []>(this.userUrl, httpOptions)
       .pipe(
@@ -37,6 +39,7 @@ export class UserService {
       );
   }
 
+  // Add user to db
   addUser(user: User): Observable<User> {
     return this.http.post<User>(this.userUrl, user, httpOptions)
       .pipe(
@@ -55,6 +58,7 @@ export class UserService {
     return updatedUser;
   }*/
 
+  // Update user in db
   updateUser(user: User): Observable<any> {
     return this.http.put(this.userUrl + '/' + user._id, user, httpOptions)
       .pipe(
@@ -62,6 +66,7 @@ export class UserService {
         catchError(this.handleError<any>('updateUser')));
   }
 
+  // Delete user in db
   deleteUser(user: User | string): Observable<User> {
     const id = typeof user === 'string' ? user : user._id;
     const url = `${this.userUrl}/${id}`;
@@ -72,6 +77,7 @@ export class UserService {
       );
   }
 
+  // Get single role
   getRole(roleId: string): Observable<Role> {
     return this.http.get<Role>(this.userUrl + '/roles/' + roleId, httpOptions)
       .pipe(
@@ -79,6 +85,7 @@ export class UserService {
       );
   }
 
+  // Get all roles
   getRoles(): Observable<Role[]> {
     return this.http.get<Role[]>(this.userUrl + '/roles', httpOptions)
       .pipe(

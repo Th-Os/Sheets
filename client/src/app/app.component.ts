@@ -16,7 +16,10 @@ export class AppComponent {
               ) {
     this.authService.checkIfUserIsLoggedIn();
 
-    this.authService.isUserloggedIn.subscribe(isHe => this.userLoggedIn = isHe);
+    // Check if user is already logged-in
+    this.authService.isUserloggedIn.subscribe(isLoggedIn => this.userLoggedIn = isLoggedIn);
+
+    // If user is logged-in navigate to courses overview, otherwise to login-page
     if (this.userLoggedIn) {
       this.router.navigateByUrl('/courses');
     } else {
@@ -24,10 +27,12 @@ export class AppComponent {
     }
   }
 
+  // Navigate to profile-page
   goToProfile(): void {
     this.router.navigateByUrl('/profile');
   }
 
+  // Logout user and navigate back to login-page
   logout(): void {
     this.authService.logoutUser();
     this.userLoggedIn = false;

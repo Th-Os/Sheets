@@ -20,6 +20,7 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
+  // Login user
   login(): void {
     this.authService.loginUser(this.username, this.password).then(userId => {
       this.loginValid = true;

@@ -84,7 +84,7 @@ export class AssignSubmissionDialogComponent implements OnInit {
     }
   }
 
-  // When pressing save-button assign user to submissions
+  // When pressing save-button assign user to selected submissions
   onSubmit(): void {
     const updatedSubmissions = [];
     this.selectedSubmissions.forEach(submission => {

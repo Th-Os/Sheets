@@ -6,7 +6,7 @@ import {Course} from '../models/course';
 })
 export class CheckCoursesPipe implements PipeTransform {
 
-  // Check if logged in user is "subscribed" to courses and only show the ones he is subscribed to
+  // Check if logged in user is added to courses and only show the ones he is added to
   transform(courses: Course[]): Course[] {
     let visibleCourses = [];
     const localUser = JSON.parse(localStorage.getItem('currentUser'));

@@ -28,7 +28,6 @@
                 <mat-list-item>
                   <label>Rolle:&nbsp;</label><label>{{loggedInUser.role.name}}</label>
                 </mat-list-item>
-                <!--Todo: Display courses correctly-->
                 <mat-list-item>
                   <label mat-line>Kurse:</label>
                 </mat-list-item>
@@ -51,7 +50,7 @@
                                     mode="indeterminate"
                                     [diameter]="50">
               </mat-progress-spinner>
-              <div>
+              <div class="scrollableList">
                 <mat-list>
                   <mat-list-item *ngFor="let progress of submissionProgress">
                     <label mat-line>{{progress.studentName}}</label>
@@ -75,38 +74,40 @@
                                     mode="indeterminate"
                                     [diameter]="50">
               </mat-progress-spinner>
-              <mat-list *ngIf="users && users.length > 0">
-                <h4 mat-subheader>Admins</h4>
-                <mat-list-item *ngFor="let user of users | filterUsersPipe:'admin'" role="listitem">
-                  <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
-                  <button mat-icon-button (click)="update(user)">
-                    <mat-icon color="secondary">edit</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="delete(user)">
-                    <mat-icon color="secondary">delete</mat-icon>
-                  </button>
-                </mat-list-item>
-                <h4 mat-subheader>Dozenten</h4>
-                <mat-list-item *ngFor="let user of users | filterUsersPipe:'lecturer'" role="listitem">
-                  <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
-                  <button mat-icon-button (click)="update(user)">
-                    <mat-icon color="secondary">edit</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="delete(user)">
-                    <mat-icon color="secondary">delete</mat-icon>
-                  </button>
-                </mat-list-item>
-                <h4 mat-subheader>Tutoren</h4>
-                <mat-list-item *ngFor="let user of users | filterUsersPipe:'tutor'" role="listitem">
-                  <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
-                  <button mat-icon-button (click)="update(user)">
-                    <mat-icon color="secondary">edit</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="delete(user)">
-                    <mat-icon color="secondary">delete</mat-icon>
-                  </button>
-                </mat-list-item>
-              </mat-list>
+              <div class="scrollableList">
+                <mat-list *ngIf="users && users.length > 0">
+                  <h4 mat-subheader>Admins</h4>
+                  <mat-list-item *ngFor="let user of users | filterUsersPipe:'admin'" role="listitem">
+                    <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
+                    <button mat-icon-button (click)="update(user)">
+                      <mat-icon color="secondary">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="delete(user)">
+                      <mat-icon color="secondary">delete</mat-icon>
+                    </button>
+                  </mat-list-item>
+                  <h4 mat-subheader>Dozenten</h4>
+                  <mat-list-item *ngFor="let user of users | filterUsersPipe:'lecturer'" role="listitem">
+                    <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
+                    <button mat-icon-button (click)="update(user)">
+                      <mat-icon color="secondary">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="delete(user)">
+                      <mat-icon color="secondary">delete</mat-icon>
+                    </button>
+                  </mat-list-item>
+                  <h4 mat-subheader>Tutoren</h4>
+                  <mat-list-item *ngFor="let user of users | filterUsersPipe:'tutor'" role="listitem">
+                    <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
+                    <button mat-icon-button (click)="update(user)">
+                      <mat-icon color="secondary">edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="delete(user)">
+                      <mat-icon color="secondary">delete</mat-icon>
+                    </button>
+                  </mat-list-item>
+                </mat-list>
+              </div>
             </mat-card-content>
             <button (click)="add()" class="position-absolute" style="right: 10px;" mat-fab color="primary">
               <mat-icon>add</mat-icon>
@@ -122,7 +123,7 @@
                                     mode="indeterminate"
                                     [diameter]="50">
               </mat-progress-spinner>
-              <div *ngIf="!loadingUsers">
+              <div class="scrollableList" *ngIf="!loadingUsers">
                 <mat-list *ngIf="users && users.length > 0">
                   <mat-list-item *ngFor="let user of users" role="listitem">
                     <a mat-line class="userLine" (click)="showSingleUserProgress(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
@@ -149,11 +150,12 @@
                                   [diameter]="50">
             </mat-progress-spinner>
             <mat-card-content>
-              <div *ngIf="!loadingSingleUserProgress">
+              <div class="scrollableList" *ngIf="!loadingSingleUserProgress">
                 <mat-list *ngIf="progressOfSingleUser.length > 0">
-                  <mat-list-item *ngFor="let progress of progressOfSingleUser">
-                    <label mat-line>{{progress.studentName}}</label>
-                    <mat-progress-bar mode="determinate" [value]="progress.progress"></mat-progress-bar>
+                  <mat-list-item *ngFor="let progression of progressOfSingleUser">
+                    <label mat-line>{{progression.studentName}}</label>
+                    <mat-progress-bar mode="determinate" [value]="progression.progress"></mat-progress-bar>
+                    <i class="material-icons" title="Braucht Hilfe" style="color: red" *ngIf="progression.needsHelp">error_outline</i>
                   </mat-list-item>
                 </mat-list>
               </div>
