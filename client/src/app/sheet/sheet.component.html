@@ -89,11 +89,11 @@
                 </ng-container>
               </mat-list>
             </mat-card-content>
-            <button class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
+            <button matTooltip="Übungsblatt herunterladen" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
                     mat-fab color="primary" (click)="downloadSheet()">
               <mat-icon>get_app</mat-icon>
             </button>
-            <button class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 80px;"
+            <button matTooltip="Übungsblatt bearbeiten" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 80px;"
                     mat-fab color="primary" routerLink="./edit">
               <mat-icon>edit</mat-icon>
             </button>
