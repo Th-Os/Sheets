@@ -139,13 +139,22 @@ export class CourseComponent implements OnInit {
     student.status = "nicht bestanden"
     let passedSheets = [];
     let numSheetsRequiredToPass = this.course.min_req_sheets;
-    console.log(numSheetsRequiredToPass)
 
     this.studentService.getStudentSubmissions(student._id).subscribe(res => {
       res.forEach(sub => {
         let achievedPoints = 0;
         let maxPoints = 0;
-        let passPercentage = 0.5;
+        let passPercentage = 0;
+        let correctSheet = null;
+
+        //find correctSheet for submission (sub)
+        this.sheets.find(el => {
+          el.submissions.forEach(seachSub => {
+            if(seachSub.toString() == sub._id) correctSheet = el;
+          })
+          return false});
+
+        if(correctSheet != null) passPercentage = correctSheet.min_req_points / 100;
 
         this.answerService.getAnswers(sub._id).subscribe(answers => {
           answers.forEach(answer => {
