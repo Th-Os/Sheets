@@ -63,22 +63,36 @@
         <div class="col-12 col-lg-6 col-md-6 mb-5">
           <mat-card>
             <mat-card-title>Aufgaben</mat-card-title>
-            <mat-card-content class="d-flex justify-content-center align-items-center h-100">
+            <mat-card-content [ngClass]="{'d-flex justify-content-center align-items-center': loadingExercisesWithTasks || loadingSheet}" class="h-100">
               <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
               <mat-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
                 <ng-container *ngFor="let exercise of exercises; let index = index;">
-                  <h1 matSubheader>{{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}</h1>
-                  <mat-list-item *ngIf="exercises.length === 0" (click)="getExercisesWithTasks()">Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
-                  <mat-list-item *ngFor="let task of exercise.tasks">
-                    <h4 matLine>{{task.order | numberToChar}}.) {{task.question}}</h4>
+                  <mat-list-item>
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="exercise.name">
+                        {{exercise.order + 1}}.) {{exercise.name}}
+                      </div>
+                      <small>{{getExercisePoints(exercise)}} Punkte</small>
+                    </div>
                   </mat-list-item>
-                  <mat-divider *ngIf="exercises.length === index" [inset]="true"></mat-divider>
+                  <mat-list-item *ngFor="let task of exercise.tasks" class="ml-3">
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="task.question">
+                        {{task.order | numberToChar}}) {{task.question}}
+                      </div>
+                      <small>{{task.points}} Punkte</small>
+                    </div>
+                  </mat-list-item>
                 </ng-container>
               </mat-list>
             </mat-card-content>
             <button class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
                     mat-fab color="primary" (click)="downloadSheet()">
               <mat-icon>get_app</mat-icon>
+            </button>
+            <button class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 80px;"
+                    mat-fab color="primary" routerLink="./edit">
+              <mat-icon>edit</mat-icon>
             </button>
           </mat-card>
         </div>

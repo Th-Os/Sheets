@@ -89,12 +89,17 @@ export class SheetComponent implements OnInit {
               () => {
                 this.exercises[index] = exercise;
                 if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
-              }
-              );
+              });
           }
         });
       }
       );
+  }
+
+  getExercisePoints(exercise: Exercise): number {
+    let points = 0;
+    exercise.tasks.forEach( t => points += t.points);
+    return points;
   }
 
   getTaskObjects(){
@@ -455,10 +460,6 @@ export class SheetComponent implements OnInit {
     let relevantFolderName: string = pathSlices[pathSlices.length - 2];
     res = relevantFolderName.split("_")[0];
     return res;
-  }
-
-  addFile(file): void {
-
   }
 
   findTask(answer: Answer): Task {

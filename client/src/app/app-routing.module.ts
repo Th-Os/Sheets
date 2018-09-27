@@ -18,8 +18,8 @@ const routes: Routes = [
   { path: 'courses/:id', component: CourseComponent },
   { path: 'sheets/:id', component: SheetComponent },
   { path: 'sheets/:id/correction', component: CorrectionComponent },
-  { path: 'sheet/:id/create', component: CreateSheetComponent },
-  { path: 'sheet/:id/edit', component: CreateSheetComponent},
+  { path: 'sheets/:id/create', component: CreateSheetComponent },
+  { path: 'sheets/:id/edit', component: CreateSheetComponent},
   { path: 'profile', component: UserprofileComponent},
 ];
 

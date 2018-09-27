@@ -1,15 +1,18 @@
 <div class="container mt-5 h-100">
   <div class="row">
+    <!-- BACK BUTTON -->
     <div class="col-12 col-lg-1 col-md-2">
       <button mat-fab color="primary" class="m-2" (click)="goBack()">
         <i class="material-icons">arrow_back</i>
       </button>
     </div>
+    <!-- CONTENT -->
     <div class="col-12 col-lg-11 col-md-11">
       <div class="row">
         <div class="col-12 mb-2">
           <h1 *ngIf="course">{{course.name}}</h1>
         </div>
+        <!-- GRID SHEETS -->
         <div class="col-12 col-lg-6 col-md-6 mb-5">
           <mat-card>
             <mat-card-title>Übungsblätter</mat-card-title>
@@ -36,6 +39,7 @@
             </button>
           </mat-card>
         </div>
+        <!-- GRID STUDENTS -->
         <div class="col-12 col-lg-6 col-md-6 mb-5">
           <mat-card>
             <mat-card-title>Studenten</mat-card-title>

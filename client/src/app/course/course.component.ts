@@ -111,7 +111,7 @@ export class CourseComponent implements OnInit {
   }
 
   update(sheet: Sheet): void {
-    this.router.navigateByUrl('/sheet/' + sheet._id + '/edit');
+    this.router.navigateByUrl('/sheets/' + sheet._id + '/edit');
   }
 
   add(): void {

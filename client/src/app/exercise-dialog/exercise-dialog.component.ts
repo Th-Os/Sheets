@@ -104,7 +104,7 @@ export class ExerciseDialogComponent implements OnInit {
         newSheet.name = 'Vorlage: ' + fetchedSheet.name;
         this.sheetService.getSheets(this.selectedCourseId.toString()).subscribe(sheets => newSheet.order = sheets.length);
         this.fillSheet(newSheet).then(sheet => {
-          this.router.navigateByUrl('/sheet/' + sheet._id + '/create');
+          this.router.navigateByUrl('/sheets/' + sheet._id + '/create');
           this.dialogRef.close();
         });
       });
@@ -112,7 +112,7 @@ export class ExerciseDialogComponent implements OnInit {
       newSheet.name = 'Neues Aufgabenblatt';
       this.sheetService.getSheets(this.data.courseId).subscribe(sheets => newSheet.order = sheets.length);
       this.sheetService.addSheet(this.data.courseId, newSheet)
-        .subscribe(sheet => this.router.navigateByUrl('/sheet/' + sheet[0]._id + '/create'));
+        .subscribe(sheet => this.router.navigateByUrl('/sheets/' + sheet[0]._id + '/create'));
       this.dialogRef.close();
     }
   }

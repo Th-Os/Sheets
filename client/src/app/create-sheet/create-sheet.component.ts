@@ -56,6 +56,10 @@ export class CreateSheetComponent implements OnInit {
                   tasks => this.sheet.exercises[index].tasks = tasks,
                   error => console.error( error ),
                   () => {
+                    let points = 0;
+                    this.sheet.exercises[index].tasks.forEach(task => {
+                      points += task.points;
+                    });
                     if (this.sheet.exercises.length - 1 === index) {
                       if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
                         this.selectedExercise = this.sheet.exercises[0]._id;
@@ -297,6 +301,12 @@ export class CreateSheetComponent implements OnInit {
     if(!confirm("Sie haben ein Übungsblatt mit bestehenden Abgaben editiert. Autokorrektur neu ausführen?")) return;
     this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmission(sub.toString()).subscribe())
     console.log("autocorrect")
+  }
+
+  calculatePoints(exercise: Exercise): number {
+      let points = 0;
+      exercise.tasks.forEach(task => points += task.points)
+      return points;
   }
 
   goBack(): void {
