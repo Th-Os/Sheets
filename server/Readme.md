@@ -4,7 +4,6 @@
 
 | address  | method  | params  | body  | success | fail |
 |---|---|---|---|---|---|
-| @deprecated - soon /auth/register  | POST  | | username, password  |  { user: {User}, auth: true, token: token } | 500, 404 |
 | /auth/login  | POST  | |username, password  | { user: userID, auth: true, token: token }  | 500, 404, 401  |
 | /auth/logout  | GET  | |  |  { auth: false, token: null }  |   |
 | /correct  | POST  | | {Submission} with id  | new {Submission}  |  400 |
@@ -59,9 +58,10 @@
 |/students/:id/submissions		|GET	|	|:id	|200, [Submissions]	|400, 401, 404	|
 |/students/:id/courses		|GET	|	|:id	|200, [Courses]	|400, 401, 404	|
 |**Misc**		|	|	|	|	|	|
-|/sheets/:id/export		|GET	|	|:id	|200, (Word,PDF)	|400, 401, 404	|
-|/sheets/:id/csv		|GET	|	|:id	|200, csv	|400, 401, 404	|
-|/sheets/:id/template		|GET	|	|:id	|200, template	|400, 401, 404	|
+|/sheets/:id/pdf		|GET	|	|:id	|200, (PDF)	|400, 401, 404	|
+|/sheets/:id/docx		|GET	|	|:id	|200, (DOCX)	|400, 401, 404	|
+|/sheets/:id/csv		|GET	|	|:id	|200, {CSV}	|400, 401, 404	|
+|/sheets/:id/template		|GET	|	|:id	|200, {TXT}	|400, 401, 404	|
 
 
 
