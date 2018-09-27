@@ -278,11 +278,12 @@ export class SheetComponent implements OnInit {
             let index = 0;
             let maxIndex = submissions.length;
 
-            submissions.forEach(sub => {
+            for (var i = 0; i < submissions.length; ++i) {
+              let sub = submissions[i];
               this.studentService.getStudentById(sub.student.mat_nr).subscribe(res => {
                 index++;
                 if(res != null){
-                  submission.student = res;
+                  submissions[i].student = res;
                 }
 
                 if(index >= maxIndex){
@@ -294,7 +295,7 @@ export class SheetComponent implements OnInit {
                   this.uploadAndCorrectSubmissions();
                 }
               })
-            })
+            }
           }else{
             this.displayValidationResults();
           }
