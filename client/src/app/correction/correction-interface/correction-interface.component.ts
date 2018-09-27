@@ -5,6 +5,7 @@ import {Solution} from "../../models/solution";
 import {TaskService} from "../../services/task.service";
 import {Task} from '../../models/task';
 import {Answer} from "../../models/answer";
+import {isArray} from "util";
 
 @Component({
   selector: 'app-correction-interface',
@@ -15,6 +16,7 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
 
   @Input() task_id: string;
   @Input() submission_id: string;
+  @Input() correctionMode: boolean;
 
   @Output() saved = new EventEmitter<boolean>();
   saving: boolean = false;
@@ -27,7 +29,6 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
 
   loadingSolution: boolean = false;
   solution: Solution;
-  points: number[];
 
   constructor(
     private taskService: TaskService,
@@ -40,19 +41,26 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.getCorrection()
+    console.log(changes)
+    if (!changes.correctionMode) {
+      if (this.correctionMode) this.saveAnswer();
+      else this.getCorrection()
+    }
   }
 
   saveAnswer() {
-    this.saving = true;
-    this.answerService.updateAnswer(this.answer).subscribe(
-      null,
-      null,
-      () => {
-        this.saved.emit(true);
-        this.saving = false;
-      }
-    )
+    if (this.answer) {
+      this.saving = true;
+      this.answerService.updateAnswer(this.answer).subscribe(
+        null,
+        null,
+        () => {
+          if (!this.correctionMode) this.saved.emit(true);
+          else this.getCorrection();
+          this.saving = false;
+        }
+      )
+    }
   }
 
   getCorrection(): void {
@@ -67,10 +75,7 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
     this.taskService.getTask(this.task_id).subscribe(
       task => this.task = task,
       error => console.error( error ),
-      () => {
-        this.points = Array(this.task.points + 1).fill(0).map((x,i)=>i);
-        this.loadingTask = false
-      }
+      () => this.loadingTask = false
     );
   }
 
@@ -86,7 +91,7 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
   getAnswer(): void {
     this.loadingAnswer = true;
     this.answerService.getAnswer(this.submission_id, this.task_id).subscribe(
-      answer => this.answer = answer,
+      answer => { if (!isArray(answer)) this.answer = answer },
       error => console.error( error ),
       () => this.loadingAnswer = false
     )
