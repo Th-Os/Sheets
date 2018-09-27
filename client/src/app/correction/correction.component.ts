@@ -55,9 +55,9 @@ export class CorrectionComponent implements OnInit {
   }
 
   @HostListener('window:keyup', ['$event']) keyEvent($event) {
-    console.log($event);
     if ($event.keyCode === KEY_CODE.RIGHT_ARROW) this.navigateSubmissions(1);
     if ($event.keyCode === KEY_CODE.LEFT_ARROW) this.navigateSubmissions(-1);
+    if ($event.keyCode === KEY_CODE.UP_ARROW) this.navigateTasks(-1);
     if ($event.keyCode === KEY_CODE.DOWN_ARROW) this.navigateTasks(1);
   }
 
@@ -173,10 +173,6 @@ export class CorrectionComponent implements OnInit {
 
   onAnswerSaved(saved: boolean) {
     this.navigateTasks(1)
-  }
-
-  onKeyUp() {
-
   }
 
 }
