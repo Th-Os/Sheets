@@ -232,8 +232,15 @@ router.delete('/:id/submissions', verify, function(req, res) {
 /**
  * Redirects to @see export.js
  */
-router.get('/:id/export/', verify, function(req, res) {
+router.get('/:id/pdf', verify, function(req, res) {
     res.redirect('../../export/pdf/' + req.params.id);
+});
+
+/**
+ * Redirects to @see export.js
+ */
+router.get('/:id/docx', verify, function(req, res) {
+    res.redirect('../../export/docx/' + req.params.id);
 });
 
 /**

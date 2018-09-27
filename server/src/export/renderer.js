@@ -1,3 +1,8 @@
+/**
+ * @overview The renderer of docx and pdf files.
+ * @author Thomas Oswald
+ */
+
 import report from 'jsreport-core';
 import docx from 'jsreport-html-embedded-in-docx';
 
@@ -7,7 +12,7 @@ function Renderer() {
             content: 'localhost:' + process.env.PORT + '/resources/pdf.html',
             engine: 'handlebars',
             recipe: 'chrome-pdf',
-            helpers: String(calcPoints)
+            helpers: ''
         },
         data: {},
         name: 'output'
@@ -26,14 +31,6 @@ function Renderer() {
             }
         }
     });
-}
-
-function calcPoints(exercise) {
-    let points = 0;
-    for (let task of exercise.tasks) {
-        points += task.points;
-    }
-    return points;
 }
 
 Renderer.prototype.html = function(html) {
@@ -58,7 +55,7 @@ Renderer.prototype.addHelper = function(helper) {
 
 /**
  * This setter specifies the output type.
- * @param {string} type ('docx'||'pdf')
+ * @param {string} type ('docx'|'pdf')
  */
 Renderer.prototype.output = function(type) {
     this.obj.output = type;
@@ -82,7 +79,7 @@ Renderer.prototype.send = function(res) {
                             engine: 'none'
                         }
                     }).then((response) => {
-                        res.writeHead(200, {'Content-Type': 'application/vnd.openxmlformats-officedocument. wordprocessingml.document', 'Content-disposition': 'attachment; filename=' + this.obj.name + '.docx'});
+                        res.writeHead(200, {'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'Content-disposition': 'attachment; filename=' + this.obj.name + '.docx'});
                         res.end(response.content, 'binary');
                     });
                 });
@@ -98,6 +95,44 @@ Renderer.prototype.send = function(res) {
     }).catch((e) => {
         res.status(500).send(e);
     });
+};
+
+Renderer.prototype.helpers = {};
+
+/**
+ * This function is a helper function.
+ * It calculates the points of an exercise.
+ * @param {object} exercise {Exercise}.
+ */
+Renderer.prototype.helpers.calcPoints = function calcPoints(exercise) {
+    let points = 0;
+    for (let task of exercise.tasks) {
+        points += task.points;
+    }
+    return points;
+};
+
+/**
+ * This function is a helper function.
+ * It adds the template exercise, if the flag is set.
+ * @param {Sheet} sheet {Sheet}.
+ */
+Renderer.prototype.helpers.addTemplateExercise = function addTemplateExercise(sheet) {
+    if (sheet.template.flag) {
+        let html = 'Einhaltung der Abgabekriterien (';
+        html += sheet.template.points + ' Punkte)';
+        return html;
+    } else return '';
+};
+
+/**
+ * This function is a helper function.
+ * It adds the right order of a sheet to the name of the submission file.
+ * @param {number} sheetOrder order of a {Sheet}.
+ */
+Renderer.prototype.helpers.addNameSubmissionFile = function addNameSubmissionFile(sheetOrder) {
+    if (sheetOrder < 10) return '0' + sheetOrder;
+    else return sheetOrder;
 };
 
 export default Renderer;

@@ -13,6 +13,15 @@ import {Course} from '../models/course';
 
 const router = express.Router();
 
+/**
+ * Searches through all students with a mat_nr.
+ * @param {string} req.query.matnr: matricle number of a student.
+ * @returns {Student}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ * @example /students/_search?matnr={mat_nr}
+ */
 router.get('/_search', verify, function(req, res) {
     let id = req.query.matnr;
     if (id !== undefined) {

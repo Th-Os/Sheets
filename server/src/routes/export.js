@@ -18,14 +18,38 @@ import {Sheet, Exercise, Task} from '../models/sheet';
 const router = express.Router();
 moment.locale('de');
 
+/**
+ * Gets a pdf file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {PDF} with type application/pdf
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/pdf/:id', verify, function(req, res) {
     sendReport(req.params.id, 'pdf', res);
 });
 
-router.get('/word/:id', verify, function(req, res) {
+/**
+ * Gets a docx file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {DOCX} with type application/vnd.openxmlformats-officedocument.wordprocessingml.document
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/docx/:id', verify, function(req, res) {
     sendReport(req.params.id, 'docx', res);
 });
 
+/**
+ * Gets a csv file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {CSV} text/csv
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/csv/:id', verify, function(req, res) {
     methods.get(req.params.id, Sheet, [
         {
@@ -71,6 +95,14 @@ router.get('/csv/:id', verify, function(req, res) {
     }).catch((err) => res.status(500).send(err));
 });
 
+/**
+ * Gets a tempate file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {TXT} txt
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/template/:id', verify, function(req, res) {
     let sheet = {};
     Sheet.findById(req.params.id, (err, doc) => {
@@ -99,23 +131,40 @@ router.get('/template/:id', verify, function(req, res) {
     });
 });
 
+/**
+ * This function gets all reporting data,
+ * renders it to the specific type of file
+ * and sends it to the client.
+ * @param {string} id of a {Sheet}.
+ * @param {string} type (pdf|docx) of document.
+ * @param {object} res express response object.
+ */
 function sendReport(id, type, res) {
     getReportObj(id).then((obj) => {
-        new Renderer()
+        let renderer = new Renderer();
+        renderer
             .addHelper(toAlphabeticOrder)
-            .addHelper(addTemplateExercise)
-            .addHelper(addNameSubmissionFile)
+            .addHelper(renderer.helpers.calcPoints)
+            .addHelper(renderer.helpers.addTemplateExercise)
+            .addHelper(renderer.helpers.addNameSubmissionFile)
             .data(JSON.stringify(obj))
             .html(obj.html)
             .name(obj.course.name + ' - ' + obj.sheet.name)
             .output(type)
             .send(res);
     }).catch((err) => {
+        console.log(err);
         if (err.name === StatusError.name) res.status(err.status).send(err.message);
         else res.status(500).send(err);
     });
 }
 
+/**
+ * Implementation of accumulating and preparing the report data:
+ * template.html
+ * {Course} and {Sheet} with exercises and tasks.
+ * @param {string} sheetId a {Sheet} id.
+ */
 function getReportObj(sheetId) {
     return new Promise((resolve, reject) => {
         let obj = {};
@@ -165,20 +214,26 @@ function getTemplate(sheet, mode) {
     return template;
 }
 
-function addTemplateExercise(sheet) {
-    console.log(sheet.tempalte);
-    if (sheet.template.flag) {
-        let html = 'Einhaltung der Abgabekriterien (';
-        html += sheet.template.points + ' Punkte)';
-        return html;
-    } else return '';
+/**
+ * This function parses a numerical order to an alphabetical one.
+ * @param {number} numerical a order number.
+ * @returns alphabetic character.
+ */
+function toAlphabeticOrder(numerical) {
+    if (numerical < 10) {
+        return String.fromCharCode(('' + numerical).charCodeAt() + 16).toLowerCase();
+    } else {
+        if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
+        return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
+    }
 }
 
-function addNameSubmissionFile(sheetOrder) {
-    if (sheetOrder < 10) return '0' + sheetOrder;
-    else return sheetOrder;
-}
-
+/**
+ * This function counts up all orders of the report object.
+ * @param {object} obj is a report object.
+ * @param {number} countUp value that is added to the order.
+ * @returns updated report object.
+ */
 function countOrderUpBy(obj, countUp) {
     obj.course.order += countUp;
     obj.sheet.order += countUp;
@@ -191,15 +246,10 @@ function countOrderUpBy(obj, countUp) {
     return obj;
 }
 
-function toAlphabeticOrder(numerical) {
-    if (numerical < 10) {
-        return String.fromCharCode(('' + numerical).charCodeAt() + 16).toLowerCase();
-    } else {
-        if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
-        return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
-    }
-}
-
+/**
+ * This function parses a date string to a predefined format.
+ * @param {string} str date string.
+ */
 function toReadableDate(str) {
     return moment(str).format('dddd, D. MMMM YYYY, hh:mm [Uhr]');
 }

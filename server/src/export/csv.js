@@ -1,3 +1,8 @@
+/**
+ * @overview The renderer for csv files.
+ * @author Thomas Oswald
+ */
+
 function CSVRenderer() {
     this.header = 'ID,Bewertung,Skala,Zuletzt geändert (Bewertung),Feedback als Kommentar';
     this.type = 'text/csv;charset=utf-8;';

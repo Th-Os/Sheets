@@ -11,6 +11,14 @@ import {Answer} from '../models/submission';
 
 const router = express.Router();
 
+/**
+ * Gets an answer by id.
+ * @param {string} req.params.id: ID of a answer.
+ * @returns {Answer}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Answer)
         .then((doc) => res.status(200).send(doc))

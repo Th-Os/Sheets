@@ -7,6 +7,10 @@ mongoose.Promise = Promise;
 
 let uri = '';
 
+/**
+ * Connects to the database depending on the environmant variable MODE.
+ * @returns {Promise} {Promise}
+ */
 function connect() {
     switch (process.env.MODE) {
         case 'production':
@@ -29,6 +33,10 @@ function connect() {
     });
 }
 
+/**
+ * Disconnects from the database.
+ * @returns {Promise} {Promise}
+ */
 function disconnect() {
     return mongoose.disconnect();
 }

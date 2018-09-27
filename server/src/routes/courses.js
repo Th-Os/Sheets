@@ -20,16 +20,32 @@ router.get('/', verify, function(req, res) {
     });
 });
 
-// courses/_search?sheet={ID}
+/**
+ * Searches through all courses with a sheetID and returns found courses.
+ * @param {string} req.query.sheet: id of a {Sheet}.
+ * @returns {Array} of {Course}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ * @example courses/_search?sheet={ID}
+ */
 router.get('/_search', verify, function(req, res) {
     let sheetId = req.query.sheet;
     if (sheetId !== undefined) {
-        Course.find().where('sheets').in(sheetId).exec().then((doc) => {
-            res.send(doc);
+        Course.find().where('sheets').in(sheetId).exec().then((docs) => {
+            res.send(docs);
         }).catch((err) => res.status(500).send(err));
     }
 });
 
+/**
+ * Gets a course by id.
+ * @param {string} req.params.id: ID of a course.
+ * @returns {Course}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Course)
         .then((doc) => {
@@ -55,6 +71,14 @@ router.get('/:id', verify, function(req, res) {
         });
 });
 
+/**
+ * Creates one or many courses.
+ * @param {Array|Course} req.body Array of or single course.
+ * @returns {Array|Course} {Course}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.post('/', verify, function(req, res) {
     methods.post(req.body, Course)
         .then((doc) => res.status(201).send(doc))
@@ -64,6 +88,15 @@ router.post('/', verify, function(req, res) {
         });
 });
 
+/**
+ * Updates a course by id.
+ * @param {string} req.params.id: ID of a course.
+ * @param {Course} req.body with updated values.
+ * @returns {Course}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.put('/:id', verify, function(req, res) {
     methods.put(req.params.id, req.body, Course)
         .then((doc) => res.status(200).send(doc))
@@ -73,6 +106,14 @@ router.put('/:id', verify, function(req, res) {
         });
 });
 
+/**
+ * Deletes a course by id.
+ * @param {string} req.params.id: ID of a course.
+ * @returns {string} success message.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.delete('/:id', verify, function(req, res) {
     methods.del(req.params.id, Course)
         .then(() => res.status(204).send())
@@ -82,6 +123,14 @@ router.delete('/:id', verify, function(req, res) {
         });
 });
 
+/**
+ * Gets all students of a course by id.
+ * @param {string} req.params.id: ID of a course.
+ * @returns {Array} of {Student}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id/students', verify, function(req, res) {
     Course.findById(req.params.id, (err, course) => {
         if (err) res.status(400).send(err);
@@ -103,6 +152,14 @@ router.get('/:id/students', verify, function(req, res) {
     });
 });
 
+/**
+ * Gets all sheets of a course by id.
+ * @param {string} req.params.id: ID of a course.
+ * @returns {Array} of {Sheet}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/:id/sheets', verify, function(req, res) {
     methods.deepGet(req.params.id, Course, Sheet)
         .then((docs) => res.status(200).send(docs))
@@ -112,6 +169,14 @@ router.get('/:id/sheets', verify, function(req, res) {
         });
 });
 
+/**
+ * Creates one or many sheets.
+ * @param {Array|Sheet} req.body Array of sheets or single sheet.
+ * @returns {Array|Sheet} {Sheet}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.post('/:id/sheets', verify, function(req, res) {
     methods.deepPost(req.params.id, req.body, Course, Sheet)
         .then((docs) => res.status(200).send(docs))

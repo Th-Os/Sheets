@@ -12,6 +12,28 @@ import {Submission, Answer} from '../models/submission';
 const router = express.Router();
 
 /**
+ * Searches through all submissions with an user id.
+ * @param {string} req.query.user: ID of a user.
+ * @returns {Array} of @see {Submission}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ * @example /submissions/_search?user={ID}
+ */
+router.get('/_search', verify, function(req, res) {
+    let userId = req.query.user;
+    if (userId !== undefined) {
+        Submission.find({ user: userId }).then((subs) => {
+            if (subs === undefined || subs.length === 0) {
+                res.status(404).send('No submissions found');
+            } else res.send(subs);
+        }).catch((err) => res.status(500).send(err));
+    } else {
+        res.send(400).send('Query "' + req.query + '" not available.');
+    }
+});
+
+/**
  * Updates a submission by id.
  * @param {string} req.params.id: ID of a submission.
  * @param {object} req.body with values for update.
@@ -61,28 +83,6 @@ router.post('/:id/answers', verify, function(req, res) {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
         });
-});
-
-/**
- * Searches through all submissions with an user id.
- * @param {string} req.query.user: ID of a user.
- * @returns {Array} of @see {Submission}
- * @throws 400
- * @throws 404
- * @throws 500
- * @example /submissions/_search?user={ID}
- */
-router.get('/_search', verify, function(req, res) {
-    let userId = req.query.user;
-    if (userId !== undefined) {
-        Submission.find({ user: userId }).then((subs) => {
-            if (subs === undefined || subs.length === 0) {
-                res.status(404).send('No submissions found');
-            } else res.send(subs);
-        }).catch((err) => res.status(500).send(err));
-    } else {
-        res.send(400).send('Query "' + req.query + '" not available.');
-    }
 });
 
 /**
