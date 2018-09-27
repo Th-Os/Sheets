@@ -48,6 +48,7 @@ export class SheetComponent implements OnInit {
   sheet: Sheet;
 
   loadingSubmissions: boolean = false;
+  progressText: string = ""
 
   loadingExercisesWithTasks: boolean = false;
   exercises: Exercise[];
@@ -271,12 +272,29 @@ export class SheetComponent implements OnInit {
 
         Promise.all(promises).then(() => {
           if(this.submissionValidationResults.length <= 0){ //TODO: 0 for release, 100 for test!
-            console.log("done reading zip");
-            this.sheet.submissions = submissions;
-            console.log("validation ok");
-            console.log("uploading with data: ");
-            console.log(this.sheet)
-            this.uploadAndCorrectSubmissions();
+            this.loadInProgress = true;
+            this.progressText = "organisiere Studenten..."
+
+            let index = 0;
+            let maxIndex = submissions.length;
+
+            submissions.forEach(sub => {
+              this.studentService.getStudentById(sub.student.mat_nr).subscribe(res => {
+                index++;
+                if(res != null){
+                  submission.student = res;
+                }
+
+                if(index >= maxIndex){
+                  console.log("done reading zip");
+                  this.sheet.submissions = submissions;
+                  console.log("validation ok");
+                  console.log("uploading with data: ");
+                  console.log(this.sheet)
+                  this.uploadAndCorrectSubmissions();
+                }
+              })
+            })
           }else{
             this.displayValidationResults();
           }
@@ -288,7 +306,7 @@ export class SheetComponent implements OnInit {
   }
 
   uploadAndCorrectSubmissions() {
-    this.loadInProgress = true;
+    this.progressText = "sende Abgaben..."
     this.sheetService.uploadSubmissions(this.sheet)
     .subscribe(res => {
       let tempSheet = null;

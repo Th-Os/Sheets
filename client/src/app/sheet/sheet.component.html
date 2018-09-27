@@ -43,6 +43,9 @@
               <div id="dropzone" *ngIf="!loadingSubmissions && sheet.submissions.length === 0">
                 Abgaben hinzufügen
               </div>
+              <p *ngIf="loadInProgress">
+                {{progressText}}
+              </p>
               <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
 
             </mat-card-content>

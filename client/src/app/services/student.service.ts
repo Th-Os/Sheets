@@ -25,6 +25,14 @@ export class StudentService {
     private messageSnackbarService: MessageSnackbarService
   ) { }
 
+  getStudentById(mat_nr: string): Observable<Student> {
+    const url = `${this.studentsUrl}/_search?matnr=${mat_nr}`;
+    return this.http.get<Student>(url, httpOptions)
+      .pipe(
+        catchError(this.handleError('getStudentById'))
+      );
+  }
+
   getStudent(id): Observable<Student> {
     const url = `${this.studentsUrl}/${id}`;
     return this.http.get<Student>(url).pipe(

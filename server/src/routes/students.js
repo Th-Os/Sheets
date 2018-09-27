@@ -8,6 +8,19 @@ import {Course} from '../models/course';
 
 const router = express.Router();
 
+router.get('/_search', verify, function(req, res) {
+    let id = req.query.matnr;
+    if (id !== undefined) {
+        Student.find({'mat_nr': id}).exec().then((students) => {
+            if (students === null || students.length === 0) res.status(404).send('Found no student with mat_nr: ' + id);
+            else if (students.length >= 1) res.status(500).send('Found more than one student with mat_nr: ' + id);
+            else res.send(students[0]);
+        });
+    } else {
+        res.status(400).send('The query: ' + Object.keys(req.query)[0] + ' does not exist.');
+    }
+});
+
 router.get('/:id', verify, function(req, res) {
     methods.get(req.params.id, Student)
         .then((doc) => res.status(200).send(doc))
