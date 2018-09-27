@@ -50,9 +50,14 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
   saveAnswer() {
     if (this.answer) {
       this.saving = true;
+      let currentCorrectionStatus = this.answer.corrected;
+      this.answer.corrected = true;
       this.answerService.updateAnswer(this.answer).subscribe(
         null,
-        null,
+        error => {
+          console.error( error );
+          this.answer.corrected = currentCorrectionStatus;
+        },
         () => {
           if (!this.correctionMode) this.saved.emit(true);
           else this.getCorrection();

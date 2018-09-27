@@ -95,7 +95,7 @@
                   Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
                 </mat-list-item>
                 <ng-container *ngFor="let exercise of exercises; let index = index;">
-                  <mat-list-item>
+                  <mat-list-item [disableRipple]="true" style="cursor: default;">
                     <div class="d-flex justify-content-between" matLine>
                       <div class="text-truncate" [matTooltip]="exercise.name">
                         {{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}
