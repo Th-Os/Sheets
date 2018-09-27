@@ -29,7 +29,7 @@ export class StudentService {
     const url = `${this.studentsUrl}/_search?matnr=${mat_nr}`;
     return this.http.get<Student>(url, httpOptions)
       .pipe(
-        catchError(this.handleError('getStudentById'))
+        catchError(this.handleError<Student>('getStudentById'))
       );
   }
 

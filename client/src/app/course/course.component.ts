@@ -129,6 +129,7 @@ export class CourseComponent implements OnInit {
     let numSheetsRequiredToPass = this.course.min_req_sheets;
 
     this.studentService.getStudentSubmissions(student._id).subscribe(res => {
+      console.log(res)
       res.forEach(sub => {
         let achievedPoints = 0;
         let maxPoints = 0;
@@ -157,16 +158,28 @@ export class CourseComponent implements OnInit {
                 //console.log("New answer:")
                 //console.log(maxPoints)
                 //console.log(achievedPoints)
+                //console.log(passPercentage)
 
                 if(achievedPoints >= maxPoints * passPercentage){
                   //console.log(passedSheets)
                   if(!passedSheets.includes(sub._id)){
                     passedSheets.push(sub._id);
-                    if(passedSheets.length >= numSheetsRequiredToPass) {
-                      student.status = "bestanden"
-                      return;
-                    }
                   } 
+                }else{
+                  if(passedSheets.includes(sub._id)){
+                    var index = passedSheets.indexOf(sub._id);
+                    if (index > -1) {
+                      passedSheets.splice(index, 1);
+                    }
+                  }
+                }
+
+                console.log(passedSheets)
+
+                if(passedSheets.length >= numSheetsRequiredToPass) {
+                  student.status = "bestanden"
+                }else{
+                  student.status = "nicht bestanden"
                 }
               })
             }

@@ -1,3 +1,5 @@
+import {Submission} from './submission';
+
 export class Student {
 	_id: number;
 	name: string;
@@ -7,5 +9,6 @@ export class Student {
 	status: string;
 	statusIcon: string; //ui
 	statusString: string; //ui
+	submissions: Submission[]; //ui
 
 }
