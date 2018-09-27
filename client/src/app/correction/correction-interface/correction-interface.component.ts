@@ -41,7 +41,6 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(changes)
     if (!changes.correctionMode) {
       if (this.correctionMode) this.saveAnswer();
       else this.getCorrection()
@@ -94,6 +93,18 @@ export class CorrectionInterfaceComponent implements OnChanges, OnInit {
       answer => { if (!isArray(answer)) this.answer = answer },
       error => console.error( error ),
       () => this.loadingAnswer = false
+    )
+  }
+
+  onHelpWanted(): void {
+    this.answer.help = true;
+    this.answerService.updateAnswer(this.answer).subscribe(
+      null,
+      error => {
+        console.error( error );
+        this.answer.help = false;
+      },
+      null
     )
   }
 }

@@ -91,7 +91,27 @@
             <mat-card-content style="overflow: scroll;" class="h-100">
               <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
               <mat-nav-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
+                <mat-list-item *ngIf="exercises && exercises.length === 0" (click)="getExercisesWithTasks()">
+                  Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+                </mat-list-item>
                 <ng-container *ngFor="let exercise of exercises; let index = index;">
+                  <mat-list-item>
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="exercise.name">
+                        {{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}
+                      </div>
+                    </div>
+                  </mat-list-item>
+                  <mat-list-item *ngFor="let task of exercise.tasks" class="ml-3"
+                                 (click)="selected_task = task._id"
+                                 [class.active]="selected_task === task._id">
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="task.question">
+                        {{task.order | numberToChar}}) {{task.question}}
+                      </div>
+                    </div>
+                  </mat-list-item>
+                  <!--
                   <h3 matSubheader>{{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}</h3>
                   <mat-list-item *ngIf="exercises.length === 0" (click)="getExercisesWithTasks()">Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
                   <mat-list-item *ngFor="let task of exercise.tasks"
@@ -100,6 +120,7 @@
                     <h4 matLine>{{task.order | numberToChar}}.) {{task.question}}</h4>
                   </mat-list-item>
                   <mat-divider *ngIf="exercises.length === index" [inset]="true"></mat-divider>
+                  -->
                 </ng-container>
               </mat-nav-list>
             </mat-card-content>

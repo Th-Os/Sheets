@@ -15,8 +15,21 @@
 
     <mat-list *ngIf="answer && task && solution
                       && !loadingAnswer && !loadingTask && !loadingSolution" class="correction-list">
+      <mat-list-item *ngIf="answer" class="float-right">
+        <button mat-raised-button [disabled]="answer.help"  type="button"
+                [matTooltip]="answer.help ? 'Hilfe bereits angefordert' : ''"
+                color="accent" (click)="onHelpWanted()">
+          Kursleiter um Hilfe bitten
+        </button>
+      </mat-list-item>
       <h3 matSubheader>Aufgabe</h3>
-      <mat-list-item class="mb-1" *ngIf="task"><h3>{{task.order | numberToChar }}.) {{task.question}}</h3></mat-list-item>
+      <mat-list-item class="mb-1" *ngIf="task">
+        <div class="d-flex justify-content-between" matLine>
+          <div class="text-truncate" [matTooltip]="task.question">
+            {{task.order | numberToChar}}) {{task.question}}
+          </div>
+        </div>
+      </mat-list-item>
       <h3 matSubheader>Antwort</h3>
       <mat-list-item class="mb-1" *ngIf="answer">
         <span matLine>{{answer.text}}</span>
