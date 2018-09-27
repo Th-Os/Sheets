@@ -24,7 +24,12 @@
   text-decoration: #555555;
 }
 
-
 .closeIcon:hover {
   text-decoration: black;
+}
+
+.scrollableList {
+  overflow: auto;
+  flex-grow: 1;
+  max-height: 300px;
 }

@@ -4,7 +4,6 @@ import { MessageSnackbarService } from '../message-snackbar.service';
 import { Observable, of } from 'rxjs';
 import {Exercise} from '../models/exercise';
 import { catchError, tap } from 'rxjs/operators';
-import {Sheet} from '../models/sheet';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -19,8 +18,10 @@ export class ExerciseService {
   private exercisesUrl = 'http://localhost:3000/exercises';
 
   constructor(private http: HttpClient,
-              private messageSnackbarService: MessageSnackbarService) { }
+              private messageSnackbarService: MessageSnackbarService
+  ) { }
 
+  // Get all exercises of a sheet
   getExercises (sheetId: string): Observable<Exercise[]> {
     const url = `${this.sheetsUrl}/${sheetId}/exercises`;
     return this.http.get<Exercise[]>(url)
@@ -28,7 +29,8 @@ export class ExerciseService {
         catchError(this.handleError('getExercises', []))
       );
   }
-  /** GET exercise by id. Will 404 if id not found */
+
+  // Get single exercise by id
   getExercise(id: string): Observable<Exercise> {
     const url = `${this.exercisesUrl}/${id}`;
     return this.http.get<Exercise>(url).pipe(
@@ -36,18 +38,11 @@ export class ExerciseService {
     );
   }
 
-  /** PUT: update the hero on the server */
-  /*updateExercise (exercise: Exercise): Observable<any> {
-    return this.http.put(this.exercisesUrl, Exercise, httpOptions).pipe(
-      tap(_ => this.log(`updated exercise id=${exercise._id}`)),
-      catchError(this.handleError<any>('updateExercise'))
-    );
-  }*/
-
+  // Update exercise in db
   updateExercise(exercise: Exercise): Observable<Exercise> {
     return this.http.put<Exercise>(`${this.exercisesUrl}/${exercise._id}`, exercise, httpOptions).pipe(
       tap(_ => this.log(`updated exercise id=${exercise._id}`)),
-      catchError(this.handleError<any>('updateExercise')))
+      catchError(this.handleError<any>('updateExercise')));
   }
 
   /*
@@ -60,7 +55,8 @@ export class ExerciseService {
     return updatedExercise;
   }
   */
-  /** POST: add a new exercise to sheet on the server */
+
+  // Add exercise to sheet
   addExercise (sheetsId: string, exercise: Exercise): Observable<Exercise> {
     const url = `${this.sheetsUrl}/${sheetsId}/exercises`;
     return this.http.post<Exercise>(url, exercise, httpOptions).pipe(
@@ -69,7 +65,7 @@ export class ExerciseService {
     );
   }
 
-  /** DELETE: delete the eercise from the server */
+  // Delete exercise in db
   deleteExercise (exercise: Exercise | number): Observable<Exercise> {
     const id = typeof exercise === 'number' ? exercise : exercise._id;
     const url = `${this.exercisesUrl}/${id}`;
@@ -80,12 +76,6 @@ export class ExerciseService {
     );
   }
 
-  /**
-   * Handle Http operation that failed.
-   * Let the app continue.
-   * @param operation - name of the operation that failed
-   * @param result - optional value to return as the observable result
-   */
   private handleError<T> (operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
