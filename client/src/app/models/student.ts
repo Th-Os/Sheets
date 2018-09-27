@@ -4,12 +4,8 @@ export class Student {
 	lastname: string;
 	mat_nr: number;
 	grips_id: number;
-	status: number;
+	status: string;
 	statusIcon: string; //ui
 	statusString: string; //ui
 
-	constructor() {
-		this.status = 0;
-		this.statusIcon = "delete"
-	}
 }

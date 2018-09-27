@@ -10,9 +10,6 @@ import {SheetService} from '../services/sheet.service';
 import {StudentService} from '../services/student.service';
 import {AnswerService} from '../services/answer.service';
 import {TaskService} from '../services/task.service';
-
-
-
 import {ExerciseDialogComponent} from '../exercise-dialog/exercise-dialog.component';
 import {MatDialog} from '@angular/material';
 
@@ -74,7 +71,9 @@ export class CourseComponent implements OnInit {
               student => {
                 if(this.students.find(el => student.mat_nr.toString() === el.mat_nr.toString()) == null) {
 
-                  student.status = this.calculateStudentStatus(student)
+                  student.status = ""
+                  //this.calculateStudentStatus(student)
+                  /*
                   if(student.status == 1){
                     student.statusIcon = "done"
                     student.statusString = "bestanden"
@@ -82,6 +81,7 @@ export class CourseComponent implements OnInit {
                     student.statusIcon = "clear"
                     student.statusString = "nicht bestanden"
                   }
+                  */
 
                   this.students.push(student)
                 }
@@ -127,9 +127,17 @@ export class CourseComponent implements OnInit {
     this.location.back();
   }
 
-  calculateStudentStatus(student: Student): number {
+  calculateCourseResults(){
+    this.students.forEach(std => {
+      this.calculateStudentStatus(std);
+    })
+  }
+
+  calculateStudentStatus(student: Student): void {
+    student.status = "nicht bestanden"
     let passedSheets = [];
-    let numSheetsRequiredToPass = 1;
+    let numSheetsRequiredToPass = this.course.min_req_sheets;
+    console.log(numSheetsRequiredToPass)
 
     this.studentService.getStudentSubmissions(student._id).subscribe(res => {
       res.forEach(sub => {
@@ -139,24 +147,26 @@ export class CourseComponent implements OnInit {
 
         this.answerService.getAnswers(sub._id).subscribe(answers => {
           answers.forEach(answer => {
-            answer.corrected = true
             if(answer.corrected){
               achievedPoints += answer.achieved_points;
 
-              console.log(answer)
+              //console.log(answer)
 
               this.taskService.getTask(answer.task).subscribe(task => {
                 maxPoints += task.points;
 
-                console.log("New answer:")
-                console.log(maxPoints)
-                console.log(achievedPoints)
+                //console.log("New answer:")
+                //console.log(maxPoints)
+                //console.log(achievedPoints)
 
                 if(achievedPoints >= maxPoints * passPercentage){
-                  console.log(passedSheets)
+                  //console.log(passedSheets)
                   if(!passedSheets.includes(sub._id)){
                     passedSheets.push(sub._id);
-                    if(passedSheets.length >= numSheetsRequiredToPass) return 1;
+                    if(passedSheets.length >= numSheetsRequiredToPass) {
+                      student.status = "bestanden"
+                      return;
+                    }
                   } 
                 }
               })
@@ -165,7 +175,6 @@ export class CourseComponent implements OnInit {
         })
       })
     })
-
-    return 0;
   }
+
 }
