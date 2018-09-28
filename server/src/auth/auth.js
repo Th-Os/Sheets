@@ -1,8 +1,14 @@
+/**
+ * @overview The authentication handles login and logout requests.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import bodyParser from 'body-parser';
-import {User, Role} from '../models/user';
+import {User} from '../models/user';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
@@ -11,21 +17,32 @@ router.use(bodyParser.urlencoded({
 }));
 router.use(bodyParser.json());
 
-router.post('/login', function(req, res) {
-    User.findOne({
-        username: req.body.username
-    }, function(err, user) {
-        if (err) return res.status(500).send('Error on the server.');
-        if (!user) return res.status(404).send('No user found.');
+/**
+ * Login route that generates a token for the client.
+ * @param req.body.username the username of the user.
+ * @param req.body.password the password of the user.
+ */
+router.post('/login', function(req, res, next) {
+    User.findOne({username: req.body.username}).exec().then((user) => {
+        let err;
+        if (!user) {
+            err = new Error('AuthError: No user with name ' + req.body.username + ' found.');
+            res.status(404).send(err);
+            req.error = err;
+            next();
+        }
 
         // check if the password is valid
         var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
         if (!passwordIsValid) {
-            return res.status(401).send({
+            err = new Error('AuthError: Password of user with username ' + req.body.username + ' is not valid.');
+            res.status(401).send({
                 user: user._id,
                 auth: false,
                 token: null
             });
+            req.error = err;
+            next();
         }
 
         // if user is found and password is valid
@@ -42,50 +59,23 @@ router.post('/login', function(req, res) {
             auth: true,
             token: token
         });
+        next();
+    }).catch((err) => {
+        err = new Error('AuthError: Error on the server.');
+        res.status(500).send(err);
+        req.error = err;
+        next();
     });
-});
+}, logRoute);
 
-// TODO: logout needs to take place in the client (deleting token)
+/**
+ * Logout route.
+ */
 router.get('/logout', function(req, res) {
     res.status(200).send({
         auth: false,
         token: null
     });
-});
-
-/**
- * @deprecated register will be deleted.
- */
-router.post('/register', function(req, res) {
-    if (req !== undefined && req.body !== undefined && req.body.password !== undefined) {
-        let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-
-        User.create({
-            username: req.body.username,
-            password: hashedPassword
-        }).then(function(user) {
-            Role.create({name: 'admin'}).then((role) => {
-                user.role = role._id;
-
-                // if user is registered without errors
-                // create a token
-                var token = jwt.sign({
-                    id: user._id
-                }, process.env.SECRET, {
-                    expiresIn: 86400 // expires in 24 hours
-                });
-                res.status(200).send({
-                    user: user,
-                    auth: true,
-                    token: token
-                });
-            });
-        }).catch((err) => {
-            if (err) return res.status(500).send('There was a problem registering the user.');
-        });
-    } else {
-        res.status(404).send();
-    }
 });
 
 export default router;

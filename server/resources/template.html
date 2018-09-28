@@ -61,7 +61,7 @@
     <body>
         <header>
             <div class='stripe'></div>
-            {{course.faculty}}<br>
+            Universität Regensburg, {{course.institute}}<br>
             {{course.name}}<br>
             {{course.semester}}<br>
         </header>
@@ -80,15 +80,17 @@
                     {{/each}}
                 </section>
                 {{/each}}
+                <section><h3>{{addTemplateExercise sheet}}</h3></section>
                 <p>
-                Laden Sie bis zur Deadline auf G.R.I.P.S ( <a href="http://elearning.ur.de">http://elearning.ur.de</a> ) eine Datei mit Namen <b>u01.txt</b> hoch. 
+                Laden Sie bis zur Deadline auf G.R.I.P.S ( <a href="http://elearning.ur.de">http://elearning.ur.de</a> ) eine Datei mit Namen <b>u{{addNameSubmissionFile sheet.order}}.txt</b> hoch. 
                 Diese soll eine reine Textdatei (UTF-8) sein -  d.h. kein Word-Dokument, keine PDF-Datei, etc. 
                 Die Datei soll exakt nach folgendem Schema aufgebaut sein (Text in spitzen Klammern ist als Platzhalter für Ihre Lösung zu verstehen - die spitzen Klammern selbst sollen <u>nicht</u> in der Textdatei stehen!). 
                 Im Schema angegebene Lösungen sind nur als Formatierungsbeispiele zu sehen:<br>
                 <div class="template">{{{template}}}</div><br>
                 Verwenden Sie am besten die vorgegebene Textdatei auf Grips und tauschen Sie nur die Lösungen aus.
-                Ansonsten soll die Datei nichts beinhalten. Wenn Sie die Antwort auf eine Teilfrage nicht wissen, lassen Sie diese Zeile weg oder leer.
-                Aufgaben oder Teilaufgaben, die nicht nach dem vorgegebenen Schema angegeben werden, werden mit 0 Punkten bewertet. Für Fragen und Hinweise nutzen Sie bitte das Forum in GRIPS.
+                Ansonsten soll die Datei nichts beinhalten. Wenn Sie die Antwort auf eine Teilfrage nicht wissen, lassen Sie diese Zeile weg oder leer.<br>
+                <b>Aufgaben oder Teilaufgaben, die nicht nach dem vorgegebenen Schema angegeben werden, werden mit 0 Punkten bewertet.</b><br>
+                Für Fragen und Hinweise nutzen Sie bitte das Forum in GRIPS.
                 Bitte veröffentlichen Sie dort keine kompletten Lösungen. Bitte arbeiten Sie alleine und schreiben Sie nicht ab. Machen Sie alle Übernahmen aus externen Quellen kenntlich.
                 Sollten Plagiate identifiziert werden, wird das Übungsblatt mit 0 Punkten bewertet.
                 </p>

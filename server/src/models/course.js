@@ -1,13 +1,18 @@
-/* global require */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+/**
+ * @overview The definition of the schema and model of course.
+ * @author Thomas Oswald and Johannes Dengler
+ */
 
-var courseSchema = new mongoose.Schema({
+import mongoose from 'mongoose';
+
+const Schema = mongoose.Schema;
+
+const courseSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
     },
-    faculty: {
+    institute: {
         type: String,
         required: true
     },
@@ -35,4 +40,4 @@ courseSchema.post('remove', (doc) => {
     });
 });
 
-export var Course = mongoose.model('Course', courseSchema);
+export let Course = mongoose.model('Course', courseSchema);

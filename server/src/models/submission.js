@@ -1,3 +1,8 @@
+/**
+ * @overview The definition of the schemas and models of submission, answer and student.
+ * @author Thomas Oswald and Johannes Dengler
+ */
+
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
@@ -17,13 +22,20 @@ const submissionSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: false
+    },
+    grips_id: {
+        type: String,
+        required: true
     }
 });
 
-// TODO: check submissions delete
+/**
+ * On submission removal answers and reference in sheet are deleted.
+ */
 submissionSchema.post('remove', function(doc) {
     mongoose.model('Answer').find().where('_id').in(doc.answers).exec((err, docs) => {
         if (err) throw err;
+        if (docs === undefined || docs.length === undefined || docs.length === 0) return;
         for (let doc of docs) {
             doc.remove();
         }
@@ -37,37 +49,6 @@ submissionSchema.post('remove', function(doc) {
         sheet.save();
     });
 });
-
-submissionSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Student').findById(this.student).then((student) => {
-            this.student = student;
-        }));
-        promises.push(mongoose.model('Answer').find().where('_id').in(this.answers).exec().then((answers) => {
-            if (!(answers instanceof Array)) answers = [answers];
-            this.answers = answers;
-        }));
-        promises.push(mongoose.model('User').findById(this.user).then((user) => {
-            this.user = user;
-        }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
-    });
-};
-
-submissionSchema.methods.hasPassed = function(requiredPoints) {
-    return new Promise((resolve, reject) => {
-        mongoose.model('Answer').find().where('_id').in(this.answers).exec((err, docs) => {
-            if (err) reject(err);
-            let points = 0;
-            for (let doc of docs) {
-                points += doc.achieved_points;
-            }
-            if (points >= requiredPoints) resolve(true);
-            else resolve(false);
-        });
-    });
-};
 
 const answerSchema = new mongoose.Schema({
     text: {
@@ -101,11 +82,19 @@ const answerSchema = new mongoose.Schema({
     }
 });
 
-answerSchema.methods.populateObj = function() {
-    return mongoose.model('Task').findById(this.task).then((task) => {
-        this.task = task;
+/**
+ * On submission removal reference in sheet is deleted.
+ */
+answerSchema.post('remove', function(doc) {
+    mongoose.model('Submission').find({answers: doc._id}).exec((err, submissions) => {
+        if (err) throw err;
+        if (submissions === undefined || submissions === null) return;
+        let submission = (submissions instanceof Array) ? submissions[0] : submissions;
+        if (submission === undefined || submission === null) return;
+        submission.answers = submission.answers.filter(e => !(e.equals(doc._id)));
+        submission.save();
     });
-};
+});
 
 const studentSchema = new mongoose.Schema({
     name: {
@@ -119,11 +108,21 @@ const studentSchema = new mongoose.Schema({
     mat_nr: {
         type: Number,
         required: true
-    },
-    grips_id: {
-        type: Number,
-        required: false
     }
+});
+
+/**
+ * On student removal reference in submission is deleted.
+ */
+studentSchema.post('remove', function(doc) {
+    mongoose.model('Submission').find({student: doc._id}).exec((err, submissions) => {
+        if (err) throw err;
+        if (submissions === undefined || submissions === null) return;
+        let submission = (submissions instanceof Array) ? submissions[0] : submissions;
+        if (submission === undefined || submission === null) return;
+        submission.student = null;
+        submission.save();
+    });
 });
 
 export let Submission = mongoose.model('Submission', submissionSchema);

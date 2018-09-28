@@ -1,52 +1,65 @@
 // Content taken from "Getting MEAN with Mongo, Express, Angular, and Node" by Simon Holmes
-/* global require, process */
-var mongoose = require('mongoose');
-require('dotenv').config();
-var gracefulShutdown;
-let uri = '';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import log from '../utils/log';
+import settings from '../../resources/settings';
+
+dotenv.config();
 mongoose.Promise = Promise;
-function connect(callback) {
-    switch (process.env.MODE) {
-        case 'production':
+
+let uri = '';
+
+/**
+ * Connects to the database depending on the database settings.json variable MODE.
+ * @see settings.json
+ * @returns {Promise} {Promise}
+ */
+function connect() {
+    switch (settings.database.mode) {
+        case 'prod':
             uri = process.env.DB_URI_PROD;
             break;
-        case 'client':
+        case 'dev_client':
             uri = process.env.DB_URI_CLIENT;
             break;
-        case 'server':
+        case 'dev_server':
             uri = process.env.DB_URI_SERVER;
             break;
         default:
             uri = process.env.DB_URI_SERVER;
             break;
     }
-    mongoose.connect(uri, {replicaSet: 'Cluster0-shard-0'}, {
-        useNewUrlParser: true
-    }, function() {
-        if (callback !== undefined) callback();
+    return mongoose.connect(uri, {
+        useNewUrlParser: true,
+        keepAlive: true,
+        keepAliveInitialDelay: 300000
     });
 }
 
+/**
+ * Disconnects from the database.
+ * @returns {Promise} {Promise}
+ */
 function disconnect() {
-    mongoose.disconnect();
+    return mongoose.disconnect();
 }
 
 // CONNECTION EVENTS
 mongoose.connection.on('connected', function() {
-    console.log('Mongoose connected to ' + uri);
+    log.info('Mongoose connected to ' + uri);
 });
 mongoose.connection.on('error', function(err) {
-    console.log('Mongoose connection error: ' + err);
+    log.error('Mongoose connection error: ' + err);
 });
 mongoose.connection.on('disconnected', function() {
-    console.log('Mongoose disconnected');
+    log.info('Mongoose disconnected');
 });
 
 // CAPTURE APP TERMINATION / RESTART EVENTS
 // To be called when process is restarted or terminated
-gracefulShutdown = function(msg, callback) {
+let gracefulShutdown = function(msg, callback) {
     mongoose.connection.close(function() {
-        console.log('Mongoose disconnected through ' + msg);
+        log.info('Mongoose disconnected through ' + msg);
         callback();
     });
 };
@@ -69,7 +82,11 @@ process.on('SIGTERM', function() {
     });
 });
 
+<<<<<<< HEAD
 // BRING IN SCHEMAS & MODELS
 // require("./user");
 export {connect};
 export {disconnect};
+=======
+export {connect, disconnect};
+>>>>>>> dev_server

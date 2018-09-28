@@ -1,9 +1,13 @@
-/* global require */
-var mongoose = require('mongoose');
+/**
+ * @overview The definition of the schemas and models of user and role.
+ * @author Thomas Oswald and Johannes Dengler
+ */
 
-var Schema = mongoose.Schema;
+import mongoose from 'mongoose';
 
-var userSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true
@@ -36,7 +40,7 @@ var userSchema = new mongoose.Schema({
     }]
 });
 
-var roleSchema = new mongoose.Schema({
+const roleSchema = new mongoose.Schema({
     name: {
         type: String,
         enum: ['admin', 'lecturer', 'tutor'],
