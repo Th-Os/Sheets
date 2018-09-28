@@ -17,9 +17,17 @@ npm start
 npm test
 ```
 
+## Settings
+
+### settings.json
+
+This JSON file holds parameters for the database and the logging.
+
 ## API
 
-| address  | method  | params  | body  | success | fail | description |
+All API calls possible.
+
+| address  | method  | params  | body  | success | fail |
 |---|---|---|---|---|---|---|
 |**Authentication** |
 |/auth/login  | POST  | |username, password  | 200, { user: userID, auth: true, token: token }  | 401, 404, 500  |
@@ -97,6 +105,8 @@ npm test
 
 
 ## Database
+
+All implemented database models.
 
 ### Role:
 
