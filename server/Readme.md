@@ -33,7 +33,7 @@ Changing the text or handlebar functions will result in a different output.
 All API calls possible.
 
 | address  | method  | params  | body  | success | fail |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|
 |**Authentication** |
 |/auth/login  | POST  | |username, password  | 200, { user: userID, auth: true, token: token }  | 401, 404, 500  |
 |/auth/logout  | GET  | |  |  { auth: false, token: null }  |   |
