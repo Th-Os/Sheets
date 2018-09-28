@@ -109,7 +109,6 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | ID     |
 | Name      |
 | Matrikelnummer |
-| GripsID |
 
 ### Sheet
 
@@ -180,6 +179,7 @@ Choices are hints for a task.
 | StudentID     |
 | AnswerIDs |
 | UserID |
+| GripsID |
 
 ### Answer
 
