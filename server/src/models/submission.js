@@ -110,7 +110,7 @@ const studentSchema = new mongoose.Schema({
         required: true
     },
     status: {
-        type: Number,
+        type: String,
         required: false
     }
 });
