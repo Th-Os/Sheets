@@ -81,11 +81,10 @@
 
 ## Database
 
-### Rolle:
+### Role:
 
-Rolle kann in Userdatenbank oder in eigener Rollentabelle
+A role that can be used for further functionality by user level.
 
--> Rollentabelle, die erweitert werden könnte (Berechtigungen)
 -> enum 'admin', 'lecturer', 'tutor'
 
 | Roles      |
@@ -95,15 +94,16 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 
 ### User
 
-| User (Admin/Tutor)      |
+| User      |
 | ------------- |
 | ID     |
-| username      |
-| password      |
-| forename      |
-| lastname      |
-| CourseIDs      |
-| RoleID      |
+| Username      |
+| Password      |
+| Forename      |
+| Lastname      |
+| Email |
+| Course IDs      |
+| Role ID      |
 
 ### Course
 
@@ -113,8 +113,8 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | Name     |
 | Institute |
 | Semester |
-| NecessarySheets |
-| SheetIDs |
+| Minimum Required Sheets |
+| Sheet IDs |
 
 ### Student
 
@@ -122,7 +122,8 @@ Rolle kann in Userdatenbank oder in eigener Rollentabelle
 | ------------- |
 | ID     |
 | Name      |
-| Matrikelnummer |
+| Lastname
+| Matriculation Number |
 
 ### Sheet
 
@@ -133,11 +134,12 @@ A sheet can now be persistent -> won't be deleted, when a course (parent) is del
 | ID     |
 | Name |
 | Order |
-| NecessaryPoints |
-| SubmissionDate |
-| ExerciseIDs     |
-| SubmissionIDs |
-| PersistentFlag |
+| Minimum Required Points |
+| Submission Date |
+| Exercise IDs     |
+| Submission IDs |
+| Persistent Flag |
+| Template {Flag, Correctly, Points} |
 
 An excercise can now be persistent -> won't be deleted, when a sheet (parent) is deleted.
 
@@ -149,12 +151,11 @@ An excercise can now be persistent -> won't be deleted, when a sheet (parent) is
 | Name  |
 | Description |
 | Order |
-| TaskIDs |
-| PersistentFlag |
+| Task IDs |
+| Persistent Flag |
 
 ### Task
 
-Could need pictures. Optional!
 Choices are hints for a task.
 
 | Task     |
@@ -164,7 +165,7 @@ Choices are hints for a task.
 | Question |
 | Choices |
 | Points |
-| SolutionID |
+| Solution ID |
 
 ### Solution
 
@@ -182,7 +183,7 @@ Choices are hints for a task.
 | Range (from, to) |
 | Number |
 | Hint |
-| DefaultFreeTextFlag |
+| Default Free Text Flag |
 
 
 ### Submission
@@ -190,10 +191,10 @@ Choices are hints for a task.
 | Submission     |
 | ------------- |
 | ID     |
-| StudentID     |
-| AnswerIDs |
-| UserID |
-| GripsID |
+| Student ID     |
+| Answer IDs |
+| User ID |
+| Grips ID |
 
 ### Answer
 
@@ -201,9 +202,9 @@ Choices are hints for a task.
 | ------------- |
 | ID     |
 | Text |
-| AchievedPoints |
-| TaskID |
+| Achieved Points |
+| Task ID |
 | Feedback |
-| HelpFlag |
-| CorrectedFlag |
-| AutoCorrectedFlag|
+| Help Flag |
+| Corrected Flag |
+| AutoCorrected Flag|
