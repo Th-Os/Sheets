@@ -1,5 +1,7 @@
 # Server
 
+Important: Create a ```.env``` file with the settings below in the server folder, before proceeding further.
+
 The server can be controlled by npm commands. These are:
 
 ```bash
@@ -18,6 +20,25 @@ npm test
 ```
 
 ## Settings / Resources (Path: resources)
+
+### .env (important)
+
+```.env
+# development server uri to mongodb
+DB_URI_SERVER=
+# development client uri to mongodb
+DB_URI_CLIENT=
+# productive uri to mongodb
+DB_URI_PROD=
+# node env: PRODUCTION or DEVELOPMENT.
+NODE_ENV=PRODUCTION
+# port of the server application.
+PORT=3000
+# development option: whether authentication is false or true
+AUTH=true
+# the secret used by the password hashing algorithm
+SECRET=
+```
 
 ### settings.json
 
