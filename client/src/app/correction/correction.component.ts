@@ -1,5 +1,5 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
+import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {ActivatedRoute} from "@angular/router";
 import {SheetService} from "../services/sheet.service";
 import {Submission} from "../models/submission";
 import {Exercise} from "../models/exercise";
@@ -7,6 +7,14 @@ import {TaskService} from "../services/task.service";
 import {Sheet} from "../models/sheet";
 import {CorrectionInterfaceComponent} from "./correction-interface/correction-interface.component";
 import {StudentService} from "../services/student.service";
+import {Location} from "@angular/common";
+
+enum KEY_CODE {
+  UP_ARROW = 38,
+  RIGHT_ARROW = 39,
+  LEFT_ARROW = 37,
+  DOWN_ARROW = 40,
+}
 
 @Component({
   selector: 'app-correction',
@@ -17,6 +25,8 @@ export class CorrectionComponent implements OnInit {
 
   @ViewChild(CorrectionInterfaceComponent)
   private correctionInterfaceComponent: CorrectionInterfaceComponent;
+
+  correctionMode: boolean = false;
 
   loadingSheet: boolean = false;
   loadingSubmissions: boolean = false;
@@ -32,7 +42,7 @@ export class CorrectionComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    private location: Location,
     private sheetService: SheetService,
     private studentService: StudentService,
     private taskService: TaskService,
@@ -42,6 +52,13 @@ export class CorrectionComponent implements OnInit {
     this.getSheet();
     this.getExercisesWithTasks();
     this.getSubmissions();
+  }
+
+  @HostListener('window:keyup', ['$event']) keyEvent($event) {
+    if ($event.keyCode === KEY_CODE.RIGHT_ARROW) this.navigateSubmissions(1);
+    if ($event.keyCode === KEY_CODE.LEFT_ARROW) this.navigateSubmissions(-1);
+    if ($event.keyCode === KEY_CODE.UP_ARROW) this.navigateTasks(-1);
+    if ($event.keyCode === KEY_CODE.DOWN_ARROW) this.navigateTasks(1);
   }
 
   getSheet(): void {
@@ -149,8 +166,8 @@ export class CorrectionComponent implements OnInit {
     }
   }
 
-  exit (): void {
-    this.router.navigate([`/sheets/${this.route.snapshot.paramMap.get('id')}`])
+  goBack (): void {
+    this.location.back();
   }
 
 

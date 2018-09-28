@@ -1,19 +1,25 @@
-<h2 mat-dialog-title>Aufgaben vergeben</h2>
+<h2 mat-dialog-title style="text-align: center">Aufgaben vergeben</h2>
 <mat-dialog-content>
-  <div id="submissionList">
-    <mat-selection-list #submissionsList role="listbox" [(ngModel)]="selectedSubmissions">
-      <mat-list-option *ngFor="let submission of submissions" role="option" [value]="submission">
-        <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
-        <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
-      </mat-list-option>
-    </mat-selection-list>
+  <div id="submissions">
+    <h4>Abgaben</h4>
+    <!--<mat-checkbox [(ngModel)]="selectAll" (change)="selectSubmissions()">Alle auswählen</mat-checkbox>-->
+    <mat-slider [(ngModel)]="numberToAssign" [min]="-1" [max]="submissions.length - 1" (valueChange)="selectPercentage()"></mat-slider>
+    <div id="submissionList">
+      <mat-selection-list #submissionsList role="listbox" [(ngModel)]="selectedSubmissions" (click)="selectMultiple($event)">
+        <mat-list-option *ngFor="let submission of submissions" role="option" [value]="submission">
+          <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
+          <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
   </div>
-  <div>
+  <!--<div>
     <i class="material-icons">
       forward
     </i>
-  </div>
+  </div>-->
   <div id="userList">
+    <h4>User</h4>
     <mat-selection-list #userList role="listbox" [(ngModel)]="selectedUser">
       <mat-list-option
         #selUser

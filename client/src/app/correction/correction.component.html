@@ -1,79 +1,137 @@
-<!--
-<button mat-fab class="uni-color" class="position-absolute m-4" (click)="exit()">
-  <i class="material-icons">close</i>
-</button>
-
-<button mat-fab color="primary" class="position-absolute submissions-prev mt-4" (click)="navigateSubmissions(-1)">
-  <mat-icon>keyboard_arrow_up</mat-icon>
-</button>
-
-<button mat-fab color="primary"  class="position-absolute submissions-next mb-4" (click)="navigateSubmissions(1)" >
-  <mat-icon>keyboard_arrow_down</mat-icon>
-</button>
-
-<button mat-fab color="primary"  class="position-absolute tasks-prev ml-2" (click)="navigateTasks(-1)">
-  <mat-icon>keyboard_arrow_left</mat-icon>
-</button>
-
-<button mat-fab color="primary"  class="position-absolute tasks-next mr-2" (click)="navigateTasks(1)">
-  <mat-icon>keyboard_arrow_right</mat-icon>
-</button>
-
-<div class="container correction-container">
+<div class="container-fluid mt-5">
   <div class="row">
-    <div class="col-lg-3 col-md-3 col mh-100">
-      <mat-card class="h-100 scroll-overview material-scroll">
-        <mat-card-title>Abgaben</mat-card-title>
-        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
-          <mat-spinner *ngIf="loadingSubmissions"></mat-spinner>
-          <mat-nav-list *ngIf="!loadingSubmissions">
-            <mat-list-item *ngIf="submissions.length === 0" (click)="getSubmissions()">
-              Abgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
-            </mat-list-item>
-            <mat-list-item *ngFor="let submission of submissions" role="listitem" class="list-selectable"
-                           [class.active]="submission._id === selected_submission"
-                           (click)="selected_submission = submission._id">
-              <h3 mat-line *ngIf="submission.student != null">
-                {{submission.student.lastname}} {{submission.student.name}}
-              </h3>
-              <p mat-line class="text-grayed" *ngIf="submission.student != null">
-                {{ submission.student.mat_nr }}
-              </p>
-            </mat-list-item>
-          </mat-nav-list>
-        </mat-card-content>
-      </mat-card>
+    <!-- BACK BUTTON -->
+    <div class="col-12 col-lg-1 col-md-1 my-2">
+      <button mat-fab color="accent" class="m-2" (click)="goBack()">
+        <i class="material-icons">clear</i>
+      </button>
     </div>
-    <div class="col h-100">
-      <app-correction-interface *ngIf="selected_task !== null && selected_submission !== null"
-                                [task_id]="selected_task" [submission_id]="selected_submission"
-                                (saved)="onAnswerSaved()"></app-correction-interface>
-      <div *ngIf="selected_submission === null || selected_task === null" class="d-flex justify-content-center align-items-center">Bitte Abgage und Aufgabe auswählen.</div>
-    </div>
-    <div class="col-lg-3 col-md-3 col">
-      <mat-card>
-        <mat-card-title>Aufgaben</mat-card-title>
-        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
-          <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
-          <mat-nav-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
-            <ng-container *ngFor="let exercise of exercises; let index = index;">
-              <h3 matSubheader>{{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}</h3>
-              <mat-list-item *ngIf="exercises.length === 0" (click)="getExercisesWithTasks()">Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
-              <mat-list-item *ngFor="let task of exercise.tasks"
-                             (click)="selected_task = task._id"
-                             [class.active]="selected_task === task._id">
-                <h4 matLine>{{task.order | numberToChar}}.) {{task.question}}</h4>
-              </mat-list-item>
-              <mat-divider *ngIf="exercises.length === index" [inset]="true"></mat-divider>
-            </ng-container>
-          </mat-nav-list>
-        </mat-card-content>
-      </mat-card>
+    <!-- CONTENT -->
+    <div class="col-12 col-lg-11 col-md-11">
+      <div class="row">
+        <!-- CORRECTION MODE SLIDER -->
+        <div class="col-12 my-3">
+          <mat-slide-toggle matTooltip="Im Korrekturmodus werden Eingaben beim Navigieren automatisch gespeichert. Zudem werden bereits besuchte Antworten als korrigiert vermerkt" [(ngModel)]="correctionMode">Korrekturmodus</mat-slide-toggle>
+        </div>
+
+        <!-- GRID SUBMISSIONS -->
+        <div class="d-md-block d-lg-block col-12 col-lg-3 col-md-6 my-3 order-1 order-lg-0">
+          <mat-card class="h-100" style="overflow: hidden" >
+            <mat-card-title>Abgaben</mat-card-title>
+            <mat-card-content style="overflow: scroll" class="h-100">
+              <mat-spinner *ngIf="loadingSubmissions"></mat-spinner>
+              <mat-nav-list *ngIf="!loadingSubmissions">
+                <mat-list-item *ngIf="submissions.length === 0" (click)="getSubmissions()">
+                  Abgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+                </mat-list-item>
+                <mat-list-item *ngFor="let submission of submissions | checkSubmissionsPipe" role="listitem" class="list-selectable"
+                               [class.active]="submission._id === selected_submission"
+                               (click)="selected_submission = submission._id">
+                  <h3 mat-line *ngIf="submission.student != null">
+                    {{submission.student.lastname}} {{submission.student.name}}
+                  </h3>
+                  <p mat-line class="text-grayed" *ngIf="submission.student != null">
+                    {{ submission.grips_id }}
+                  </p>
+                </mat-list-item>
+              </mat-nav-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- GRID CORRECTION INTERFACE -->
+        <div class="col-12 col-lg-6 col-md-12 order-0 order-lg-1">
+          <div class="row">
+            <!-- PREVIOUS TASK -->
+            <div class="col-3 col-md-12 col-lg-12 order-0 my-sm-4">
+              <div class="d-flex w-100 align-items-center justify-content-center mb-3" style="max-height: 60px;">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur vorherigen Aufgabe" class="" (click)="navigateTasks(-1)">
+                  <mat-icon>keyboard_arrow_up</mat-icon>
+                </button>
+              </div>
+            </div>
+            <!-- PREVIOUS SUBMISSION -->
+            <div class="col-md-2 col-lg-2 col-3 order-1 my-sm-4">
+              <div class="d-flex align-items-center justify-content-center h-100">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur vorherigen Abgabe" class="" (click)="navigateSubmissions(-1)">
+                  <mat-icon>keyboard_arrow_left</mat-icon>
+                </button>
+              </div>
+            </div>
+            <!-- CORRECTION INTERFACE -->
+            <div class="col-12 col-lg-8 col-md-8 order-12 order-md-2 order-lg-2 my-3">
+              <app-correction-interface *ngIf="selected_task !== null && selected_submission !== null"
+                                        [task_id]="selected_task" [submission_id]="selected_submission"
+                                        [correctionMode]="correctionMode"
+                                        (saved)="onAnswerSaved()" style="max-height: calc(100% - 120px);"></app-correction-interface>
+            </div>
+            <!-- NEXT SUBMISSION -->
+            <div class="col-md-2 col-lg-2 col-3 order-3 my-sm-4">
+              <div class="d-flex align-items-center justify-content-center h-100">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur nächsten Abgabe"(click)="navigateSubmissions(1)">
+                  <mat-icon>keyboard_arrow_right</mat-icon>
+                </button>
+              </div>
+            </div>
+            <!-- NEXT TASK -->
+            <div class="col-3 col-md-12 col-lg-12 order-4 my-sm-4">
+              <div class="d-flex align-items-center justify-content-center h-100">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur nächsten Teilaufgabe" (click)="navigateTasks(1)">
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRID EXERCISES AND TASKS -->
+        <div class="d-none d-md-block d-lg-block col-12 col-lg-3 col-md-6 my-3 order-2 order-lg-2">
+          <mat-card style="overflow: hidden" class="h-100">
+            <mat-card-title>Aufgaben</mat-card-title>
+            <mat-card-content style="overflow: scroll;" class="h-100">
+              <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
+              <mat-nav-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
+                <mat-list-item *ngIf="exercises && exercises.length === 0" (click)="getExercisesWithTasks()">
+                  Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+                </mat-list-item>
+                <ng-container *ngFor="let exercise of exercises; let index = index;">
+                  <mat-list-item [disableRipple]="true" style="cursor: default;">
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="exercise.name">
+                        {{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}
+                      </div>
+                    </div>
+                  </mat-list-item>
+                  <mat-list-item *ngFor="let task of exercise.tasks" class="ml-3"
+                                 (click)="selected_task = task._id"
+                                 [class.active]="selected_task === task._id">
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="task.question">
+                        {{task.order | numberToChar}}) {{task.question}}
+                      </div>
+                    </div>
+                  </mat-list-item>
+                  <!--
+                  <h3 matSubheader>{{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}</h3>
+                  <mat-list-item *ngIf="exercises.length === 0" (click)="getExercisesWithTasks()">Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
+                  <mat-list-item *ngFor="let task of exercise.tasks"
+                                 (click)="selected_task = task._id"
+                                 [class.active]="selected_task === task._id">
+                    <h4 matLine>{{task.order | numberToChar}}.) {{task.question}}</h4>
+                  </mat-list-item>
+                  <mat-divider *ngIf="exercises.length === index" [inset]="true"></mat-divider>
+                  -->
+                </ng-container>
+              </mat-nav-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
     </div>
   </div>
 </div>
--->
 
+<!--
 <div class="container-fluid h-100 mt-5">
   <div class="row h-100">
     <div class="col col-lg-2 col-md-2 h-100">
@@ -85,7 +143,7 @@
             <mat-list-item *ngIf="submissions.length === 0" (click)="getSubmissions()">
               Abgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
             </mat-list-item>
-            <mat-list-item *ngFor="let submission of submissions" role="listitem" class="list-selectable"
+            <mat-list-item *ngFor="let submission of submissions | checkSubmissionsPipe" role="listitem" class="list-selectable"
                            [class.active]="submission._id === selected_submission"
                            (click)="selected_submission = submission._id">
               <h3 mat-line *ngIf="submission.student != null">
@@ -101,14 +159,14 @@
     </div>
     <div class="col px-0 h-100" style="max-width: 60px;">
       <div class="d-flex align-items-center justify-content-center h-100">
-        <button mat-fab color="primary" class="" (click)="navigateSubmissions(-1)">
+        <button mat-fab color="primary" matTooltip="Zur vorherigen Abgabe" class="" (click)="navigateSubmissions(-1)">
           <mat-icon>keyboard_arrow_left</mat-icon>
         </button>
       </div>
     </div>
     <div class="col col-lg-6 col-md-6 h-100">
       <div class="d-flex w-100 align-items-center justify-content-center mb-3" style="max-height: 60px;">
-        <button mat-fab color="primary" class="" (click)="navigateTasks(-1)">
+        <button mat-fab color="primary" matTooltip="Zur vorherigen Aufgabe" class="" (click)="navigateTasks(-1)">
           <mat-icon>keyboard_arrow_up</mat-icon>
         </button>
       </div>
@@ -120,14 +178,14 @@
         Bitte Abgage und Aufgabe auswählen.
       </div>
       <div class="d-flex w-100 align-items-center justify-content-center mt-3" style="max-height: 60px;">
-        <button mat-fab color="primary" class="" (click)="navigateTasks(1)">
+        <button mat-fab color="primary" matTooltip="Zur nächsten Aufgabe" class="" (click)="navigateTasks(1)">
           <mat-icon>keyboard_arrow_down</mat-icon>
         </button>
       </div>
     </div>
     <div class="col h-100 px-0" style="max-width: 60px;">
       <div class="d-flex align-items-center justify-content-center h-100">
-        <button mat-fab color="primary" class="" (click)="navigateSubmissions(1)">
+        <button mat-fab color="primary" matTooltip="Zur nächsten Abgabe" class="" (click)="navigateSubmissions(1)">
           <mat-icon>keyboard_arrow_right</mat-icon>
         </button>
       </div>
@@ -154,4 +212,4 @@
     </div>
   </div>
 </div>
-
+-->

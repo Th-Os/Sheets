@@ -4,7 +4,6 @@ import { MessageSnackbarService } from '../message-snackbar.service';
 import { Observable, of } from 'rxjs';
 import {Task} from '../models/task';
 import { catchError, tap } from 'rxjs/operators';
-import {Exercise} from '../models/exercise';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -20,8 +19,10 @@ export class TaskService {
   private exercisesUrl = 'http://localhost:3000/exercises';
 
   constructor(private http: HttpClient,
-              private messageSnackbarService: MessageSnackbarService) { }
+              private messageSnackbarService: MessageSnackbarService
+  ) { }
 
+  // Get all tasks of an exercise
   getTasks (exerciseId: string): Observable<Task[]> {
     const url = `${this.exercisesUrl}/${exerciseId}/tasks`;
     return this.http.get<Task[]>(url)
@@ -30,6 +31,7 @@ export class TaskService {
       );
   }
 
+  // Get single task by id
   getTask(id: any): Observable<Task> {
     const url = `${this.tasksUrl}/${id}`;
     return this.http.get<Task>(url).pipe(
@@ -44,7 +46,8 @@ export class TaskService {
     );
   }*/
 
-  updateTask(task: Task): Observable<Task>{
+  // Update task in db
+  updateTask(task: Task): Observable<Task> {
     return this.http.put<Task>(`${this.tasksUrl}/${task._id}`, task, httpOptions).pipe(
       tap(_ => this.log(`updated task id=${task._id}`)),
       catchError(this.handleError<any>('updateTask'))
@@ -62,6 +65,7 @@ export class TaskService {
   }
   */
 
+  // Add task to exercise
   addTask (exerciseId: string, task: Task): Observable<Task> {
     const url = `${this.exercisesUrl}/${exerciseId}/tasks`;
     return this.http.post<Task>(url, task, httpOptions).pipe(
@@ -70,6 +74,7 @@ export class TaskService {
     );
   }
 
+  // Delete task in db
   deleteTask (task: Task | number): Observable<Task> {
     const id = typeof task === 'number' ? task : task._id;
     const url = `${this.tasksUrl}/${id}`;
@@ -80,12 +85,6 @@ export class TaskService {
     );
   }
 
-  /**
-   * Handle Http operation that failed.
-   * Let the app continue.
-   * @param operation - name of the operation that failed
-   * @param result - optional value to return as the observable result
-   */
   private handleError<T> (operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
@@ -97,7 +96,6 @@ export class TaskService {
     };
   }
 
-  /** Log a HeroService message with the MessageService */
   private log(message: string) {
     this.messageSnackbarService.show(`TaskService: ${message}`);
   }

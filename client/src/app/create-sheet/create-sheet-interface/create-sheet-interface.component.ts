@@ -27,6 +27,7 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
   task: Task;
 
   regex = new FormControl('', [Validators.required, ValidateRegex]);
+  choice: string = '';
 
   constructor(
     private exerciseService: ExerciseService,
@@ -110,4 +111,15 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
         })
   }
 
+
+  onAddChoice() {
+    if (this.choice.length > 0) {
+      this.task.choices.push(this.choice);
+      this.choice = '';
+    }
+  }
+
+  onRemoveChoice(index: number) {
+    this.task.choices.splice(index, 1);
+  }
 }

@@ -48,6 +48,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get all courses
   getCourses(): Promise<Course[]> {
     return new Promise<Course[]>((resolve, reject) => {
       this.courseService.getCourses().subscribe(courses => {
@@ -60,6 +61,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Check if a course has sheets. Gives back array with all courses that have at lest one sheet
   checkIfCourseHasSheets(courses: Course[]): Promise<Course[]> {
     const checkedCourses = [];
     return new Promise<Course[]>((resolve, reject) => {
@@ -72,6 +74,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get all sheets for every course that has a sheet
   getSheets(courses: Course[]): void {
     courses.forEach(course => {
       this.sheetService.getSheets(course._id.toString())
@@ -80,6 +83,7 @@ export class ExerciseDialogComponent implements OnInit {
     this.courses = courses;
   }
 
+  // For a sheet find the corresponding courseId
   findCourseIdOfSheet(courses: Course[], sheetId: string): void {
     courses.forEach(course => {
       course.sheets.forEach(sheet => {
@@ -90,19 +94,25 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Create a sheet
   create(): void {
     const newSheet = new Sheet();
-    newSheet.submissiondate = moment().toISOString();
+    let submissiondate = moment();
+    submissiondate = submissiondate.minutes(55).hour(23);
+    newSheet.submissiondate = submissiondate.toISOString();
     newSheet.min_req_points = 0;
     newSheet.persistent = false;
     newSheet.exercises = [];
 
+    // When template is selected get the selected sheet with all corresponding exercises, tasks and solutions.
+    // Then create new sheet on basis of selected sheet. Otherwise just create new sheet.
+    // When done route to sheet-creation-page
     if (this.useTemplate) {
       this.fetchSheet(this.selectedSheetId.toString()).then(fetchedSheet => {
         newSheet.name = 'Vorlage: ' + fetchedSheet.name;
         this.sheetService.getSheets(this.selectedCourseId.toString()).subscribe(sheets => newSheet.order = sheets.length);
         this.fillSheet(newSheet).then(sheet => {
-          this.router.navigateByUrl('/sheet/' + sheet._id + '/create');
+          this.router.navigateByUrl('/sheets/' + sheet._id + '/create');
           this.dialogRef.close();
         });
       });
@@ -110,11 +120,12 @@ export class ExerciseDialogComponent implements OnInit {
       newSheet.name = 'Neues Aufgabenblatt';
       this.sheetService.getSheets(this.data.courseId).subscribe(sheets => newSheet.order = sheets.length);
       this.sheetService.addSheet(this.data.courseId, newSheet)
-        .subscribe(sheet => this.router.navigateByUrl('/sheet/' + sheet[0]._id + '/create'));
+        .subscribe(sheet => this.router.navigateByUrl('/sheets/' + sheet[0]._id + '/create'));
       this.dialogRef.close();
     }
   }
 
+  // Fill new sheet with exercises, tasks and solutions by adding each to db
   fillSheet(newSheet: Sheet): Promise<Sheet> {
     return new Promise<Sheet>((resolve, reject) => {
       this.sheetService.addSheet(this.data.courseId, newSheet).subscribe(sheet => {
@@ -176,6 +187,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get sheet
   fetchSheet(sheetId: string): Promise<Sheet> {
     this.fetchedSheet = new Sheet();
     return new Promise<Sheet>((resolve, reject) => {
@@ -192,6 +204,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get all exercises of sheet
   getExercises(sheetId: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.exerciseService.getExercises(sheetId).subscribe(exercises => {
@@ -208,6 +221,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get all tasks of exercise
   getTasks(exerciseId: string, exercise: Exercise): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.getIndexOfExercise(exercise).then(exerciseIndex => {
@@ -225,16 +239,17 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get solutions for corresponding task
   getSolution(taskId: string, exercise: Exercise, task: Task): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.getIndexOfExercise(exercise).then(exerciseIndex => {
         this.getIndexOfTask(exerciseIndex, task).then(taskIndex => {
           this.solutionService.getSolution(taskId).subscribe( solution => {
-            if (solution[0].regex === undefined) {
-              solution[0].regex = '';
+            if (solution.regex === undefined) {
+              solution.regex = '';
             }
             if ((exerciseIndex && taskIndex) >= 0) {
-              this.fetchedSheet.exercises[exerciseIndex].tasks[taskIndex].solution = solution[0];
+              this.fetchedSheet.exercises[exerciseIndex].tasks[taskIndex].solution = solution;
               resolve(true);
             }
           });
@@ -243,6 +258,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get the index of an exercise
   private getIndexOfExercise(exercise: Exercise): Promise<number> {
     return new Promise<number>(resolve => {
       const exerciseIndex = this.fetchedSheet.exercises.indexOf(exercise, 0);
@@ -250,6 +266,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Get the index of a task
   private getIndexOfTask(exerciseIndex: number, task: Task): Promise<number> {
     return new Promise<number>(resolve => {
       const taskIndex = this.fetchedSheet.exercises[exerciseIndex].tasks.indexOf(task, 0);
@@ -257,6 +274,7 @@ export class ExerciseDialogComponent implements OnInit {
     });
   }
 
+  // Either create sheet or close dialog
   onClose(create: boolean): void {
     if (create) {
       this.findCourseIdOfSheet(this.courses, this.selectedSheetId);

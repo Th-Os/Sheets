@@ -129,11 +129,11 @@ export class SheetService {
       );
   }
 
-  autocorrectSubmissions(submission: Submission): Observable<any> {
-        const url = `${this.correctionUrl}/${submission._id}`;
+  autocorrectSubmission(submissionID: string): Observable<any> {
+        const url = `${this.correctionUrl}/${submissionID}`;
 
       return this.http.get(url, httpOptions).pipe(
-      tap(_ => this.log(`corrected submission`)),
+      tap(_ => this.log(`corrected submission id=${submissionID}`)),
       catchError(this.handleError<any>('correction')))
 /*
     let promises = [];
@@ -163,6 +163,12 @@ export class SheetService {
       tap(_ => this.log(`fetched Student of Submission id=${submission._id}`)),
       catchError(this.handleError('getAnswers'))
       );
+  }
+
+  downloadSheet(id: string): Observable<Blob> {
+    return this.http.get(`${this.sheetsUrl}/${id}/export`, {responseType: 'blob'}).pipe(
+
+    )
   }
 
   /**

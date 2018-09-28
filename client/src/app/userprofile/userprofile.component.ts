@@ -21,11 +21,21 @@ export class UserprofileComponent implements OnInit {
 
   users: User[];
   usersCourses: Course[];
-  loadingUsers = false;
   loggedInUser: any;
-  viewProfile = false;
+  loadingUsers = false;
+
+  // For submission progress overview when normal user
   submissionProgress = [];
+  loadingSubmissionProgress = false;
+
+  // For whole progress overview when admin
   userProgress = [];
+
+  // For admin when viewing single user progress
+  showUserProgress = false;
+  progressOfSingleUser = [];
+  singleUser: User;
+  loadingSingleUserProgress = false;
 
   constructor(private location: Location,
               private userService: UserService,
@@ -45,6 +55,7 @@ export class UserprofileComponent implements OnInit {
       password: storedUser.password,
       forename: storedUser.forename,
       lastname: storedUser.lastname,
+      email: storedUser.email,
       role: storedUser.role,
       courses: storedUser.courses
     };
@@ -56,7 +67,7 @@ export class UserprofileComponent implements OnInit {
     this.getUsers().then(_ =>  this.calculateProgressForUsers());
 
     // Calculate progress for logged in user
-    this.calculateProgressForSubmissions();
+    this.calculateProgressForSubmissions(this.loggedInUser._id, this.submissionProgress);
   }
 
   // Get all users
@@ -123,23 +134,36 @@ export class UserprofileComponent implements OnInit {
   }
 
   // Calculate correction progress for each submission
-  calculateProgressForSubmissions(): void {
-    this.getSubmissionsForUser(this.loggedInUser._id).then(submissions => {
-      this.getStudents(submissions).then(submissionsWithStudents => {
-        this.getAnswers(submissionsWithStudents).then(submissionsWithAnswers => {
-          submissionsWithAnswers.forEach(submission => {
-            let answerCount = 0;
-            let corrected = 0;
-            submission.answers.forEach(answer => {
-              answerCount++;
-              if (answer.corrected) {
-                corrected++;
-              }
+  calculateProgressForSubmissions(userId: string, progressArray: any[]): Promise<boolean> {
+    this.loadingSubmissionProgress = true;
+    return new Promise<boolean>(resolve => {
+      this.getSubmissionsForUser(userId).then(submissions => {
+        if (submissions.length < 1) {
+          this.loadingSingleUserProgress = false;
+          this.loadingSubmissionProgress = false;
+        }
+        this.getStudents(submissions).then(submissionsWithStudents => {
+          this.getAnswers(submissionsWithStudents).then(submissionsWithAnswers => {
+            submissionsWithAnswers.forEach(submission => {
+              let answerCount = 0;
+              let corrected = 0;
+              let needsHelp = false;
+              submission.answers.forEach(answer => {
+                answerCount++;
+                if (answer.corrected) {
+                  corrected++;
+                }
+                if (answer.help) {
+                  needsHelp = true;
+                }
+              });
+              progressArray.push({
+                studentName: `${submission.student.name} ${submission.student.lastname}` ,
+                progress: (corrected / answerCount) * 100,
+                needsHelp: needsHelp});
             });
-            // Todo: Add sheet name if possible to sort by sheet?
-            this.submissionProgress.push({sheetName: '',
-              studentName: `${submission.student.name} ${submission.student.lastname}` ,
-              progress: (corrected / answerCount) * 100});
+            this.loadingSubmissionProgress = false;
+            resolve(true);
           });
         });
       });
@@ -179,7 +203,7 @@ export class UserprofileComponent implements OnInit {
   }
 
   // Get correction progress for a user from array calculated before
-  getUserProgress(userId: string): number {
+  getWholeUserProgress(userId: string): number {
     let progress = 0;
     this.userProgress.forEach(user => {
       if (user.userId === userId) {
@@ -189,7 +213,21 @@ export class UserprofileComponent implements OnInit {
     return progress;
   }
 
-  // Check if user needs help
+  // Calculate correction progress for specified user (needed to view progress for each user as admin)
+  showSingleUserProgress(user: User): void {
+    this.showUserProgress = true;
+    this.progressOfSingleUser = [];
+    this.singleUser = user;
+    this.loadingSingleUserProgress = true;
+    this.calculateProgressForSubmissions(this.singleUser._id, this.progressOfSingleUser).then(_ => this.loadingSingleUserProgress = false);
+  }
+
+  // Close card with correction progress of single user
+  closeCard(): void {
+    this.showUserProgress = false;
+  }
+
+  // Check if user needs help somewhere to display in correction-progress-overview
   userNeedsHelp(userId: string): boolean {
     let needsHelp = false;
     this.userProgress.forEach(user => {
@@ -200,16 +238,18 @@ export class UserprofileComponent implements OnInit {
     return needsHelp;
   }
 
-  // Delete user
+  // Delete user after confirmation
   delete(user: User): void {
-    const userIndex = this.users.indexOf(user);
-    this.userService.deleteUser(user).subscribe(_ => {
-      if (this.users.length > 0) {
-        this.users.splice(userIndex, 1);
-      } else {
-        this.users = [];
-      }
-    });
+    if (window.confirm('Wollen Sie den User wirklich löschen?')) {
+      const userIndex = this.users.indexOf(user);
+      this.userService.deleteUser(user).subscribe(_ => {
+        if (this.users.length > 0) {
+          this.users.splice(userIndex, 1);
+        } else {
+          this.users = [];
+        }
+      });
+    }
   }
 
   // Show dialog to add user
@@ -224,7 +264,9 @@ export class UserprofileComponent implements OnInit {
 
   // Show dialog to add course(s) to user
   addCourseToTutor(user: User): void {
-    this.showEditDialog(false, true, user);
+    if (this.loggedInUser.role.name === 'admin' || (this.loggedInUser.role.name === 'lecturer' && user.role.name !== 'admin')) {
+      this.showEditDialog(false, true, user);
+    }
   }
 
   // Show dialog
@@ -248,7 +290,8 @@ export class UserprofileComponent implements OnInit {
         localUser.password = result.password;
         localUser.forename = result.forename;
         localUser.lastname = result.lastname;
-        localStorage.role = result.role;
+        localUser.email = result.email;
+        localUser.role = result.role;
         localUser.courses = result.courses;
         localStorage.setItem('currentUser', JSON.stringify(localUser));
       }

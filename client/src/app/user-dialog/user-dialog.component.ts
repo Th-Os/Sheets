@@ -27,25 +27,28 @@ export class UserDialogComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.data.user;
-    // Todo: Maybe find better way of not using hashed password (without hash could be hashed again)
     this.user.password = '';
     this.getCourses();
     this.getRoles();
     this.loggedInUser = JSON.parse(localStorage.getItem('currentUser'));
   }
 
+  // Get all courses to select and add to user
   getCourses(): void {
     this.courseService.getCourses().subscribe(courses => this.courses = courses);
   }
 
+  // Get all roles
   getRoles(): void {
     this.userService.getRoles().subscribe(roles => this.roles = roles);
   }
 
+  // Close dialog by cancel-button
   onClose(): void {
     this.dialogRef.close(null);
   }
 
+  // Either create or update user after dialog is closed by save/create-button
   onSubmit(): void {
     this.saving = true;
     if (this.data.create) {

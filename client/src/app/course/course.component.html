@@ -1,48 +1,63 @@
-<button mat-fab color="primary" class="position-absolute m-5" (click)="goBack()">
-  <i class="material-icons">arrow_back</i>
-</button>
-
 <div class="container mt-5 h-100">
-  <h1 *ngIf="course">{{course.name}}</h1>
-  <div class="row h-100">
-    <div class="col-12 col-lg-6 col-md-6">
-      <mat-card>
-        <mat-card-title>Übungsblätter</mat-card-title>
-        <mat-card-content class="h-100" [class.d-flex.justify-content-center.align-items-center]="loadingSheets">
-          <mat-progress-spinner *ngIf="loadingSheets"
-                                color="primary"
-                                mode="indeterminate"
-                                [diameter]="50">
-          </mat-progress-spinner>
-          <mat-nav-list *ngIf="course && !loadingSheets" >
-            <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
-              <a mat-line> {{ sheet.name }} </a>
-              <button mat-icon-button (click)="update(sheet); $event.stopPropagation();">
-                <mat-icon color="secondary">edit</mat-icon>
-              </button>
-              <button mat-icon-button (click)="delete(sheet); $event.stopPropagation();">
-                <mat-icon color="secondary">delete</mat-icon>
-              </button>
-            </mat-list-item>
-          </mat-nav-list>
-        </mat-card-content>
-        <button (click)="add()" class="position-absolute" style="right: 10px;" mat-fab color="primary">
-          <mat-icon>add</mat-icon>
-        </button>
-      </mat-card>
+  <div class="row">
+    <!-- BACK BUTTON -->
+    <div class="col-12 col-lg-1 col-md-2">
+      <button mat-fab color="primary" class="m-2" (click)="goBack()">
+        <i class="material-icons">arrow_back</i>
+      </button>
     </div>
-
-    <div class="col-12 col-lg-6 col-md-6">
-      <mat-card>
-        <mat-card-title>Studenten</mat-card-title>
-        <mat-card-content>
-          <mat-list>
-            <mat-list-item *ngFor="let student of students" role="listitem">
-              <h3 mat-line> {{ student.name }} </h3>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
+    <!-- CONTENT -->
+    <div class="col-12 col-lg-11 col-md-11">
+      <div class="row">
+        <div class="col-12 mb-2">
+          <h1 *ngIf="course">{{course.name}}</h1>
+        </div>
+        <!-- GRID SHEETS -->
+        <div class="col-12 col-lg-6 col-md-6 mb-5">
+          <mat-card>
+            <mat-card-title>Übungsblätter</mat-card-title>
+            <mat-card-content class="h-100" [class.d-flex.justify-content-center.align-items-center]="loadingSheets">
+              <mat-progress-spinner *ngIf="loadingSheets"
+              color="primary"
+              mode="indeterminate"
+              [diameter]="50">
+            </mat-progress-spinner>
+            <mat-nav-list *ngIf="course && !loadingSheets" >
+              <mat-list-item *ngFor="let sheet of sheets" role="listitem" routerLink="/sheets/{{sheet._id}}">
+                <a mat-line> {{ sheet.name }} </a>
+                <button mat-icon-button matTooltip="Übungsblatt editieren" (click)="update(sheet); $event.stopPropagation();">
+                  <mat-icon color="secondary">edit</mat-icon>
+                </button>
+                <button mat-icon-button matTooltip="Übungsblatt löschen" (click)="delete(sheet); $event.stopPropagation();">
+                  <mat-icon color="secondary">delete</mat-icon>
+                </button>
+              </mat-list-item>
+            </mat-nav-list>
+          </mat-card-content>
+          <button (click)="add()" matTooltip="Übungsblatt hinzufügen" class="position-absolute" style="right: 10px;" mat-fab color="primary">
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-card>
+      </div>
+      <!-- GRID STUDENTS -->
+      <div class="col-12 col-lg-6 col-md-6 mb-5">
+        <button id="calcbutton" *ngIf="students.length > 0" mat-raised-button (click)="calculateCourseResults()" matTooltip="Bestehen der Kursteinehmer berechnen" color="accent">Kurs auswerten</button>
+          <mat-card>
+            <mat-card-title>Studenten</mat-card-title>
+            <mat-card-content>
+              <mat-list>
+                <mat-list-item *ngFor="let student of students" role="listitem">
+                  <h3 mat-line> {{ student.name }} {{ student.lastname }} </h3>
+                  <p> {{student.status}}
+                    <!--<mat-icon  matTooltip="{{ student.status }}">{{ student.statusIcon }}</mat-icon>-->
+                  </p>
+                  <p mat-line class="text-grayed" *ngIf="student != null"> {{ student.mat_nr }} </p>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
     </div>
   </div>
 </div>

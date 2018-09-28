@@ -4,8 +4,6 @@ import { MessageSnackbarService } from '../message-snackbar.service';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import {Solution} from '../models/solution';
-import {Exercise} from '../models/exercise';
-import {Task} from '../models/task';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -20,17 +18,10 @@ export class SolutionService {
   private solutionsUrl = 'http://localhost:3000/solutions';
 
   constructor(private http: HttpClient,
-              private messageSnackbarService: MessageSnackbarService) { }
+              private messageSnackbarService: MessageSnackbarService
+  ) { }
 
-
-  getSolution2 (taskId: string): Observable<Solution> {
-    const url = `${this.tasksUrl}/${taskId}/solutions`;
-    return this.http.get<Solution>(url)
-      .pipe(
-        catchError(this.handleError<Solution>('getSolution' ))
-      );
-  }
-
+  // Get all solutions of a task
   getSolution(taskId: string): Observable<Solution> {
     const url = `${this.tasksUrl}/${taskId}/solutions`;
     return this.http.get<Solution>(url).pipe(
@@ -45,6 +36,7 @@ export class SolutionService {
     );
   }*/
 
+  // Update solution in db
   updateSolution (solution: Solution): Observable<Solution> {
     return this.http.put<Solution>(this.solutionsUrl + '/' + solution._id, solution, httpOptions).pipe(
       tap(_ => this.log(`updated solution id=${solution._id}`)),
@@ -52,6 +44,7 @@ export class SolutionService {
     );
   }
 
+  // Add solution to task
   addSolution(taskId: string, solution: Solution): Observable<Solution> {
     const url = `${this.tasksUrl}/${taskId}/solutions`;
     return this.http.post<Solution>(url, solution, httpOptions).pipe(
@@ -60,6 +53,7 @@ export class SolutionService {
     );
   }
 
+  // Delete solution in db
   deleteSolution(solution: Solution | string): Observable<Solution> {
     const id = typeof solution === 'string' ? solution : solution._id;
     const url = `${this.solutionsUrl}/${id}`;
@@ -81,7 +75,6 @@ export class SolutionService {
     };
   }
 
-  /** Log a TaskService message with the MessageService */
   private log(message: string) {
     this.messageSnackbarService.show(`SolutionService: ${message}`);
   }

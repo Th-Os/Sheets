@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {MessageSnackbarService} from '../message-snackbar.service';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {map, catchError, tap} from 'rxjs/internal/operators';
+import {catchError} from 'rxjs/internal/operators';
 import {UserService} from './user.service';
-import {User} from '../models/user';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -23,10 +22,10 @@ export class AuthenticationService {
               private userService: UserService
   ) { }
 
-  // Todo: See if even necessary to give back userid (should all be saved in local storage)
-  loginUser(username: string, password: string): Promise<string> {
+  // Send login-data to server for validation. If successful, get user data from db and save it in local storage
+  loginUser(username: string, password: string): Promise<boolean> {
     const url = `${this.authUrl}/login`;
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<boolean>((resolve, reject) => {
       this.http.post<any>(url, {username: username, password: password}, httpOptions)
         .pipe(
           catchError(this.handleError<any>('loginUser')))
@@ -39,13 +38,14 @@ export class AuthenticationService {
                 password: user.password,
                 forename: user.forename,
                 lastname: user.lastname,
+                email: user.email,
                 role: user.role,
                 courses: user.courses,
                 token: res.token
               };
               localStorage.setItem('currentUser', JSON.stringify(storeUser));
               this.isUserloggedIn.next(true);
-              resolve(user._id);
+              resolve(true);
             });
           } else {
             this.isUserloggedIn.next(false);
@@ -55,20 +55,16 @@ export class AuthenticationService {
     });
   }
 
-  registerUser(username: string, password: string): Observable<void> {
-    const url = `${this.authUrl}/register`;
-    return new Observable<void>();
-  }
-
+  // Check if some user is logged in
   checkIfUserIsLoggedIn(): void {
     if (localStorage.getItem('currentUser') !== null) {
-      // console.log(localStorage.getItem('currentUser'));
       this.isUserloggedIn.next(true);
     } else {
       this.isUserloggedIn.next(false);
     }
   }
 
+  // Logout user
   logoutUser(): void {
     localStorage.removeItem('currentUser');
     this.isUserloggedIn.next(false);
@@ -85,7 +81,6 @@ export class AuthenticationService {
     };
   }
 
-  /** Log a HeroService message with the MessageService */
   private log(message: string) {
     this.messageSnackbarService.show(`AuthenticationService: ${message}`);
   }

@@ -13,3 +13,23 @@
   left: 170px;
   top: 50px;
 }
+
+.userLine:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.closeIcon {
+  float: right;
+  text-decoration: #555555;
+}
+
+.closeIcon:hover {
+  text-decoration: black;
+}
+
+.scrollableList {
+  overflow: auto;
+  flex-grow: 1;
+  max-height: 300px;
+}

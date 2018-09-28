@@ -108,6 +108,10 @@ const studentSchema = new mongoose.Schema({
     mat_nr: {
         type: Number,
         required: true
+    },
+    status: {
+        type: Number,
+        required: false
     }
 });
 

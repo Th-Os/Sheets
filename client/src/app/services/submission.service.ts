@@ -5,7 +5,6 @@ import { Observable, of } from 'rxjs';
 
 import {Submission} from '../models/submission';
 import {catchError, tap} from 'rxjs/internal/operators';
-import {Answer} from '../models/answer';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -19,8 +18,10 @@ export class SubmissionService {
   private submissionsUrl = 'http://localhost:3000/submissions';
 
   constructor(private http: HttpClient,
-              private messageSnackbarService: MessageSnackbarService) { }
+              private messageSnackbarService: MessageSnackbarService
+  ) { }
 
+  // Get all submissions of a user
   getSubmissionsForUser(userId: string): Observable<Submission[]> {
     const url = `${this.submissionsUrl}/_search?user=${userId}`;
     return this.http.get<Submission[]>(url, httpOptions)
@@ -36,6 +37,7 @@ export class SubmissionService {
         catchError(this.handleError<any>('updateSubmission')));
   }*/
 
+  // Update submission in db
   updateSubmission (submission: any): Submission {
     let updatedSubmission = new Submission();
     this.http.put<Submission>(`${this.submissionsUrl}/${submission._id}`, submission, httpOptions).pipe(

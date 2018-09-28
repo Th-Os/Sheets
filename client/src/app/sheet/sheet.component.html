@@ -1,64 +1,105 @@
-<button mat-fab color="primary" class="position-absolute m-5" (click)="goBack()">
-  <i class="material-icons">arrow_back</i>
-</button>
-
 <div class="container mt-5 h-100">
-  <div class="row h-100">
-    <div class="col-12 col-lg-4 col-md-4">
-      <mat-card>
-        <mat-card-title>Abgaben</mat-card-title>
-        <mat-card-content
-        fileDrop
-        (filesDropped)="handleFileDrop($event)"
-        (filesHovered)="dropzoneState($event)"
-        [ngClass]="{'active': dropzoneActive}">
-
-          <mat-spinner *ngIf="loadingSubmissions || loadingSheet"></mat-spinner>
-          <mat-list id="submissionsList" *ngIf="!loadingSubmissions && !loadingSheet && !loadInProgress" >
-            <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
-              <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
-              <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
-            </mat-list-item>
-          </mat-list>
-          <div id="dropzone" *ngIf="!loadingSubmissions && sheet.submissions.length === 0">
-            Abgaben hinzufügen
-          </div>
-          <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
-
-      </mat-card-content>
-        <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0 && loggInUserRole === 'admin'" style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
-          <mat-icon>person</mat-icon>
+  <div class="row">
+    <!-- BACK BUTTON -->
+    <div class="col-12 col-lg-1 col-md-2">
+      <div class="d-flex justify-content-between">
+        <button mat-fab color="primary" class="m-2" (click)="goBack()">
+          <i class="material-icons">arrow_back</i>
         </button>
-      <button class="position-absolute" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">
-        <mat-icon>delete</mat-icon>
-      </button>
-      <button class="position-absolute" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
-        <mat-icon>publish</mat-icon>
-      </button>
-      <input id="fileToUpload" type="file" style="display:none;" (change)="handleFileSelection($event)" >
-    </mat-card>
+        <button *ngIf="!loadingSubmissions && sheet.submissions.length > 0"
+                class="m-2 d-md-none d-lg-none" mat-raised-button
+                color="accent" routerLink="./correction">
+          Manuelle Korrektur starten
+        </button>
+      </div>
+    </div>
+    <!-- CONTENT -->
+    <div class="col-12 col-lg-11 col-md-10">
+      <div class="row">
+        <div class="col-12 d-none d-lg-flex d-md-flex justify-content-end">
+          <button *ngIf="!loadingSubmissions && sheet.submissions.length > 0"
+                  class="m-2" mat-raised-button
+                  color="accent" routerLink="./correction">
+            Manuelle Korrektur starten
+          </button>
+        </div>
+        <!-- GRID SUBMISSIONS -->
+        <div class="col-12 col-lg-6 col-md-6 mb-5">
+          <mat-card>
+            <mat-card-title>Abgaben</mat-card-title>
+            <mat-card-content
+              fileDrop
+              (filesDropped)="handleFileDrop($event)"
+              (filesHovered)="dropzoneState($event)"
+              [ngClass]="{'active': dropzoneActive}">
+
+              <mat-spinner *ngIf="loadingSubmissions || loadingSheet"></mat-spinner>
+              <mat-list id="submissionsList" *ngIf="!loadingSubmissions && !loadingSheet && !loadInProgress" >
+                <mat-list-item *ngFor="let submission of sheet.submissions" role="listitem">
+                  <h3 mat-line *ngIf="submission.student != null">{{submission.student.lastname}} {{submission.student.name}}</h3>
+                  <p mat-line class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </p>
+                </mat-list-item>
+              </mat-list>
+              <div id="dropzone" *ngIf="!loadInProgress && !loadingSubmissions && sheet.submissions.length === 0">
+                Abgaben hinzufügen
+              </div>
+              <p *ngIf="loadInProgress">
+                {{progressText}}
+              </p>
+              <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
+
+            </mat-card-content>
+            <button class="position-absolute" matTooltip="Korrekturzuteilung festlegen" *ngIf="!loadingSubmissions && sheet.submissions.length > 0 && (loggInUserRole === 'admin' || 'lecturer')" style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
+              <mat-icon>person</mat-icon>
+            </button>
+            <button class="position-absolute" matTooltip="Alle Abgaben löschen" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button class="position-absolute" matTooltip="Abgaben hinzufügen" style="right: 10px;" mat-fab color="primary" onclick="document.getElementById('fileToUpload').click()">
+              <mat-icon>publish</mat-icon>
+            </button>
+            <input id="fileToUpload" type="file" style="display:none;" (change)="handleFileSelection($event)" >
+          </mat-card>
+        </div>
+
+        <!-- GRID EXERCISES AND TASKS-->
+        <div class="col-12 col-lg-6 col-md-6 mb-5">
+          <mat-card>
+            <mat-card-title>Aufgaben</mat-card-title>
+            <mat-card-content [ngClass]="{'d-flex justify-content-center align-items-center': loadingExercisesWithTasks || loadingSheet}" class="h-100">
+              <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
+              <mat-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
+                <ng-container *ngFor="let exercise of exercises; let index = index;">
+                  <mat-list-item>
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="exercise.name">
+                        {{exercise.order + 1}}.) {{exercise.name}}
+                      </div>
+                      <small>{{getExercisePoints(exercise)}} Punkte</small>
+                    </div>
+                  </mat-list-item>
+                  <mat-list-item *ngFor="let task of exercise.tasks" class="ml-3">
+                    <div class="d-flex justify-content-between" matLine>
+                      <div class="text-truncate" [matTooltip]="task.question">
+                        {{task.order | numberToChar}}) {{task.question}}
+                      </div>
+                      <small>{{task.points}} Punkte</small>
+                    </div>
+                  </mat-list-item>
+                </ng-container>
+              </mat-list>
+            </mat-card-content>
+            <button matTooltip="Übungsblatt herunterladen" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
+                    mat-fab color="primary" (click)="downloadSheet()">
+              <mat-icon>get_app</mat-icon>
+            </button>
+            <button matTooltip="Übungsblatt bearbeiten" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 80px;"
+                    mat-fab color="primary" routerLink="./edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </mat-card>
+        </div>
+      </div>
+    </div>
   </div>
-    <div class="col-12 col-lg-4 col-md-4">
-      <mat-card>
-        <mat-card-title>Aufgaben</mat-card-title>
-        <mat-card-content class="d-flex justify-content-center align-items-center h-100">
-          <mat-spinner *ngIf="loadingExercisesWithTasks || loadingSheet"></mat-spinner>
-          <mat-list *ngIf="!loadingExercisesWithTasks && !loadingSheet">
-            <ng-container *ngFor="let exercise of exercises; let index = index;">
-              <h1 matSubheader>{{sheet.order + 1}}.{{exercise.order + 1}}.) {{exercise.name}}</h1>
-              <mat-list-item *ngIf="exercises.length === 0" (click)="getExercisesWithTasks()">Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.</mat-list-item>
-              <mat-list-item *ngFor="let task of exercise.tasks">
-                <h4 matLine>{{task.order | numberToChar}}.) {{task.question}}</h4>
-              </mat-list-item>
-              <mat-divider *ngIf="exercises.length === index" [inset]="true"></mat-divider>
-            </ng-container>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div class="col-12 col-lg-4 col-md-4" *ngIf="!loadingSubmissions && sheet.submissions.length > 0">
-      <button mat-raised-button color="accent" routerLink="./correction">Starte Korrektur</button>
-      <button mat-raised-button (click)="autocorrect()"> - autokorrektur test - </button>
-    </div>
-</div>
 </div>

@@ -48,6 +48,7 @@ export class SheetComponent implements OnInit {
   sheet: Sheet;
 
   loadingSubmissions: boolean = false;
+  progressText: string = ""
 
   loadingExercisesWithTasks: boolean = false;
   exercises: Exercise[];
@@ -89,12 +90,17 @@ export class SheetComponent implements OnInit {
               () => {
                 this.exercises[index] = exercise;
                 if (index === this.exercises.length -1) this.loadingExercisesWithTasks = false;
-              }
-              );
+              });
           }
         });
       }
       );
+  }
+
+  getExercisePoints(exercise: Exercise): number {
+    let points = 0;
+    exercise.tasks.forEach( t => points += t.points);
+    return points;
   }
 
   getTaskObjects(){
@@ -163,16 +169,11 @@ export class SheetComponent implements OnInit {
 
   getSubmissionTemplate() {
     const id = this.route.snapshot.paramMap.get('id');
-    this.submissionTemplate = this.testTemplate(); // TODO: only for testing!
-    /*
-    //TODO: release!!!
+    //this.submissionTemplate = this.testTemplate();
     this.sheetService.getSubmissionTemplate(id).subscribe(template =>{
       //console.log(template)
       this.submissionTemplate = this.parseTemplate(template);
     });
-    */
-
-
   }
 
   goBack(): void {
@@ -201,7 +202,7 @@ export class SheetComponent implements OnInit {
         if(!proceed){
           this.clearInput();
           return;
-        } 
+        }
 
         this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
           this.submissionValidationResults = [];
@@ -241,10 +242,12 @@ export class SheetComponent implements OnInit {
             let submission = new Submission();
             let student = new Student();
             let name = this.readAuthorName(filename);
+            let gripsID = this.readGripsID(filename);
 
             student.name = name.split(" ")[0];
             student.lastname = name.split(" ")[name.split(" ").length - 1];
             submission.student = student;
+            submission.grips_id = gripsID;
 
             if(filename.includes(".txt")){
               promises.push(zip.files[filename].async('string').then((fileData) => {
@@ -268,13 +271,31 @@ export class SheetComponent implements OnInit {
         });
 
         Promise.all(promises).then(() => {
-          if(this.submissionValidationResults.length <= 100){ //TODO: 0 for release, 100 for test!
-            console.log("done reading zip");
-            this.sheet.submissions = submissions;
-            console.log("validation ok");
-            console.log("uploading with data: ");
-            console.log(this.sheet)
-            this.uploadAndCorrectSubmissions();
+          if(this.submissionValidationResults.length <= 0){ //TODO: 0 for release, 100 for test!
+            this.loadInProgress = true;
+            this.progressText = "organisiere Studenten..."
+
+            let index = 0;
+            let maxIndex = submissions.length;
+
+            for (var i = 0; i < submissions.length; ++i) {
+              let sub = submissions[i];
+              this.studentService.getStudentById(sub.student.mat_nr).subscribe(res => {
+                index++;
+                if(res != null){
+                  submissions[i].student = res;
+                }
+
+                if(index >= maxIndex){
+                  //console.log("done reading zip");
+                  //console.log("validation ok");
+                  //console.log("uploading with data: ");
+                  this.sheet.submissions = submissions;
+                  //console.log(this.sheet)
+                  this.uploadAndCorrectSubmissions();
+                }
+              })
+            }
           }else{
             this.displayValidationResults();
           }
@@ -286,7 +307,7 @@ export class SheetComponent implements OnInit {
   }
 
   uploadAndCorrectSubmissions() {
-    this.loadInProgress = true;
+    this.progressText = "sende Abgaben..."
     this.sheetService.uploadSubmissions(this.sheet)
     .subscribe(res => {
       let tempSheet = null;
@@ -294,7 +315,9 @@ export class SheetComponent implements OnInit {
         tempSheet = sheet;
         res.map(sub => tempSheet.submissions.push(sub._id))
         this.sheetService.updateSheet(tempSheet).subscribe(res => {
-          //res.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+          res.submissions.forEach(newSubmission => {
+            this.sheetService.autocorrectSubmission(newSubmission.toString()).subscribe()
+          })
           this.loadInProgress = false;
           this.displayMessage("Abgaben erfolgreich hochgeladen")
         })
@@ -319,15 +342,25 @@ export class SheetComponent implements OnInit {
     return NaN;
   }
 
-  autocorrect(){
-    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmissions(sub).subscribe(res => console.log(res)))
+  readGripsID(fileName: string){
+    let res = null;
+    let pathSlices = fileName.split("/");
 
+    if(pathSlices.length < 2) return null;
+
+    //"Vorname0 Nachname0_1327627_assignsubmission_file_"
+    let relevantFolderName: string = pathSlices[pathSlices.length - 2];
+    res = relevantFolderName.split("_")[1];
+    return parseInt(res);
+  }
+
+  autocorrect(){
+    this.sheet.submissions.forEach(sub => this.sheetService.autocorrectSubmission(sub._id).subscribe(res => console.log(res)))
     console.log("autocorrect")
   }
 
   parseTemplate(text: string): Template {
     let result = new Template();
-
     let regexTask = this.formatRegExp("Aufgabe\\\s\\\d+.\\\d+:");
     let regexText = this.formatRegExp("[a-z]{1}\\\)\\\s?");
 
@@ -352,8 +385,10 @@ export class SheetComponent implements OnInit {
       }
 
       //Kriterien verletzt
-      console.log("Error parsing Template at line: " + i + " --> " + line)
-      return null;
+      if(line != ""){
+        console.log("Error parsing Template at line: " + i + " --> " + line)
+        return null;      
+      }
     }
 
     //console.log(result)
@@ -416,38 +451,34 @@ export class SheetComponent implements OnInit {
           }
         }
       }else{
-              //Kriterien verletzt
-              //console.log("Validation Error at: " + tagTaskStart)
-              let res = new SubmissionValidationResult();
-              res.errorTaskNum = task.num;
-              return res;
-            }
-          }
+        //Kriterien verletzt
+        //console.log("Validation Error at: " + tagTaskStart)
+        let res = new SubmissionValidationResult();
+        res.errorTaskNum = task.num;
+        return res;
+      }
+    }
 
-          let res = new SubmissionValidationResult();
-          res.answers = answers;
-          //console.log(answers)
-          return res;
-        }
+    let res = new SubmissionValidationResult();
+    res.answers = answers;
+    //console.log(answers)
+    return res;
+  }
 
-        formatRegExp(str) {
-          return new RegExp(str);
-        }
+  formatRegExp(str) {
+    return new RegExp(str);
+  }
 
-        readAuthorName(fileName): string {
-          let res = null;
-          let pathSlices = fileName.split("/");
+  readAuthorName(fileName): string {
+    let res = null;
+    let pathSlices = fileName.split("/");
 
-          if(pathSlices.length < 2) return null;
+    if(pathSlices.length < 2) return null;
 
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
     let relevantFolderName: string = pathSlices[pathSlices.length - 2];
     res = relevantFolderName.split("_")[0];
     return res;
-  }
-
-  addFile(file): void {
-
   }
 
   findTask(answer: Answer): Task {
@@ -468,9 +499,11 @@ export class SheetComponent implements OnInit {
   }
 
   clearSubmissions() {
-    this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
-      this.getSheetWithSubmissions()
-    });
+    if (window.confirm('Wollen Sie die Abgaben wirklich löschen?')) {
+      this.sheetService.deleteSubmissions(this.sheet).subscribe((res) => {
+        this.getSheetWithSubmissions();
+      });
+    }
   }
 
   numberToArray(number: number){
@@ -528,6 +561,18 @@ export class SheetComponent implements OnInit {
     a) /.*(lehr).*/ # 2
     b) /.*(phil).*/ # 2`;
     return this.parseTemplate(templateString);
+  }
+
+  downloadSheet(): void {
+    this.sheetService.downloadSheet(this.route.snapshot.paramMap.get('id')).subscribe(
+      data => {
+        let blob = new Blob([data], { type: 'application/pdf' });
+        let url= window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error => console.error( error ),
+      () => console.log('file downloaded')
+      )
   }
 
   assignSubmissions(): void {
