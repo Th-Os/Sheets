@@ -264,7 +264,9 @@ export class UserprofileComponent implements OnInit {
 
   // Show dialog to add course(s) to user
   addCourseToTutor(user: User): void {
-    this.showEditDialog(false, true, user);
+    if (this.loggedInUser.role.name === 'admin' || (this.loggedInUser.role.name === 'lecturer' && user.role.name !== 'admin')) {
+      this.showEditDialog(false, true, user);
+    }
   }
 
   // Show dialog

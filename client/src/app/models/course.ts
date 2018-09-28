@@ -4,7 +4,7 @@ export class Course {
 
   constructor(
     public name: string,
-    public faculty: string,
+    public institute: string,
     public semester: string,
     public min_req_sheets: number,
     public sheets?: Sheet[],

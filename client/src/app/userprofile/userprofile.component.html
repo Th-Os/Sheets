@@ -2,7 +2,7 @@
   <i class="material-icons">arrow_back</i>
 </button>
 
-<div class="container mt-5 h-100">
+<div class="container mt-5 h-100" style="height: 100% !important;">
   <mat-tab-group>
     <mat-tab label="Profil">
       <div class="row h-100">
@@ -63,7 +63,7 @@
         </div>
       </div>
     </mat-tab>
-    <mat-tab label="Management" [disabled]="loggedInUser.role.name !== 'admin'">
+    <mat-tab label="Management" [disabled]="loggedInUser.role.name === 'tutor'">
       <div class="row">
         <div class="col-12 col-lg-4 col-md-4">
           <mat-card>
@@ -79,10 +79,10 @@
                   <h4 mat-subheader>Admins</h4>
                   <mat-list-item *ngFor="let user of users | filterUsersPipe:'admin'" role="listitem">
                     <a mat-line style="cursor: pointer" (click)="addCourseToTutor(user)">{{ user.forename }}&nbsp;{{user.lastname}} </a>
-                    <button mat-icon-button (click)="update(user)">
+                    <button mat-icon-button [hidden]="((user.role.name === 'admin') && (loggedInUser.role.name !== 'admin'))" (click)="update(user)">
                       <mat-icon color="secondary">edit</mat-icon>
                     </button>
-                    <button mat-icon-button (click)="delete(user)">
+                    <button mat-icon-button [hidden]="((user.role.name === 'admin') && (loggedInUser.role.name !== 'admin'))" (click)="delete(user)">
                       <mat-icon color="secondary">delete</mat-icon>
                     </button>
                   </mat-list-item>

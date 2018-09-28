@@ -245,11 +245,11 @@ export class ExerciseDialogComponent implements OnInit {
       this.getIndexOfExercise(exercise).then(exerciseIndex => {
         this.getIndexOfTask(exerciseIndex, task).then(taskIndex => {
           this.solutionService.getSolution(taskId).subscribe( solution => {
-            if (solution[0].regex === undefined) {
-              solution[0].regex = '';
+            if (solution.regex === undefined) {
+              solution.regex = '';
             }
             if ((exerciseIndex && taskIndex) >= 0) {
-              this.fetchedSheet.exercises[exerciseIndex].tasks[taskIndex].solution = solution[0];
+              this.fetchedSheet.exercises[exerciseIndex].tasks[taskIndex].solution = solution;
               resolve(true);
             }
           });

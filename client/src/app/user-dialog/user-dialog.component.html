@@ -19,7 +19,9 @@
         Username is required
       </div>
     </div>
-    <div class="form-group" *ngIf="(data.create && !data.addCourse) || (data.user._id === loggedInUser._id && !data.addCourse)">
+    <div class="form-group" *ngIf="(data.create && !data.addCourse) ||
+    (data.user._id === loggedInUser._id && !data.addCourse) ||
+    (loggedInUser.role.name === 'admin' && !data.addCourse)">
       <label for="password">Passwort</label>
       <input type="password" class="form-control" id="password"
              required
@@ -59,7 +61,7 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <div class="form-group" *ngIf="loggedInUser.role.name === 'admin'">
+    <div class="form-group" *ngIf="loggedInUser.role.name === 'admin' || 'lecturer'">
       <mat-form-field>
         <mat-select placeholder="Kurse" [(ngModel)]="user.courses" name="courses" multiple>
           <mat-option *ngFor="let course of courses" [value]="course._id">{{course.name}}</mat-option>
