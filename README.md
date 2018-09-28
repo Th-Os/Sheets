@@ -1,14 +1,16 @@
 # Sheets
 
-## Start
+## Guide
 
-TODO: Es muss noch ein übergeordneten Befehl geben, um beide Instanzen zu starten.
-(Am besten über npm)
+Sheets besteht aus einem Client und einem Server. Um die komplette Anwendung zu starten, muss daher erst der Server gestartet und danach der Client ausgeführt werden. Wie dies funktioniert, welche Einstellungen vorgenommen werden können und weitere Informationen, können in dem jeweiligen Ordner nachgelesen werden.
+
+### [Server](server/Readme.md) 
+### [Client](client/Readme.md)
 
 
-## Upload csv Bewertung:
 
-Aufgabe -> Aufgaben-Administration -> Bewertungen anzeigen -> Import -> CSV-Datei
 
+
+## DAS MUSS NOCH RAUS
 ## Client
 Achtung: Nach npm install muss im File "client/node_modules/jszip/lib/readable-stream-browser.js" die Zeile "module.exports = require("stream");" durch "module.exports = require("readable-stream");" ersetzt werden!
