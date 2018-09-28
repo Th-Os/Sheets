@@ -97,7 +97,7 @@ router.get('/:id/tasks', verify, function(req, res) {
  */
 router.post('/:id/tasks', verify, function(req, res) {
     methods.deepPost(req.params.id, req.body, Exercise, Task)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => res.status(201).send(doc))
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);

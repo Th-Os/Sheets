@@ -48,10 +48,10 @@ app.use('/submissions', submissions);
 app.use('/tasks', tasks);
 app.use('/users', users);
 
-app.listen(port);
-console.log('server is running at localhost:' + port);
-
-// connecting to database.
-db.connect();
+// connecting to database and starting server.
+db.connect().then(() => {
+    app.listen(port);
+    console.log('server is running at localhost:' + port);
+});
 
 export default app;

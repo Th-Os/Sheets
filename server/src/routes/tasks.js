@@ -28,7 +28,7 @@ router.get('/:id/_aggregate', verify, function(req, res) {
 /**
  * Updates a task.
  * @param {string} req.params.id: ID of a task.
- * @param {Task} req.body object with values for the update. 
+ * @param {Task} req.body object with values for the update.
  * @returns {Task}
  * @throws 400
  * @throws 404
@@ -88,7 +88,7 @@ router.get('/:id/solutions', verify, function(req, res) {
  */
 router.post('/:id/solutions', verify, function(req, res) {
     methods.deepPost(req.params.id, req.body, Task, Solution, true)
-        .then((docs) => res.status(200).send(docs))
+        .then((docs) => res.status(201).send(docs))
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);

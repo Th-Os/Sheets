@@ -78,7 +78,7 @@ router.post('/', verify, function(req, res) {
         }));
     }
     Promise.all(promises).then(() => {
-        res.status(200).send(response);
+        res.status(201).send(response);
     }).catch((err) => {
         if (err) res.status(400).send(err);
     });

@@ -73,6 +73,7 @@ sheetSchema.post('remove', (doc) => {
     mongoose.model('Course').find({sheets: doc._id}).exec((err, courses) => {
         if (err) throw err;
         let course = (courses instanceof Array) ? courses[0] : courses;
+        if (course === undefined) return Error('No course found');
         course.sheets = course.sheets.filter(e => !(e.equals(doc._id)));
         course.save();
         let promises = [];

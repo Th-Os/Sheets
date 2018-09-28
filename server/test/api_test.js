@@ -1,4 +1,9 @@
 /* eslint-env mocha */
+/* eslint no-unused-vars: 0 */
+
+/**
+ * Some API tests.
+ */
 
 import chai from 'chai';
 import chaiHttp from 'chai-http';
@@ -6,25 +11,27 @@ import app from '../src/index';
 
 chai.use(chaiHttp);
 
-// TODO: Extend testing. For now it is enough.
-
 describe('API Test', () => {
     let user = {
         username: 'bla',
         password: 'pass',
-        role: { name: 'admin' }
+        role: null
     };
-    it('POST user with role', (done) => {
-        chai.request(app).post('/users').send(user).end((err, res) => {
+    it('POST user', (done) => {
+        chai.request(app).get('/users/roles').end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            done();
+            user.role = res.body[0];
+            chai.request(app).post('/users').send(user).end((err, res) => {
+                if (err) throw err;
+                chai.expect(res).to.have.status(201);
+                done();
+            });
         });
     });
 
     let course = {
         name: 'Einführung in die Medieninformatik',
-        faculty: 'Universität Regensburg, Lehrstuhl für Medieninformatik',
+        institute: 'Lehrstuhl für Medieninformatik',
         semester: 'SoSe 2011',
         min_req_sheets: 3
     };
@@ -32,8 +39,9 @@ describe('API Test', () => {
     it('POST course', (done) => {
         chai.request(app).post('/courses').send(course).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            courseId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) courseId = res.body[0]._id;
+            else courseId = res.body._id;
             done();
         });
     });
@@ -48,8 +56,9 @@ describe('API Test', () => {
     it('POST sheet', (done) => {
         chai.request(app).post('/courses/' + courseId + '/sheets').send(sheet).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            sheetId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) sheetId = res.body[0]._id;
+            else sheetId = res.body._id;
             done();
         });
     });
@@ -63,8 +72,9 @@ describe('API Test', () => {
     it('POST exercise', (done) => {
         chai.request(app).post('/sheets/' + sheetId + '/exercises').send(exercise).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            exerciseId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) exerciseId = res.body[0]._id;
+            else exerciseId = res.body._id;
             done();
         });
     });
@@ -80,8 +90,9 @@ describe('API Test', () => {
         chai.request(app).post('/exercises/' + exerciseId + '/tasks').send(task).end((err, res) => {
             if (err) throw err;
             chai.expect(err).to.not.be.an.instanceOf(Error);
-            chai.expect(res).to.have.status(200);
-            taskId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) taskId = res.body[0]._id;
+            else taskId = res.body._id;
             done();
         });
     });
@@ -95,8 +106,9 @@ describe('API Test', () => {
     it('POST solution', (done) => {
         chai.request(app).post('/tasks/' + taskId + '/solutions').send(solution).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            solutionId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) solutionId = res.body[0]._id;
+            else solutionId = res.body._id;
             done();
         });
     });
@@ -109,22 +121,25 @@ describe('API Test', () => {
     it('POST student', (done) => {
         chai.request(app).post('/students/').send(student).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            studentId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) studentId = res.body[0]._id;
+            else studentId = res.body._id;
             done();
         });
     });
 
     let submission = {
-        student: undefined
+        student: undefined,
+        grips_id: 123
     };
     let submissionId;
     it('POST submission', (done) => {
         submission.student = studentId;
         chai.request(app).post('/sheets/' + sheetId + '/submissions').send(submission).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            submissionId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) submissionId = res.body[0]._id;
+            else submissionId = res.body._id;
             done();
         });
     });
@@ -133,27 +148,24 @@ describe('API Test', () => {
         {
             student: {
                 name: 'Bernd',
-                mat_nr: 123,
-                grips_id: 456
-
+                mat_nr: 123
             },
             answers: [
                 {
                     text: 'one',
-                    task: 'taskId'
+                    task: ''
                 },
                 {
                     text: 'two',
-                    task: 'taskId'
+                    task: ''
                 }
-            ]
+            ],
+            grips_id: 456
         },
         {
             student: {
                 name: 'Kunibert',
-                mat_nr: 789,
-                grips_id: 101112
-
+                mat_nr: 789
             },
             answers: [
                 {
@@ -164,15 +176,20 @@ describe('API Test', () => {
                     text: 'four',
                     task: 'taskId'
                 }
-            ]
+            ],
+            grips_id: 101112
         }
     ];
 
     it('POST bulk submissions', (done) => {
+        for (let s of submissions) {
+            for (let a of s.answers) {
+                a.task = taskId;
+            }
+        }
         chai.request(app).post('/sheets/' + sheetId + '/submissions/_bulk').send(submissions).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            console.log(res.body);
+            chai.expect(res).to.have.status(201);
             done();
         });
     });
@@ -186,8 +203,9 @@ describe('API Test', () => {
         answer.task = taskId;
         chai.request(app).post('/submissions/' + submissionId + '/answers').send(answer).end((err, res) => {
             if (err) throw err;
-            chai.expect(res).to.have.status(200);
-            answerId = res.body[0]._id;
+            chai.expect(res).to.have.status(201);
+            if (res.body instanceof Array) answerId = res.body[0]._id;
+            else answerId = res.body._id;
             done();
         });
     });
@@ -255,7 +273,6 @@ describe('API Test', () => {
     });
 
     it('DELETE course + sheet + submission + answer + exercise + task + solution', (done) => {
-        console.log('CONTINUING WITH DELETE');
         chai.request(app).delete('/courses/' + courseId).send().end((err, res) => {
             if (err) throw err;
             chai.expect(res).to.have.status(200);

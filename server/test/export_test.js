@@ -1,5 +1,9 @@
 /* eslint-env mocha */
 
+/**
+ * Some export tests.
+ */
+
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import app from '../src/index';
@@ -21,6 +25,22 @@ describe('Export Test', () => {
             if (err) throw err;
             chai.expect(res).to.have.status(200);
             chai.expect(res.header['content-type']).to.contain('pdf');
+            done();
+        });
+    });
+    it('Get docx', (done) => {
+        chai.request(app).get('/export/docx/' + sheetId).send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            chai.expect(res.header['content-type']).to.contain('officedocument');
+            done();
+        });
+    });
+    it('Get csv', (done) => {
+        chai.request(app).get('/export/csv/' + sheetId).send().end((err, res) => {
+            if (err) throw err;
+            chai.expect(res).to.have.status(200);
+            chai.expect(res.header['content-type']).to.contain('csv');
             done();
         });
     });
