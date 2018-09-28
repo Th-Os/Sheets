@@ -10,12 +10,17 @@ npm install
 ```
 
 ```bash
-# Starting server
+# Starting build and production server.
+npm run-script run
+```
+
+```bash
+# Starting development server
 npm start
 ```
 
 ```bash
-# Starting tests
+# Starting development tests
 npm test
 ```
 
