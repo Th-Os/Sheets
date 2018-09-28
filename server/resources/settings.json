@@ -5,7 +5,7 @@
             "name": "name: filename",
             "console": "Whether output will be printed to console, too."
         },
-        "mode": "debug",
+        "mode": "error",
         "console": true,
         "name": "server"
     },
