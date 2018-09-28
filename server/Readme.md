@@ -17,11 +17,16 @@ npm start
 npm test
 ```
 
-## Settings
+## Settings / Resources (Path: resources)
 
 ### settings.json
 
 This JSON file holds parameters for the database and the logging.
+
+### template.html
+
+This HTML file is used as a template for the PDF and DOCX export.
+Changing the text or handlebar functions will result in a different output.
 
 ## API
 
