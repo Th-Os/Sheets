@@ -52,9 +52,7 @@ app.use('/users', users);
 // connecting to database and starting server.
 db.connect().then(() => {
     app.listen(port);
-    let msg = 'server is running at localhost:' + port;
-    console.log(msg);
-    log.info(msg);
+    log.info('server is running at localhost:' + port);
 });
 
 export default app;

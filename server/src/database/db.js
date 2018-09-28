@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import log from '../utils/log';
+import settings from '../../resources/settings';
 
 dotenv.config();
 mongoose.Promise = Promise;
@@ -9,18 +10,19 @@ mongoose.Promise = Promise;
 let uri = '';
 
 /**
- * Connects to the database depending on the environmant variable MODE.
+ * Connects to the database depending on the database settings.json variable MODE.
+ * @see settings.json
  * @returns {Promise} {Promise}
  */
 function connect() {
-    switch (process.env.MODE) {
-        case 'production':
+    switch (settings.database.mode) {
+        case 'prod':
             uri = process.env.DB_URI_PROD;
             break;
-        case 'client':
+        case 'dev_client':
             uri = process.env.DB_URI_CLIENT;
             break;
-        case 'server':
+        case 'dev_server':
             uri = process.env.DB_URI_SERVER;
             break;
         default:

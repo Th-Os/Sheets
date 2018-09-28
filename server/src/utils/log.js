@@ -1,14 +1,21 @@
 import log4js from 'log4js';
 import * as settings from '../../resources/settings';
 
-log4js.configure({
+const config = {
     appenders: {
-        all: { type: 'file', filename: settings.logging.name + '.log', maxLogSize: 10000000, backups: 5, keepFileExt: true, compress: true }
+        all: { type: 'file', filename: 'logs/' + settings.logging.name + '.log', maxLogSize: 10000000, backups: 5, keepFileExt: true, compress: true }
     },
     categories: {
         default: { appenders: [ 'all' ], level: '' + settings.logging.mode }
     }
-});
+};
+
+if (settings.logging.console) {
+    config.appenders.console = { type: 'console' };
+    config.categories.default.appenders.push('console');
+}
+
+log4js.configure(config);
 
 function logRoute(req, res) {
     let log = log4js.getLogger();

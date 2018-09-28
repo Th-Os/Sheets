@@ -2,9 +2,17 @@
     "logging": {
         "_comment": {
             "mode": "modes: debug, info, warn, error, off",
-            "name": "name: filename"
+            "name": "name: filename",
+            "console": "Whether output will be printed to console, too."
         },
         "mode": "debug",
+        "console": true,
         "name": "server"
+    },
+    "database": {
+        "_comment": {
+            "mode": "modes: dev_server, dev_client, prod"
+        },
+        "mode": "dev_server"
     }
 }
