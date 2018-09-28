@@ -21,7 +21,8 @@ npm test
 
 ### settings.json
 
-This JSON file holds parameters for the database and the logging.
+This JSON file holds parameters for the database, the logging and csv export.
+All keys are explained by a equally named ```_comment``` object.
 
 ### template.html
 
