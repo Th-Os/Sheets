@@ -82,11 +82,4 @@ process.on('SIGTERM', function() {
     });
 });
 
-<<<<<<< HEAD
-// BRING IN SCHEMAS & MODELS
-// require("./user");
-export {connect};
-export {disconnect};
-=======
 export {connect, disconnect};
->>>>>>> dev_server
