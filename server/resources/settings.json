@@ -14,5 +14,19 @@
             "mode": "modes: dev_server, dev_client, prod"
         },
         "mode": "dev_server"
+    },
+    "csv": {
+        "_comment": {
+            "no_feedback": "If no feedback is in the answer object, this string will be used.",
+            "missing_text": "When a answer has no response, this text will be used.",
+            "overall_text": "The submission will be evaluated and depending on the points, max (maximum points reached), pass or fail will be used."
+        },
+        "no_feedback": "Kein Feedback angegeben.",
+        "missing_text": "fehlt.",
+        "overall_text": {
+            "max": "Sehr gut! Alles richtig.",
+            "pass": "Sehr gut! Fast alles richtig.",
+            "fail": "Schade. Nicht bestanden."
+        }
     }
 }

@@ -1,7 +1,10 @@
 /**
  * @overview The renderer for csv files.
+ * All string data is required by the GRIPS system or too deeply related to the data.
  * @author Thomas Oswald
  */
+
+import settings from '../../resources/settings';
 
 function CSVRenderer() {
     this.header = 'ID,Bewertung,Skala,Zuletzt geändert (Bewertung),Feedback als Kommentar';
@@ -37,6 +40,7 @@ CSVRenderer.prototype.addToAlphabeticOrder = function(func) {
  * @param {Object} template object that defines whether a template exercise was chosen. This case needs an extra line.
  */
 CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder, requiredPoints, maxPoints, template) {
+    if (submission.grips_id === undefined) throw Error('No grips id for the submission with id: ' + submission.id);
     let line = '';
     line += 'Teilnehmer/in' + submission.grips_id + ',' + hasPassed(submission, requiredPoints, (template.flag && template.correctly) ? template.points : 0) + ',"nicht bestanden\nbestanden",,"\n';
     line += '<p> ' + getOverallFeedback(submission, requiredPoints, maxPoints) + ' </p>\n';
@@ -47,8 +51,8 @@ CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder
         line += '<p> Aufgabe ' + sheetOrder + '.' + (getExerciseOrder(exercises, answer.task._id) + 1) + this.toAlphabeticOrder(answer.task.order + 1) + '): ';
         let txt = toCSVString(answer.text);
         if (txt.length !== 0) line += '(' + txt + ')';
-        else line += 'fehlt.';
-        let feedback = (answer.feedback !== undefined) ? answer.feedback : 'Kein Feedback angegeben.';
+        else line += settings.csv.missing_text;
+        let feedback = (answer.feedback !== undefined) ? answer.feedback : settings.csv.no_feedback;
         line += ' ' + feedback + ' </p>';
         line += '\n';
     }
@@ -78,6 +82,7 @@ CSVRenderer.prototype.export = function() {
  * @param {Submission} submission a {Submission} with an array of {Answer}.
  * @param {number} requiredPoints points that indicates passing the sheet.
  * @param {number} templatePoints points for the last exercise.
+ * @returns one of the correction scales.
  */
 function hasPassed(submission, requiredPoints, templatePoints) {
     let points;
@@ -117,9 +122,9 @@ function getOverallFeedback(submission, requiredPoints, maxPoints) {
     for (let answer of submission.answers) {
         points += answer.achieved_points;
     }
-    if (points === maxPoints) return 'Sehr gut! Alles richtig.';
-    if (points >= requiredPoints) return 'Sehr gut! Fast alles richtig.';
-    else return 'Schade. Nicht bestanden.';
+    if (points === maxPoints) return settings.csv.overall_text.max;
+    if (points >= requiredPoints) return settings.csv.overall_text.pass;
+    else return settings.csv.overall_text.fail;
 }
 
 /**
