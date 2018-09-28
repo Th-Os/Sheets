@@ -1,4 +1,4 @@
-# Server Implementation
+# Server
 
 The server can be controlled by npm commands. These are:
 
