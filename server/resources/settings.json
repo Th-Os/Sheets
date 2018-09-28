@@ -1,0 +1,10 @@
+{
+    "logging": {
+        "_comment": {
+            "mode": "modes: debug, info, warn, error, off",
+            "name": "name: filename"
+        },
+        "mode": "debug",
+        "name": "server"
+    }
+}

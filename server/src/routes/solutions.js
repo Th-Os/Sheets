@@ -8,6 +8,7 @@ import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {StatusError} from '../utils/errors';
 import {Solution} from '../models/sheet';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
@@ -20,14 +21,19 @@ const router = express.Router();
  * @throws 404
  * @throws 500
  */
-router.put('/:id', verify, function(req, res) {
+router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Solution)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Deletes a solution by id.
@@ -37,13 +43,18 @@ router.put('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.delete('/:id', verify, function(req, res) {
+router.delete('/:id', verify, function(req, res, next) {
     methods.del(req.params.id, Solution)
-        .then((msg) => res.status(200).send(msg))
+        .then((msg) => {
+            res.status(200).send(msg);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 export default router;

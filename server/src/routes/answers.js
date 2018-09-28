@@ -8,6 +8,7 @@ import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {StatusError} from '../utils/errors';
 import {Answer} from '../models/submission';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
@@ -19,13 +20,18 @@ const router = express.Router();
  * @throws 404
  * @throws 500
  */
-router.get('/:id', verify, function(req, res) {
+router.get('/:id', verify, function(req, res, next) {
     methods.get(req.params.id, Answer)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 export default router;

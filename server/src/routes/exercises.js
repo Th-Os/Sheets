@@ -8,6 +8,7 @@ import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {StatusError} from '../utils/errors';
 import {Exercise, Task} from '../models/sheet';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ const router = express.Router();
  * @throws 404
  * @throws 500
  */
-router.get('/:id/_aggregate', verify, function(req, res) {
+router.get('/:id/_aggregate', verify, function(req, res, next) {
     Exercise.findById(req.params.id).populate({
         path: 'exercises',
         model: 'Exercise',
@@ -31,8 +32,13 @@ router.get('/:id/_aggregate', verify, function(req, res) {
             }
     }).exec().then((doc) => {
         res.send(doc);
-    }).catch((err) => res.status(500).send(err));
-});
+        next();
+    }).catch((err) => {
+        res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
 /**
  * Updates an exercise by id.
@@ -43,14 +49,19 @@ router.get('/:id/_aggregate', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.put('/:id', verify, function(req, res) {
+router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Exercise)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Deletes an exercise by id.
@@ -60,15 +71,19 @@ router.put('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.delete('/:id', verify, function(req, res) {
+router.delete('/:id', verify, function(req, res, next) {
     methods.del(req.params.id, Exercise)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
-
+}, logRoute);
 /**
  * Gets all tasks of an exercise by id.
  * @param {string} req.params.id: ID of an exercise.
@@ -77,14 +92,19 @@ router.delete('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/:id/tasks', verify, function(req, res) {
+router.get('/:id/tasks', verify, function(req, res, next) {
     methods.deepGet(req.params.id, Exercise, Task)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Creates tasks for an exercise by id.
@@ -95,13 +115,18 @@ router.get('/:id/tasks', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.post('/:id/tasks', verify, function(req, res) {
+router.post('/:id/tasks', verify, function(req, res, next) {
     methods.deepPost(req.params.id, req.body, Exercise, Task)
-        .then((doc) => res.status(201).send(doc))
+        .then((doc) => {
+            res.status(201).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 export default router;

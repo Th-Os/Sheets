@@ -4,6 +4,8 @@
  * @author Thomas Oswald
  */
 
+import log from './log';
+
 /**
  * @class StatusError for failures in the routing process.
  */
@@ -13,6 +15,8 @@ class StatusError extends Error {
         this.name = 'StatusError';
         this.status = status;
         this.message = msg;
+
+        log.error(this.name + '(' + status + '): ' + msg);
 
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, StatusError);
@@ -24,11 +28,12 @@ class StatusError extends Error {
  * @class StatusError for failures in the routing process.
  */
 class CorrectionError extends Error {
-    constructor(correction, msg, ...params) {
+    constructor(correction, ...params) {
         super(...params);
         this.name = 'CorrectionError';
         this.correction = correction;
-        this.message = msg;
+
+        log.debug(this.name + ': ' + correction);
 
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, CorrectionError);

@@ -10,6 +10,7 @@ import {StatusError} from '../utils/errors';
 import {Student, Submission} from '../models/submission';
 import {Sheet} from '../models/sheet';
 import {Course} from '../models/course';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
@@ -22,18 +23,33 @@ const router = express.Router();
  * @throws 500
  * @example /students/_search?matnr={mat_nr}
  */
-router.get('/_search', verify, function(req, res) {
+router.get('/_search', verify, function(req, res, next) {
     let id = req.query.matnr;
+    let err;
     if (id !== undefined) {
         Student.find({'mat_nr': id}).exec().then((students) => {
-            if (students === null || students.length === 0) res.status(404).send('Found no student with mat_nr: ' + id);
-            else if (students.length >= 1) res.status(500).send('Found more than one student with mat_nr: ' + id);
-            else res.send(students[0]);
+            if (students === null || students.length === 0) {
+                err = new Error('Found no student with mat_nr: ' + id);
+                res.status(404).send(err);
+                req.error = err;
+                next();
+            } else if (students.length >= 1) {
+                err = new Error('Found more than one student with mat_nr: ' + id);
+                res.status(500).send(err);
+                req.error = err;
+                next();
+            } else {
+                res.send(students[0]);
+                next();
+            }
         });
     } else {
-        res.status(400).send('The query: ' + Object.keys(req.query)[0] + ' does not exist.');
+        err = new Error('The query: ' + Object.keys(req.query)[0] + ' does not exist.');
+        res.status(400).send(err);
+        req.error = err;
+        next();
     }
-});
+}, logRoute);
 
 /**
  * Gets a student by id.
@@ -43,14 +59,19 @@ router.get('/_search', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/:id', verify, function(req, res) {
+router.get('/:id', verify, function(req, res, next) {
     methods.get(req.params.id, Student)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Creates students.
@@ -60,14 +81,19 @@ router.get('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.post('/', verify, function(req, res) {
+router.post('/', verify, function(req, res, next) {
     methods.post(req.body, Student)
-        .then((doc) => res.status(201).send(doc))
+        .then((doc) => {
+            res.status(201).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Updates a student by id.
@@ -78,14 +104,19 @@ router.post('/', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.put('/:id', verify, function(req, res) {
+router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Student)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Deletes a student by id.
@@ -95,14 +126,19 @@ router.put('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.delete('/:id', verify, function(req, res) {
+router.delete('/:id', verify, function(req, res, next) {
     methods.del(req.params.id, res, Student)
-        .then((msg) => res.status(200).send(msg))
+        .then((msg) => {
+            res.status(200).send(msg);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Gets all submissions of a student by id.
@@ -112,12 +148,18 @@ router.delete('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/:id/submissions', verify, function(req, res) {
-    Submission.find({'student': req.params.id}, (err, subs) => {
-        if (err) res.status(400).send(err);
-        res.send(subs);
-    });
-});
+router.get('/:id/submissions', verify, function(req, res, next) {
+    Submission.find({'student': req.params.id}).exec()
+        .then((subs) => {
+            res.send(subs);
+            next();
+        })
+        .catch((err) => {
+            res.status(400).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
 
 /**
  * Gets all courses of a student by id.
@@ -127,22 +169,33 @@ router.get('/:id/submissions', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/:id/courses', verify, function(req, res) {
-    Submission.find({'student': req.params.id}, (err, subs) => {
+router.get('/:id/courses', verify, function(req, res, next) {
+    Submission.find({'student': req.params.id}).exec().then((subs) => {
         let ids = subs.map((s) => s._id);
-        if (err) res.status(400).send(err);
         Sheet.find()
             .where('submissions')
             .in(ids)
-            .exec((err, sheets) => {
-                if (err) res.status(400).send(err);
+            .exec().then((sheets) => {
                 ids = sheets.map((s) => s._id);
-                Course.find().where('sheets').in(ids).exec((err, docs) => {
-                    if (err) res.status(400).send(err);
-                    res.send(docs);
-                });
+                Course.find().where('sheets').in(ids).exec()
+                    .then((docs) => {
+                        res.send(docs);
+                        next();
+                    }).catch((err) => {
+                        res.status(400).send(err);
+                        req.error = err;
+                        next();
+                    });
+            }).catch((err) => {
+                res.status(400).send(err);
+                req.error = err;
+                next();
             });
+    }).catch((err) => {
+        res.status(400).send(err);
+        req.error = err;
+        next();
     });
-});
+}, logRoute);
 
 export default router;

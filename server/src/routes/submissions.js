@@ -8,6 +8,7 @@ import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {StatusError} from '../utils/errors';
 import {Submission, Answer} from '../models/submission';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
@@ -20,18 +21,26 @@ const router = express.Router();
  * @throws 500
  * @example /submissions/_search?user={ID}
  */
-router.get('/_search', verify, function(req, res) {
+router.get('/_search', verify, function(req, res, next) {
     let userId = req.query.user;
     if (userId !== undefined) {
         Submission.find({ user: userId }).then((subs) => {
             if (subs === undefined || subs.length === 0) {
                 res.status(404).send('No submissions found');
             } else res.send(subs);
-        }).catch((err) => res.status(500).send(err));
+            next();
+        }).catch((err) => {
+            res.status(500).send(err);
+            req.error = err;
+            next();
+        });
     } else {
-        res.send(400).send('Query "' + req.query + '" not available.');
+        let err = new Error('Query "' + req.query + '" not available.');
+        res.send(400).send(err);
+        req.error = err;
+        next();
     }
-});
+}, logRoute);
 
 /**
  * Updates a submission by id.
@@ -42,13 +51,18 @@ router.get('/_search', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.put('/:id', verify, function(req, res) {
+router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Submission)
         .then((doc) => {
             res.send(doc);
+            next();
         })
-        .catch((err) => res.status(500).send(err));
-});
+        .catch((err) => {
+            res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
 
 /**
  * Gets all answers of a submission by id.
@@ -58,14 +72,19 @@ router.put('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/:id/answers', verify, function(req, res) {
+router.get('/:id/answers', verify, function(req, res, next) {
     methods.get(req.params.id, Submission, { path: 'answers' })
-        .then((doc) => res.status(200).send(doc.answers))
+        .then((doc) => {
+            res.status(200).send(doc.answers);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Creates answers for a submission by id.
@@ -76,14 +95,19 @@ router.get('/:id/answers', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.post('/:id/answers', verify, function(req, res) {
+router.post('/:id/answers', verify, function(req, res, next) {
     methods.deepPost(req.params.id, req.body, Submission, Answer)
-        .then((docs) => res.status(201).send(docs))
+        .then((docs) => {
+            res.status(201).send(docs);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Searches through all answers of an submission by id with a task id.
@@ -94,7 +118,7 @@ router.post('/:id/answers', verify, function(req, res) {
  * @throws 500
  * @example /submissions/:id/answers/_search?task={ID}
  */
-router.get('/:id/answers/_search', verify, function(req, res) {
+router.get('/:id/answers/_search', verify, function(req, res, next) {
     let taskId = req.query.task;
     if (taskId !== undefined) {
         methods.get(req.params.id, Submission).then((doc) => {
@@ -107,20 +131,30 @@ router.get('/:id/answers/_search', verify, function(req, res) {
                     }
                 }).catch((err) => {
                     res.status(500).send(err);
+                    req.error = err;
+                    next();
                 }));
             }
             Promise.all(promises).then(() => {
                 res.status(200).send(answers);
+                next();
             }).catch((err) => {
                 res.status(500).send(err);
+                req.error = err;
+                next();
             });
         }).catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
     } else {
-        res.send(400).send('Query "' + req.query + '" not available.');
+        let err = new Error('Query "' + req.query + '" not available.');
+        res.send(400).send(err);
+        req.error = err;
+        next();
     }
-});
+}, logRoute);
 
 export default router;

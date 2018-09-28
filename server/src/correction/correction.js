@@ -7,6 +7,8 @@ import express from 'express';
 import verify from '../auth/verification';
 import {Submission} from '../models/submission';
 import {CorrectionError} from '../utils/errors';
+import {logRoute} from '../utils/log';
+
 const router = express.Router();
 
 /**
@@ -17,23 +19,30 @@ const router = express.Router();
  * @throws 404
  * @throws 500
  */
-router.get('/:id', verify, function(req, res) {
+router.get('/:id', verify, function(req, res, next) {
     let subId = req.params.id;
     Submission.findById(subId).populate({ path: 'answers', populate: { path: 'task', populate: { path: 'solution' } } }).exec().then((submission) => {
         beginCorrection(submission.answers).then((errors) => {
             Submission.findById(subId).populate({ path: 'answers' }).exec().then((doc) => {
                 if (errors) res.send({ submission: doc, errors: errors });
                 else res.send(doc);
+                next();
             }).catch((err) => {
                 res.status(400).send(err);
+                req.error = err;
+                next();
             });
         }).catch((err) => {
             res.status(500).send(err);
+            req.error = err;
+            next();
         });
     }).catch((err) => {
         res.status(400).send(err);
+        req.error = err;
+        next();
     });
-});
+}, logRoute);
 
 /**
  * Starts the correction process with each answer.
@@ -92,7 +101,7 @@ function checkAnswer(answer, solution, task) {
                 else error = new CorrectionError('number "' + solution.number + '" does not match "' + answer.text + '"');
                 break;
             default:
-                error = Error('No specified type found');
+                error = new CorrectionError('No specified type found');
         }
         answer.set({achieved_points: points, auto_corrected: true});
         answer.save().then(() => resolve(error)).catch((err) => reject(err));

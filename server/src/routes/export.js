@@ -14,6 +14,7 @@ import Renderer from '../export/renderer';
 import CSVRenderer from '../export/csv';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 moment.locale('de');
@@ -26,9 +27,14 @@ moment.locale('de');
  * @throws 404
  * @throws 500
  */
-router.get('/pdf/:id', verify, function(req, res) {
-    sendReport(req.params.id, 'pdf', res);
-});
+router.get('/pdf/:id', verify, function(req, res, next) {
+    sendReport(req.params.id, 'pdf', res).then(() => {
+        next();
+    }).catch((err) => {
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
 /**
  * Gets a docx file with a sheetID
@@ -38,9 +44,14 @@ router.get('/pdf/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/docx/:id', verify, function(req, res) {
-    sendReport(req.params.id, 'docx', res);
-});
+router.get('/docx/:id', verify, function(req, res, next) {
+    sendReport(req.params.id, 'docx', res).then(() => {
+        next();
+    }).catch((err) => {
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
 /**
  * Gets a csv file with a sheetID
@@ -50,7 +61,7 @@ router.get('/docx/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/csv/:id', verify, function(req, res) {
+router.get('/csv/:id', verify, function(req, res, next) {
     methods.get(req.params.id, Sheet, [
         {
             path: 'exercises',
@@ -92,8 +103,13 @@ router.get('/csv/:id', verify, function(req, res) {
             renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints, sheet.template);
         }
         res.attachment('output.csv').type('text/csv').end(renderer.export());
-    }).catch((err) => res.status(500).send(err));
-});
+        next();
+    }).catch((err) => {
+        res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
 /**
  * Gets a tempate file with a sheetID
@@ -103,33 +119,45 @@ router.get('/csv/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/template/:id', verify, function(req, res) {
+router.get('/template/:id', verify, function(req, res, next) {
     let sheet = {};
-    Sheet.findById(req.params.id, (err, doc) => {
-        if (err) res.status(400).send(err);
+    Sheet.findById(req.params.id).exec().then((doc) => {
         sheet = doc;
-        Exercise.find().where('_id').in(doc.exercises).exec((err, docs) => {
-            if (err) res.status(400).send(err);
+        Exercise.find().where('_id').in(doc.exercises).exec().then((docs) => {
             sheet.exercises = docs;
             let promises = [];
             for (let exercise of sheet.exercises) {
                 promises.push(Task.find().where('_id').in(exercise.tasks).then((docs) => {
-                    if (err) res.status(400).send(err);
                     exercise.tasks = docs;
                     for (let task of exercise.tasks) {
                         task.order = toAlphabeticOrder(task.order);
                     }
+                }).catch((err) => {
+                    res.status(400).send(err);
+                    req.error = err;
+                    next();
                 }));
             }
             Promise.all(promises).then(() => {
                 // https://stackoverflow.com/questions/21950049/create-a-text-file-in-node-js-from-a-string-and-stream-it-in-response
                 res.attachment('template.txt').type('txt').end(getTemplate(sheet, 'txt'));
+                next();
             }).catch((err) => {
                 res.status(500).send(err);
+                req.error = err;
+                next();
             });
+        }).catch((err) => {
+            res.status(400).send(err);
+            req.error = err;
+            next();
         });
+    }).catch((err) => {
+        res.status(400).send(err);
+        req.error = err;
+        next();
     });
-});
+}, logRoute);
 
 /**
  * This function gets all reporting data,
@@ -140,21 +168,23 @@ router.get('/template/:id', verify, function(req, res) {
  * @param {object} res express response object.
  */
 function sendReport(id, type, res) {
-    getReportObj(id).then((obj) => {
-        let renderer = new Renderer();
-        renderer
-            .addHelper(toAlphabeticOrder)
-            .addHelper(renderer.helpers.calcPoints)
-            .addHelper(renderer.helpers.addTemplateExercise)
-            .addHelper(renderer.helpers.addNameSubmissionFile)
-            .data(JSON.stringify(obj))
-            .html(obj.html)
-            .name(obj.course.name + ' - ' + obj.sheet.name)
-            .output(type)
-            .send(res);
-    }).catch((err) => {
-        if (err.name === StatusError.name) res.status(err.status).send(err.message);
-        else res.status(500).send(err);
+    return new Promise((resolve, reject) => {
+        getReportObj(id).then((obj) => {
+            let renderer = new Renderer();
+            renderer
+                .addHelper(toAlphabeticOrder)
+                .addHelper(renderer.helpers.calcPoints)
+                .addHelper(renderer.helpers.addTemplateExercise)
+                .addHelper(renderer.helpers.addNameSubmissionFile)
+                .data(JSON.stringify(obj))
+                .html(obj.html)
+                .name(obj.course.name + ' - ' + obj.sheet.name)
+                .output(type)
+                .send(res);
+            resolve();
+        }).catch((err) => {
+            reject(err);
+        });
     });
 }
 

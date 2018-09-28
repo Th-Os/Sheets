@@ -14,6 +14,7 @@ import students from './routes/students';
 import submissions from './routes/submissions';
 import tasks from './routes/tasks';
 import users from './routes/users';
+import log from './utils/log';
 
 dotenv.config();
 const app = express();
@@ -51,7 +52,9 @@ app.use('/users', users);
 // connecting to database and starting server.
 db.connect().then(() => {
     app.listen(port);
-    console.log('server is running at localhost:' + port);
+    let msg = 'server is running at localhost:' + port;
+    console.log(msg);
+    log.info(msg);
 });
 
 export default app;

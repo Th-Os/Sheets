@@ -5,6 +5,7 @@
 
 import report from 'jsreport-core';
 import docx from 'jsreport-html-embedded-in-docx';
+import log from '../utils/log';
 
 /**
  * @class Renderer defines jsreport specific template values and extensions.
@@ -112,9 +113,11 @@ Renderer.prototype.send = function(res) {
             }
         }).catch((e) => {
             res.status(500).send(e);
+            log.error('RendererError: ' + e);
         });
     }).catch((e) => {
         res.status(500).send(e);
+        log.error('RendererError: ' + e);
     });
 };
 

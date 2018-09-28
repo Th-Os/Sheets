@@ -8,6 +8,7 @@ import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {StatusError} from '../utils/errors';
 import {Task, Solution} from '../models/sheet';
+import { logRoute } from '../utils/log';
 
 const router = express.Router();
 
@@ -19,11 +20,16 @@ const router = express.Router();
  * @throws 404
  * @throws 500
  */
-router.get('/:id/_aggregate', verify, function(req, res) {
+router.get('/:id/_aggregate', verify, function(req, res, next) {
     Task.findById(req.params.id).populate({ path: 'solution' }).exec().then((doc) => {
         res.send(doc);
-    }).catch((err) => res.status(500).send(err));
-});
+        next();
+    }).catch((err) => {
+        res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
 /**
  * Updates a task.
@@ -34,14 +40,19 @@ router.get('/:id/_aggregate', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.put('/:id', verify, function(req, res) {
+router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Task)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Delets a task.
@@ -51,14 +62,19 @@ router.put('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.delete('/:id', verify, function(req, res) {
+router.delete('/:id', verify, function(req, res, next) {
     methods.del(req.params.id, Task)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Gets all solutions of a task by its id.
@@ -68,14 +84,19 @@ router.delete('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/:id/solutions', verify, function(req, res) {
+router.get('/:id/solutions', verify, function(req, res, next) {
     methods.deepGet(req.params.id, Task, Solution, true)
-        .then((docs) => res.status(200).send(docs))
+        .then((docs) => {
+            res.status(200).send(docs);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Creates all solutions of a task by its id.
@@ -86,13 +107,18 @@ router.get('/:id/solutions', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.post('/:id/solutions', verify, function(req, res) {
+router.post('/:id/solutions', verify, function(req, res, next) {
     methods.deepPost(req.params.id, req.body, Task, Solution, true)
-        .then((docs) => res.status(201).send(docs))
+        .then((docs) => {
+            res.status(201).send(docs);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 export default router;

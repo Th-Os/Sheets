@@ -5,6 +5,7 @@
 
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
+import log from '../utils/log';
 
 /**
  * This function will check whether the req.params.id is a mongoDB ObjectId.
@@ -17,7 +18,9 @@ function verify(req, res, next) {
     if (req.params.id !== undefined) {
         if (!(req.params.id === '_search' || req.params.id === '_aggregate' || req.params.id === '_bulk')) {
             if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-                res.status(400).send('Bad ObjectId.');
+                let err = new Error('Bad ObjectId.');
+                res.status(400).send(err);
+                log.error('VerificationError: ' + err + ' ' + err.message);
                 return;
             }
         }
@@ -30,6 +33,7 @@ function verify(req, res, next) {
     // check header or url parameters or post parameters for token
     var token = req.headers['x-access-token'];
     if (!token) {
+        log.error('VerificationError: ' + req.headers + ' - No token provided.');
         return res.status(403).send({
             auth: false,
             message: 'No token provided.'
@@ -39,6 +43,7 @@ function verify(req, res, next) {
     // verifies secret and checks exp
     jwt.verify(token, process.env.SECRET, function(err, decoded) {
         if (err) {
+            log.error('VerificationError: ' + req.headers + ' - Failed to authenticate token.');
             return res.status(403).send({
                 auth: false,
                 message: 'Failed to authenticate token.'

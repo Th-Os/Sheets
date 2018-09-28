@@ -9,6 +9,7 @@ import * as methods from '../utils/methods';
 import bcrypt from 'bcryptjs';
 import {User, Role} from '../models/user';
 import { StatusError } from '../utils/errors';
+import { logRoute } from '../utils/log';
 
 const router = express.Router();
 
@@ -19,14 +20,19 @@ const router = express.Router();
  * @throws 404
  * @throws 500
  */
-router.get('/', verify, function(req, res) {
+router.get('/', verify, function(req, res, next) {
     methods.getAll(User, { path: 'role' })
-        .then((docs) => res.status(200).send(docs))
+        .then((docs) => {
+            res.status(200).send(docs);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Gets all roles.
@@ -35,12 +41,17 @@ router.get('/', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/roles', verify, function(req, res) {
+router.get('/roles', verify, function(req, res, next) {
     Role.find({}).exec().then((docs) => {
         if (docs === undefined || docs.length === 0) res.status(404).send('No roles found');
         res.send(docs);
-    }).catch((err) => res.status(500).send(err));
-});
+        next();
+    }).catch((err) => {
+        res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
 /**
  * Gets a role by id.
@@ -50,14 +61,19 @@ router.get('/roles', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/roles/:id', verify, function(req, res) {
+router.get('/roles/:id', verify, function(req, res, next) {
     methods.get(req.params.id, Role)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Creates users.
@@ -66,7 +82,7 @@ router.get('/roles/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.post('/', verify, function(req, res) {
+router.post('/', verify, function(req, res, next) {
     let data = req.body;
     if (!(data instanceof Array)) data = [data];
     let promises = [];
@@ -79,10 +95,13 @@ router.post('/', verify, function(req, res) {
     }
     Promise.all(promises).then(() => {
         res.status(201).send(response);
+        next();
     }).catch((err) => {
         if (err) res.status(400).send(err);
+        req.error = err;
+        next();
     });
-});
+}, logRoute);
 
 /**
  * Gets user by id.
@@ -92,14 +111,19 @@ router.post('/', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.get('/:id', verify, function(req, res) {
+router.get('/:id', verify, function(req, res, next) {
     methods.get(req.params.id, User, { path: 'role' })
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Updates user by id. Hashes the password beforehand.
@@ -109,17 +133,22 @@ router.get('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.put('/:id', verify, function(req, res) {
+router.put('/:id', verify, function(req, res, next) {
     if (req.body.password) {
         req.body.password = bcrypt.hashSync(req.body.password, 8);
     }
     methods.put(req.params.id, req.body, User)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 /**
  * Deletes a user by id.
@@ -129,13 +158,18 @@ router.put('/:id', verify, function(req, res) {
  * @throws 404
  * @throws 500
  */
-router.delete('/:id', verify, function(req, res) {
+router.delete('/:id', verify, function(req, res, next) {
     methods.del(req.params.id, User)
-        .then((msg) => res.status(200).send(msg))
+        .then((msg) => {
+            res.status(200).send(msg);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 export default router;
