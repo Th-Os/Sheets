@@ -1,3 +1,8 @@
+/**
+ * @overview The definition of the schema and model of course.
+ * @author Thomas Oswald and Johannes Dengler
+ */
+
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;

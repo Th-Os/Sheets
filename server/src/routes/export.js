@@ -1,3 +1,8 @@
+/**
+ * @overview The routing of the exports API.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -9,19 +14,54 @@ import Renderer from '../export/renderer';
 import CSVRenderer from '../export/csv';
 import {Course} from '../models/course';
 import {Sheet, Exercise, Task} from '../models/sheet';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 moment.locale('de');
 
-router.get('/pdf/:id', verify, function(req, res) {
-    sendReport(req.params.id, 'pdf', res);
-});
+/**
+ * Gets a pdf file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {PDF} with type application/pdf
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/pdf/:id', verify, function(req, res, next) {
+    sendReport(req.params.id, 'pdf', res).then(() => {
+        next();
+    }).catch((err) => {
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
-router.get('/word/:id', verify, function(req, res) {
-    sendReport(req.params.id, 'docx', res);
-});
+/**
+ * Gets a docx file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {DOCX} with type application/vnd.openxmlformats-officedocument.wordprocessingml.document
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/docx/:id', verify, function(req, res, next) {
+    sendReport(req.params.id, 'docx', res).then(() => {
+        next();
+    }).catch((err) => {
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
-router.get('/csv/:id', verify, function(req, res) {
+/**
+ * Gets a csv file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {CSV} text/csv
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/csv/:id', verify, function(req, res, next) {
     methods.get(req.params.id, Sheet, [
         {
             path: 'exercises',
@@ -52,7 +92,7 @@ router.get('/csv/:id', verify, function(req, res) {
                 ]
         }
     ]).then((sheet) => {
-        let renderer = new CSVRenderer().addHeader();
+        let renderer = new CSVRenderer().addHeader().addToAlphabeticOrder(toAlphabeticOrder);
         for (let s of sheet.submissions) {
             let maxPoints = 0;
             for (let a of s.answers) {
@@ -63,54 +103,97 @@ router.get('/csv/:id', verify, function(req, res) {
             renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints, sheet.template);
         }
         res.attachment('output.csv').type('text/csv').end(renderer.export());
-    }).catch((err) => res.status(500).send(err));
-});
+        next();
+    }).catch((err) => {
+        res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
-router.get('/template/:id', verify, function(req, res) {
+/**
+ * Gets a tempate file with a sheetID
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {TXT} txt
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/template/:id', verify, function(req, res, next) {
     let sheet = {};
-    Sheet.findById(req.params.id, (err, doc) => {
-        if (err) res.status(400).send(err);
+    Sheet.findById(req.params.id).exec().then((doc) => {
         sheet = doc;
-        Exercise.find().where('_id').in(doc.exercises).exec((err, docs) => {
-            if (err) res.status(400).send(err);
+        Exercise.find().where('_id').in(doc.exercises).exec().then((docs) => {
             sheet.exercises = docs;
             let promises = [];
             for (let exercise of sheet.exercises) {
                 promises.push(Task.find().where('_id').in(exercise.tasks).then((docs) => {
-                    if (err) res.status(400).send(err);
                     exercise.tasks = docs;
                     for (let task of exercise.tasks) {
                         task.order = toAlphabeticOrder(task.order);
                     }
+                }).catch((err) => {
+                    res.status(400).send(err);
+                    req.error = err;
+                    next();
                 }));
             }
             Promise.all(promises).then(() => {
                 // https://stackoverflow.com/questions/21950049/create-a-text-file-in-node-js-from-a-string-and-stream-it-in-response
                 res.attachment('template.txt').type('txt').end(getTemplate(sheet, 'txt'));
+                next();
             }).catch((err) => {
                 res.status(500).send(err);
+                req.error = err;
+                next();
             });
+        }).catch((err) => {
+            res.status(400).send(err);
+            req.error = err;
+            next();
         });
-    });
-});
-
-function sendReport(id, type, res) {
-    getReportObj(id).then((obj) => {
-        new Renderer()
-            .addHelper(toAlphabeticOrder)
-            .addHelper(addTemplateExercise)
-            .addHelper(addNameSubmissionFile)
-            .data(JSON.stringify(obj))
-            .html(obj.html)
-            .name(obj.course.name + ' - ' + obj.sheet.name)
-            .output(type)
-            .send(res);
     }).catch((err) => {
-        if (err.name === StatusError.name) res.status(err.status).send(err.message);
-        else res.status(500).send(err);
+        res.status(400).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * This function gets all reporting data,
+ * renders it to the specific type of file
+ * and sends it to the client.
+ * @param {string} id of a {Sheet}.
+ * @param {string} type (pdf|docx) of document.
+ * @param {object} res express response object.
+ */
+function sendReport(id, type, res) {
+    return new Promise((resolve, reject) => {
+        getReportObj(id).then((obj) => {
+            let renderer = new Renderer();
+            renderer
+                .addHelper(toAlphabeticOrder)
+                .addHelper(renderer.helpers.calcPoints)
+                .addHelper(renderer.helpers.addTemplateExercise)
+                .addHelper(renderer.helpers.addNameSubmissionFile)
+                .data(JSON.stringify(obj))
+                .html(obj.html)
+                .name(obj.course.name + ' - ' + obj.sheet.name)
+                .output(type)
+                .send(res);
+            resolve();
+        }).catch((err) => {
+            reject(err);
+        });
     });
 }
 
+/**
+ * Implementation of accumulating and preparing the report data:
+ * template.html
+ * {Course} and {Sheet} with exercises and tasks.
+ * @param {string} sheetId a {Sheet} id.
+ */
 function getReportObj(sheetId) {
     return new Promise((resolve, reject) => {
         let obj = {};
@@ -160,20 +243,26 @@ function getTemplate(sheet, mode) {
     return template;
 }
 
-function addTemplateExercise(sheet) {
-    console.log(sheet.tempalte);
-    if (sheet.template.flag) {
-        let html = 'Einhaltung der Abgabekriterien (';
-        html += sheet.template.points + ' Punkte)';
-        return html;
-    } else return '';
+/**
+ * This function parses a numerical order to an alphabetical one.
+ * @param {number} numerical a order number.
+ * @returns alphabetic character.
+ */
+function toAlphabeticOrder(numerical) {
+    if (numerical < 10) {
+        return String.fromCharCode(('' + numerical).charCodeAt() + 16).toLowerCase();
+    } else {
+        if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
+        return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
+    }
 }
 
-function addNameSubmissionFile(sheetOrder) {
-    if (sheetOrder < 10) return '0' + sheetOrder;
-    else return sheetOrder;
-}
-
+/**
+ * This function counts up all orders of the report object.
+ * @param {object} obj is a report object.
+ * @param {number} countUp value that is added to the order.
+ * @returns updated report object.
+ */
 function countOrderUpBy(obj, countUp) {
     obj.course.order += countUp;
     obj.sheet.order += countUp;
@@ -186,15 +275,10 @@ function countOrderUpBy(obj, countUp) {
     return obj;
 }
 
-function toAlphabeticOrder(numerical) {
-    if (numerical < 10) {
-        return String.fromCharCode(('' + numerical).charCodeAt() + 16).toLowerCase();
-    } else {
-        if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
-        return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
-    }
-}
-
+/**
+ * This function parses a date string to a predefined format.
+ * @param {string} str date string.
+ */
 function toReadableDate(str) {
     return moment(str).format('dddd, D. MMMM YYYY, hh:mm [Uhr]');
 }

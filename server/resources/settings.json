@@ -1,0 +1,32 @@
+{
+    "logging": {
+        "_comment": {
+            "mode": "modes: debug, info, warn, error, off",
+            "name": "name: filename",
+            "console": "Whether output will be printed to console, too."
+        },
+        "mode": "debug",
+        "console": true,
+        "name": "server"
+    },
+    "database": {
+        "_comment": {
+            "mode": "modes: dev_server, dev_client, prod"
+        },
+        "mode": "dev_server"
+    },
+    "csv": {
+        "_comment": {
+            "no_feedback": "If no feedback is in the answer object, this string will be used.",
+            "missing_text": "When a answer has no response, this text will be used.",
+            "overall_text": "The submission will be evaluated and depending on the points, max (maximum points reached), pass or fail will be used."
+        },
+        "no_feedback": "Kein Feedback angegeben.",
+        "missing_text": "fehlt.",
+        "overall_text": {
+            "max": "Sehr gut! Alles richtig.",
+            "pass": "Sehr gut! Fast alles richtig.",
+            "fail": "Schade. Nicht bestanden."
+        }
+    }
+}

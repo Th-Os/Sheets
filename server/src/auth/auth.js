@@ -1,8 +1,14 @@
+/**
+ * @overview The authentication handles login and logout requests.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import bodyParser from 'body-parser';
 import {User} from '../models/user';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
@@ -12,25 +18,31 @@ router.use(bodyParser.urlencoded({
 router.use(bodyParser.json());
 
 /**
- * Login route.
+ * Login route that generates a token for the client.
  * @param req.body.username the username of the user.
  * @param req.body.password the password of the user.
  */
-router.post('/login', function(req, res) {
-    User.findOne({
-        username: req.body.username
-    }, function(err, user) {
-        if (err) return res.status(500).send('Error on the server.');
-        if (!user) return res.status(404).send('No user found.');
+router.post('/login', function(req, res, next) {
+    User.findOne({username: req.body.username}).exec().then((user) => {
+        let err;
+        if (!user) {
+            err = new Error('AuthError: No user with name ' + req.body.username + ' found.');
+            res.status(404).send(err);
+            req.error = err;
+            next();
+        }
 
         // check if the password is valid
         var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
         if (!passwordIsValid) {
-            return res.status(401).send({
+            err = new Error('AuthError: Password of user with username ' + req.body.username + ' is not valid.');
+            res.status(401).send({
                 user: user._id,
                 auth: false,
                 token: null
             });
+            req.error = err;
+            next();
         }
 
         // if user is found and password is valid
@@ -47,8 +59,14 @@ router.post('/login', function(req, res) {
             auth: true,
             token: token
         });
+        next();
+    }).catch((err) => {
+        err = new Error('AuthError: Error on the server.');
+        res.status(500).send(err);
+        req.error = err;
+        next();
     });
-});
+}, logRoute);
 
 /**
  * Logout route.

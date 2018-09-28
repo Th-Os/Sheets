@@ -11,7 +11,7 @@
         "preload": "node -r dotenv/config -r babel/register index.js",
         "start": "nodemon --exec npm run babel-node -- ./src/index.js",
         "build": "babel src -d dist",
-        "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/api_test.js"
+        "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/*.js"
     },
     "author": "",
     "license": "ISC",
@@ -25,10 +25,9 @@
         "jsreport-core": "^2.2.0",
         "jsreport-handlebars": "^2.0.0",
         "jsreport-html-embedded-in-docx": "^1.0.0",
+        "log4js": "^3.0.5",
         "moment": "^2.22.2",
         "mongoose": "^5.2.17",
-        "passport": "^0.4.0",
-        "passport-local": "^1.0.0",
         "puppeteer": "^1.8.0"
     },
     "devDependencies": {

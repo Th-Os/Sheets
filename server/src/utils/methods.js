@@ -1,10 +1,18 @@
+/**
+ * @overview methods is an accumulation of functions that display a middleware between the routings and the mongoose framework.
+ * @author Thomas Oswald
+ */
+
 import {StatusError} from '../utils/errors';
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose'; // eslint-disable-line no-unused-vars
 
 /**
- * @param {*} id
- * @param {*} model
+ * Gets a mongoose document.
+ * @param {string} id of the model.
+ * @param {Model} model specific mongoose model.
+ * @param {object} populateObj object with populate parameters.
  * @see in reference to http://frontendcollisionblog.com/mongodb/2016/01/24/mongoose-populate.html
+ * @returns documents of the model.
  */
 function get(id, model, populateObj) {
     return new Promise((resolve, reject) => {
@@ -25,11 +33,11 @@ function get(id, model, populateObj) {
 }
 
 /**
- *
- * @param {*} id
- * @param {*} parent
- * @param {*} child
- * @param {*} isSingle
+ * Gets a child or children from its parent.
+ * @param {string} id of the parent mongoose model.
+ * @param {Model} parent mongoose model.
+ * @param {Model} child mongoose model.
+ * @param {boolean} isSingle whether child has a one-to-one or one-to-many relation with its parent.
  */
 function deepGet(id, parent, child, isSingle) {
     return new Promise((resolve, reject) => {
@@ -49,8 +57,9 @@ function deepGet(id, parent, child, isSingle) {
 }
 
 /**
- *
- * @param {*} model
+ * Gets all documents of a specific model.
+ * @param {Model} model specific mongoose model.
+ * @param {object} populateObj object with populate parameters.
  */
 function getAll(model, populateObj) {
     return new Promise((resolve, reject) => {
@@ -69,10 +78,10 @@ function getAll(model, populateObj) {
 }
 
 /**
- *
- * @param {*} id
- * @param {*} body
- * @param {*} model
+ * Updates a specific document by using its model and its id.
+ * @param {string} id of the document.
+ * @param {object} body that will be used to update the document.
+ * @param {Model} model specific mongoose model.
  */
 function put(id, body, model) {
     return new Promise((resolve, reject) => {
@@ -88,9 +97,10 @@ function put(id, body, model) {
 }
 
 /**
- *
- * @param {*} id
- * @param {*} model
+ * Deletes a document.
+ * @param {string} id of the document.
+ * @param {Model} model its mongoose model.
+ * @returns {string} success message.
  */
 function del(id, model) {
     return new Promise((resolve, reject) => {
@@ -99,16 +109,43 @@ function del(id, model) {
             if (doc === null) reject(new StatusError(404, 'No ' + model.modelName + ' with ' + id + ' was found.'));
             else {
                 doc.remove();
-                resolve();
+                resolve('Deleted ' + model.modelName + ' with id: ' + id + ' successfully.');
             }
         });
     });
 }
 
 /**
- *
- * @param {*} body
- * @param {*} model
+ * Deletes child documents of a parent document.
+ * @param {string} id of the document.
+ * @param {Model} model its mongoose model.
+ * @returns {string} success message.
+ */
+function deepDel(id, parentModel, childModel, isSingle) {
+    return new Promise((resolve, reject) => {
+        let path = childModel.modelName.toLowerCase();
+        path += (isSingle) ? '' : 's';
+        parentModel.findById(id).populate({ path: path }).exec()
+            .then((parent) => {
+                if (parent[path] === null || (parent[path] instanceof Array && parent[path].length === 0)) {
+                    reject(new StatusError(404, 'No ' + path + ' found within ' + parentModel.modelName + ' with id: ' + id));
+                }
+                for (let doc of parent[path]) {
+                    if (doc.persistent === undefined || !doc.persistent) doc.remove();
+                }
+                parent[path] = (isSingle) ? null : [];
+                parent.save().then((doc) => {
+                    resolve('Deleted ' + path + ' of ' + parentModel.modelName + ' with id: ' + id + ' successfully.');
+                });
+            }).catch((err) => reject(err));
+    });
+}
+
+/**
+ * Creates one or more new documents with the model.
+ * @param {object} body of the new document.
+ * @param {Model} model its mongoose model.
+ * @returns {Array} Array of documents.
  */
 function post(body, model) {
     return new Promise((resolve, reject) => {
@@ -121,12 +158,13 @@ function post(body, model) {
 }
 
 /**
- * Only 2 level post.
- * @param {*} id
- * @param {*} body
- * @param {*} parent
- * @param {*} child
- * @param {*} isSingle
+ * Creates one ore many children under a parent model.
+ * @param {string} id of the parent.
+ * @param {object} body of the child or children.
+ * @param {Model} parent model of the existing document.
+ * @param {Model} child model of the soon to be children or child.
+ * @param {boolean} isSingle indicates whether one or multiple children are created.
+ * @returns {Array} Array of childs.
  */
 function deepPost(id, body, parent, child, isSingle) {
     return new Promise((resolve, reject) => {
@@ -162,16 +200,17 @@ function deepPost(id, body, parent, child, isSingle) {
     });
 }
 
-// ISSUE 10: Implement a way to post multi level objects.
 /**
- * @param {*} id ID of a sheet.
- * @param {*} body of structure: [ submission: student, answers (with task: taskId)]
+ * Creates children and grandchildren in bulk.
+ * @param {*} id ID of a parent.
+ * @param {*} body of structure: parent: { children: [ grandChild or grandChildren ] }
  * @param {*} parentModel model of parent.
- * @param {*} model model of the documents in question.
+ * @param {*} childModel model of child.
  */
-function bulkPost(id, body, parentModel, model) {
+function bulkPost(id, body, parentModel, childModel) {
     return new Promise((resolve, reject) => {
         parentModel.findById(id).exec().then((parent) => {
+            if (parent === null) reject(new StatusError(400, 'No ' + parentModel.modelName + ' with id: ' + id + ' found.'));
             if (!(body instanceof Array)) body = [body];
             let grandChildModel;
             let promises = [];
@@ -199,16 +238,24 @@ function bulkPost(id, body, parentModel, model) {
                         promises.push(grandChildModel.create(child[key]).then((doc) => {
                             child[key] = doc._id;
                         }).catch((err) => reject(err)));
+                    } else {
+                        if (mongoose.Types.ObjectId.isValid(child[key]))
+                            child[key] = mongoose.Types.ObjectId(child[key]);
                     }
                 }
             }
             Promise.all(promises).then(() => {
-                model.create(body).then((doc) => {
-                    resolve(doc);
+                childModel.create(body).then((docs) => {
+                    let ids = [];
+                    for (let doc of docs) { ids.push(doc._id); }
+                    parent[childModel.modelName.toLowerCase() + 's'].push(...ids);
+                    parent.save().then((doc) => {
+                        resolve(doc);
+                    }).catch((err) => reject(err));
                 }).catch((err) => reject(err));
             }).catch((err) => reject(err));
         });
     });
 }
 
-export {get, deepGet, getAll, put, del, post, deepPost, bulkPost};
+export {get, deepGet, getAll, put, del, deepDel, post, deepPost, bulkPost};

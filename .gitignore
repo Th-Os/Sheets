@@ -1,14 +1,17 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
-.env
 
 # environment variables:
 .env
+
+# logs
+*.log
+*.log.gz
 
 # compiled output
 /dist
 /tmp
 output/
-
+server/\build/
 
 # dependencies
 node_modules
@@ -47,5 +50,3 @@ package-lock.json
 client/\.idea/
 
 server/\.idea/
-
-server/src/database/config\.js

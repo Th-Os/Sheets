@@ -1,3 +1,8 @@
+/**
+ * @overview The definition of the schemas and models of sheet, exercise, task and solution.
+ * @author Thomas Oswald and Johannes Dengler
+ */
+
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
@@ -49,6 +54,9 @@ const sheetSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On sheet removal exercises, submissions and the reference in the course are deleted.
+ */
 sheetSchema.post('remove', (doc) => {
     mongoose.model('Exercise').find().where('_id').in(doc.exercises).exec((err, docs) => {
         if (err) throw err;
@@ -65,6 +73,7 @@ sheetSchema.post('remove', (doc) => {
     mongoose.model('Course').find({sheets: doc._id}).exec((err, courses) => {
         if (err) throw err;
         let course = (courses instanceof Array) ? courses[0] : courses;
+        if (course === undefined) return Error('No course found');
         course.sheets = course.sheets.filter(e => !(e.equals(doc._id)));
         course.save();
         let promises = [];
@@ -80,52 +89,6 @@ sheetSchema.post('remove', (doc) => {
         Promise.all(promises).then(() => console.log('saved all other sheets'));
     });
 });
-
-sheetSchema.methods.setPersistence = function(isPersistent, callback) {
-    this.persistent = isPersistent;
-    mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
-        if (err) throw err;
-        for (let doc of docs) {
-            doc.persistent = isPersistent;
-            doc.save();
-        }
-        this.save(callback);
-    });
-};
-
-// TODO: Test
-sheetSchema.methods.getMaxPoints = function() {
-    return new Promise((resolve, reject) => {
-        mongoose.model('Exercise').find().where('_id').in(this.exercises).exec((err, docs) => {
-            if (err) throw err;
-            let points = 0;
-            let promises = [];
-            for (let doc of docs) {
-                let promise = doc.getMaxPoints();
-                promise.then((res) => {
-                    points += res;
-                });
-                promises.append(promise);
-            }
-            Promise.all(promises).then(() => {
-                resolve(points);
-            }).catch((err) => reject(err));
-        });
-    });
-};
-
-sheetSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Exercise').find().where('_id').in(this.exercises).exec().then((docs) => {
-            this.exercises = docs;
-        }).catch((err) => { throw err; }));
-        promises.push(mongoose.model('Submission').find().where('_id').in(this.submissions).exec().then((docs) => {
-            this.submissions = docs;
-        }).catch((err) => { throw err; }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
-    });
-};
 
 const exerciseSchema = new mongoose.Schema({
     name: {
@@ -151,6 +114,9 @@ const exerciseSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On exercise removal tasks and reference in sheet are deleted.
+ */
 exerciseSchema.post('remove', (doc) => {
     mongoose.model('Task').find().where('_id').in(doc.tasks).exec((err, docs) => {
         if (err) throw err;
@@ -178,34 +144,6 @@ exerciseSchema.post('remove', (doc) => {
     });
 });
 
-exerciseSchema.methods.setPersistence = function(isPersistent, callback) {
-    this.persistent = isPersistent;
-    this.save(callback);
-};
-
-exerciseSchema.methods.getMaxPoints = function() {
-    return new Promise((resolve, reject) => {
-        mongoose.model('Task').find().where('_id').in(this.tasks).exec((err, docs) => {
-            if (err) reject(err);
-            let points = 0;
-            for (let doc of docs) {
-                points += doc.points;
-            }
-            resolve(points);
-        });
-    });
-};
-
-exerciseSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Task').find().where('_id').in(this.tasks).exec().then((docs) => {
-            this.tasks = docs;
-        }).catch((err) => { throw err; }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
-    });
-};
-
 const taskSchema = new mongoose.Schema({
     question: {
         type: String,
@@ -230,6 +168,9 @@ const taskSchema = new mongoose.Schema({
     }
 });
 
+/**
+ * On task removal solution and reference in exercise are deleted.
+ */
 taskSchema.post('remove', (doc) => {
     mongoose.model('Solution').findById(doc.solution, (err, solution) => {
         if (err) throw err;
@@ -254,21 +195,6 @@ taskSchema.post('remove', (doc) => {
         }
     });
 });
-
-// TODO: Test
-taskSchema.methods.getExercise = function() {
-    return mongoose.model('Exercise').find().where('tasks').in(this._id);
-};
-
-taskSchema.methods.populateObj = function() {
-    return new Promise((resolve, reject) => {
-        let promises = [];
-        promises.push(mongoose.model('Solution').findById(this.solution).then((docs) => {
-            this.tasks = docs;
-        }).catch((err) => { throw err; }));
-        Promise.all(promises).then(() => resolve()).catch((err) => reject(err));
-    });
-};
 
 const solutionSchema = new mongoose.Schema({
     type: {

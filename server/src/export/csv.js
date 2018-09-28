@@ -1,13 +1,30 @@
+/**
+ * @overview The renderer for csv files.
+ * All string data is required by the GRIPS system or too deeply related to the data.
+ * @author Thomas Oswald
+ */
+
+import settings from '../../resources/settings';
+
 function CSVRenderer() {
     this.header = 'ID,Bewertung,Skala,Zuletzt geändert (Bewertung),Feedback als Kommentar';
     this.type = 'text/csv;charset=utf-8;';
     this.csv = '';
 }
 
+/**
+ * Adds a header line to the csv.
+ * @param {string} header heading line.
+ */
 CSVRenderer.prototype.addHeader = function(header) {
     if (header === undefined || header.length === 0) this.csv += this.header;
     else this.csv += header;
     this.csv += '\n';
+    return this;
+};
+
+CSVRenderer.prototype.addToAlphabeticOrder = function(func) {
+    this.toAlphabeticOrder = func;
     return this;
 };
 
@@ -23,6 +40,7 @@ CSVRenderer.prototype.addHeader = function(header) {
  * @param {Object} template object that defines whether a template exercise was chosen. This case needs an extra line.
  */
 CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder, requiredPoints, maxPoints, template) {
+    if (submission.grips_id === undefined) throw Error('No grips id for the submission with id: ' + submission.id);
     let line = '';
     line += 'Teilnehmer/in' + submission.grips_id + ',' + hasPassed(submission, requiredPoints, (template.flag && template.correctly) ? template.points : 0) + ',"nicht bestanden\nbestanden",,"\n';
     line += '<p> ' + getOverallFeedback(submission, requiredPoints, maxPoints) + ' </p>\n';
@@ -30,11 +48,11 @@ CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder
     sheetOrder += 1;
     for (let i = 0; i < length; i++) {
         let answer = submission.answers[i];
-        line += '<p> Aufgabe ' + sheetOrder + '.' + (getExerciseOrder(exercises, answer.task._id) + 1) + toAlphabeticOrder(answer.task.order + 1) + '): ';
+        line += '<p> Aufgabe ' + sheetOrder + '.' + (getExerciseOrder(exercises, answer.task._id) + 1) + this.toAlphabeticOrder(answer.task.order + 1) + '): ';
         let txt = toCSVString(answer.text);
         if (txt.length !== 0) line += '(' + txt + ')';
-        else line += 'fehlt.';
-        let feedback = (answer.feedback !== undefined) ? answer.feedback : 'Kein Feedback angegeben.';
+        else line += settings.csv.missing_text;
+        let feedback = (answer.feedback !== undefined) ? answer.feedback : settings.csv.no_feedback;
         line += ' ' + feedback + ' </p>';
         line += '\n';
     }
@@ -51,10 +69,21 @@ CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder
     this.csv += line;
 };
 
+/**
+ * Returns the csv data as string.
+ * @returns {string} csv as string.
+ */
 CSVRenderer.prototype.export = function() {
     return this.csv;
 };
 
+/**
+ * Calculates reached points and compares the result with the required points.
+ * @param {Submission} submission a {Submission} with an array of {Answer}.
+ * @param {number} requiredPoints points that indicates passing the sheet.
+ * @param {number} templatePoints points for the last exercise.
+ * @returns one of the correction scales.
+ */
 function hasPassed(submission, requiredPoints, templatePoints) {
     let points;
     for (let answer of submission.answers) {
@@ -65,6 +94,12 @@ function hasPassed(submission, requiredPoints, templatePoints) {
     else return 'nicht bestanden';
 }
 
+/**
+ * Searches exercises after task that has the taskId.
+ * @param {Array} exercises array of {Exercise}.
+ * @param {string} taskId id of {Task}.
+ * @returns {number} order of exercise.
+ */
 function getExerciseOrder(exercises, taskId) {
     for (let e of exercises) {
         for (let t of e.tasks) {
@@ -76,28 +111,29 @@ function getExerciseOrder(exercises, taskId) {
     return 0;
 }
 
+/**
+ * Returns feedback for the whole submission.
+ * @param {Submission} submission with array of {Answer}.
+ * @param {number} requiredPoints points that indicates passing the sheet.
+ * @param {number} maxPoints maximum of points achievable.
+ */
 function getOverallFeedback(submission, requiredPoints, maxPoints) {
     let points = 0;
     for (let answer of submission.answers) {
         points += answer.achieved_points;
     }
-    if (points === maxPoints) return 'Sehr gut! Alles richtig.';
-    if (points >= requiredPoints) return 'Sehr gut! Fast alles richtig.';
-    else return 'Schade. Nicht bestanden.';
+    if (points === maxPoints) return settings.csv.overall_text.max;
+    if (points >= requiredPoints) return settings.csv.overall_text.pass;
+    else return settings.csv.overall_text.fail;
 }
 
+/**
+ * Replaces all " with ' in a string.
+ * @param {string} str string
+ */
 function toCSVString(str) {
     if (str === undefined || str.length === 0) return '';
     return str.replace('\"\g', '\''); // eslint-disable-line no-useless-escape
-}
-
-function toAlphabeticOrder(numerical) {
-    if (numerical < 10) {
-        return String.fromCharCode(('' + numerical).charCodeAt() + 16).toLowerCase();
-    } else {
-        if (numerical < 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
-        return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
-    }
 }
 
 export default CSVRenderer;

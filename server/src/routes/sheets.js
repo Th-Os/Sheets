@@ -1,22 +1,49 @@
+/**
+ * @overview The routing of the sheets API.
+ * @author Thomas Oswald
+ */
+
 import express from 'express';
 import verify from '../auth/verification';
 import * as methods from '../utils/methods';
 import {Sheet, Exercise} from '../models/sheet';
 import {StatusError} from '../utils/errors';
 import {Submission} from '../models/submission';
+import {logRoute} from '../utils/log';
 
 const router = express.Router();
 
-router.get('/:id', verify, function(req, res) {
+/**
+ * Gets a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {Sheet}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id', verify, function(req, res, next) {
     methods.get(req.params.id, Sheet)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
-router.get('/:id/_aggregate', verify, function(req, res) {
+/**
+ * Gets an aggregated sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {Sheet} with Exercises, Tasks, Solution and Submissions, Answers, Task, Solution.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id/_aggregate', verify, function(req, res, next) {
     methods.get(req.params.id, Sheet, [
         {
             path: 'exercises',
@@ -48,138 +75,235 @@ router.get('/:id/_aggregate', verify, function(req, res) {
         }
     ]).then((doc) => {
         res.send(doc);
-    }).catch((err) => res.status(500).send(err));
-});
+        next();
+    }).catch((err) => {
+        if (err.name === StatusError.name) res.status(err.status).send(err.message);
+        else res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
 
-router.put('/:id', verify, function(req, res) {
+/**
+ * Updates a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @param {Sheet} req.body with updated values.
+ * @returns {Sheet}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Sheet)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
-router.delete('/:id', verify, function(req, res) {
+/**
+ * Deletes a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {string} success message.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.delete('/:id', verify, function(req, res, next) {
     methods.del(req.params.id, Sheet)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
-
-router.get('/:id/exercises', verify, function(req, res) {
+}, logRoute);
+/**
+ * Gets all exercises of a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {Array} of @see {Exercise}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id/exercises', verify, function(req, res, next) {
     methods.deepGet(req.params.id, Sheet, Exercise)
-        .then((docs) => res.status(200).send(docs))
+        .then((docs) => {
+            res.status(200).send(docs);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
-router.post('/:id/exercises', verify, function(req, res) {
-    methods.deepPost(req.params.id, req.body, Sheet, Exercise)
-        .then((docs) => res.status(200).send(docs))
-        .catch((err) => {
-            if (err.name === StatusError.name) res.status(err.status).send(err.message);
-            else res.status(500).send(err);
-        });
-});
-
-router.post('/:id/submissions', verify, function(req, res) {
-    methods.deepPost(req.params.id, req.body, Sheet, Submission)
-        .then((docs) => res.status(200).send(docs))
-        .catch((err) => {
-            if (err.name === StatusError.name) res.status(err.status).send(err.message);
-            else res.status(500).send(err);
-        });
-});
-
-router.post('/:id/submissions/_bulk', verify, function(req, res) {
-    methods.bulkPost(req.params.id, req.body, Sheet, Submission)
-        .then((docs) => res.status(200).send(docs))
-        .catch((err) => {
-            if (err.name === StatusError.name) res.status(err.status).send(err.message);
-            else res.status(500).send(err);
-        });
-});
-
-router.get('/:id/submissions', verify, function(req, res) {
+/**
+ * Gets all submissions of a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {Array} of @see {Submission}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id/submissions', verify, function(req, res, next) {
     methods.deepGet(req.params.id, Sheet, Submission)
-        .then((docs) => { res.status(200).send(docs); })
+        .then((docs) => {
+            res.status(200).send(docs);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
-router.delete('/:id/exercises', verify, function(req, res) {
-    Sheet.findById(req.params.id).populate({ path: 'exercises' }).exec((err, sheet) => {
-        if (err) {
-            res.status(400).send(err);
-        }
-        for (let e of sheet.exercises) {
-            if (!e.persistent) e.remove();
-        }
-        sheet.exercises = [];
-        sheet.save();
-        res.send('Deleted exercises');
-    });
-});
-
-router.delete('/:id/exercises', verify, function(req, res) {
-    Sheet.findById(req.params.id).populate({ path: 'exercises' }).exec((err, sheet) => {
-        if (err) {
-            res.status(400).send(err);
-        }
-        for (let e of sheet.exercises) {
-            if (!e.persistent) e.remove();
-        }
-        sheet.exercises = [];
-        sheet.save();
-        res.send('Deleted exercises');
-    });
-});
-
-router.delete('/:id/submissions', verify, function(req, res) {
-    Sheet.findById(req.params.id, (err, sheet) => {
-        if (err) {
-            res.status(400).send(err);
-            return;
-        }
-        Submission.find().where('_id').in(sheet.submissions).exec((err, subs) => {
-            if (err) {
-                res.status(500).send(err);
-                return;
-            }
-            if (subs === undefined || subs.length === undefined) {
-                let ids = sheet.submissions;
-                sheet.submissions = [];
-                sheet.save();
-                res.status(404).send('No submissions found with submission ids: ' + ids + '. Deleting all references.');
-            } else {
-                try {
-                    for (let s of subs) s.remove();
-                } catch (err) {
-                    return;
-                }
-                sheet.submissions = [];
-                sheet.save();
-                res.send(subs);
-            }
+/**
+ * Creates exercises for a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @param {Array} req.body Array of exercises.
+ * @returns {Array} of @see {Exercise}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.post('/:id/exercises', verify, function(req, res, next) {
+    methods.deepPost(req.params.id, req.body, Sheet, Exercise)
+        .then((docs) => {
+            res.status(201).send(docs);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-    });
-});
+}, logRoute);
 
-router.get('/:id/export/', verify, function(req, res) {
+/**
+ * Creates submissions for a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @param {Array} req.body Array of submissions.
+ * @returns {Array} of @see {Submission}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.post('/:id/submissions', verify, function(req, res, next) {
+    methods.deepPost(req.params.id, req.body, Sheet, Submission)
+        .then((docs) => {
+            res.status(201).send(docs);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+/**
+ * Creates submissions with 2 further levels (answers and task) for a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @param {Array} req.body Array of submissions.
+ * @returns {Array} of @see {Submission}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.post('/:id/submissions/_bulk', verify, function(req, res, next) {
+    methods.bulkPost(req.params.id, req.body, Sheet, Submission)
+        .then((docs) => {
+            res.status(201).send(docs);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Deletes all exercises of a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {string} success message.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.delete('/:id/exercises', verify, function(req, res, next) {
+    methods.deepDel(req.params.id, Sheet, Exercise, false).then((msg) => {
+        res.send(msg);
+        next();
+    }).catch((err) => {
+        if (err.name === StatusError.name) res.status(err.status).send(err.message);
+        else res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * Deletes all submissions of a sheet by id.
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {string} success message.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.delete('/:id/submissions', verify, function(req, res, next) {
+    methods.deepDel(req.params.id, Sheet, Submission, false).then((msg) => {
+        res.send(msg);
+        next();
+    }).catch((err) => {
+        if (err.name === StatusError.name) res.status(err.status).send(err.message);
+        else res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * Redirects to @see export.js
+ */
+router.get('/:id/pdf', verify, function(req, res) {
     res.redirect('../../export/pdf/' + req.params.id);
 });
 
+/**
+ * Redirects to @see export.js
+ */
+router.get('/:id/docx', verify, function(req, res) {
+    res.redirect('../../export/docx/' + req.params.id);
+});
+
+/**
+ * Redirects to @see export.js
+ */
 router.get('/:id/csv', verify, function(req, res) {
     res.redirect('../../export/csv/' + req.params.id);
 });
 
+/**
+ * Redirects to @see export.js
+ */
 router.get('/:id/template', verify, function(req, res) {
     res.redirect('../../export/template/' + req.params.id);
 });

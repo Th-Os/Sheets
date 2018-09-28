@@ -1,3 +1,8 @@
+/**
+ * @overview The definition of the schemas and models of user and role.
+ * @author Thomas Oswald and Johannes Dengler
+ */
+
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
