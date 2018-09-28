@@ -1,5 +1,22 @@
 # Server Implementation
 
+The server can be controlled by npm commands. These are:
+
+```bash
+# Installing dependencies (Necessary before start)
+npm install
+```
+
+```bash
+# Starting server
+npm start
+```
+
+```bash
+# Starting tests
+npm test
+```
+
 ## API
 
 | address  | method  | params  | body  | success | fail | description |
