@@ -70,7 +70,7 @@ export class SheetService {
   /** .subscribe necessary, otherwise put request wont be sent */
   updateSheet (sheet: Sheet): Observable<Sheet> {
     return this.http.put<Sheet>(this.sheetsUrl + '/' + sheet._id, sheet, httpOptions).pipe(
-      tap(_ => this.log(`updated sheet id=${sheet._id}`)),
+      tap(_ => this.log(`Übungsblatt erfolgreich geändert.`)),
       catchError(this.handleError<any>('updateSheet')))
   }
 
@@ -78,7 +78,7 @@ export class SheetService {
   addSheet (courseId: string, sheet: Sheet): Observable<Sheet> {
     const url = `${this.coursesUrl}/${courseId}/sheets`;
     return this.http.post<Sheet>(url, sheet, httpOptions).pipe(
-      tap((newSheet: Sheet) => this.log(`created sheet id=${newSheet[0]._id}`)),
+      tap((newSheet: Sheet) => this.log(`Neues Übungsblatt erstellt.`)),
       catchError(this.handleError<Sheet>('addSheet'))
       );
   }
@@ -89,7 +89,7 @@ export class SheetService {
     const url = `${this.sheetsUrl}/${id}`;
 
     return this.http.delete<Sheet>(url, httpOptions).pipe(
-      tap(_ => this.log(`deleted Sheet id=${id}`)),
+      tap(_ => this.log(`Übungsblatt gelöscht.`)),
       catchError(this.handleError<Sheet>('deleteSheet'))
       );
   }
@@ -98,71 +98,49 @@ export class SheetService {
     const url = `${this.sheetsUrl}/${id}/template`;
     return this.http.get(url, {responseType: 'text'}).pipe(
       catchError(this.handleError(`getTemplate id=${id}`))
-      );
+    );
   }
 
   deleteSubmissions (sheet: Sheet): Observable<any> {
     const url = `${this.sheetsUrl}/${sheet._id}/submissions/`;
     return this.http.delete(url, httpOptions).pipe(
-      tap(_ => this.log(`deleted Submissions of Sheet id=${sheet._id}`)),
+      tap(_ => this.log(`Abgaben gelöscht.`)),
       catchError(this.handleError('deleteSubmissions'))
       );
   }
 
   uploadSubmissions (sheet: Sheet): Observable<any> {
     return this.http.post(this.sheetsUrl + '/' + sheet._id + "/submissions/_bulk" , sheet.submissions , httpOptions).pipe(
-      tap(_ => this.log(`uploaded submissions id=${sheet._id}`)),
-      catchError(this.handleError<any>('uploadSubmissions')))
-  }
-
-  updateSubmissions (sheet: Sheet, submissions: Submission[]): Observable<any> {
-    return this.http.post(this.sheetsUrl + '/' + sheet._id + "/submissions" , submissions , httpOptions).pipe(
-      tap(_ => this.log(`uploaded submissions id=${sheet._id}`)),
+      tap(_ => this.log(`Abgaben erfolreich hochgeladen.`)),
       catchError(this.handleError<any>('uploadSubmissions')))
   }
 
   getSubmissions (sheet: Sheet): Observable<any> {
     const url = `${this.sheetsUrl}/${sheet._id}/submissions/`;
     return this.http.get(url, httpOptions).pipe(
-      tap(_ => this.log(`fetched Submissions of Sheet id=${sheet._id}`)),
-      catchError(this.handleError('deleteSubmissions'))
-      );
+      catchError(this.handleError('getSubmissions'))
+    );
   }
 
   autocorrectSubmission(submissionID: string): Observable<any> {
-        const url = `${this.correctionUrl}/${submissionID}`;
-
-      return this.http.get(url, httpOptions).pipe(
-      tap(_ => this.log(`corrected submission id=${submissionID}`)),
-      catchError(this.handleError<any>('correction')))
-/*
-    let promises = [];
-    sheet.submissions.forEach(sub => {
-      console.log(sub)
-      this.http.post(this.correctionUrl, sub, httpOptions);
-      promises.push(this.http.post(this.correctionUrl, sub, httpOptions))
-    });
-
-    console.log(promises)
-
-    return Promise.all(promises);
-    */
+    const url = `${this.correctionUrl}/${submissionID}`;
+    return this.http.get(url, httpOptions).pipe(
+      catchError(this.handleError<any>('correction'))
+    );
   }
 
   getAnswers (submission: Submission): Observable<any> {
     const url = `${this.submissionsUrl}/${submission._id}/answers`;
     return this.http.get(url, httpOptions).pipe(
-      tap(_ => this.log(`fetched Answers of Submission id=${submission._id}`)),
       catchError(this.handleError('getAnswers'))
-      );
+    );
   }
 
   getStudent (submission: Submission): Observable<any> {
     const url = `${this.studentsUrl}/${submission.student}`;
     return this.http.get(url, httpOptions).pipe(
-      tap(_ => this.log(`fetched Student of Submission id=${submission._id}`)),
       catchError(this.handleError('getAnswers'))
-      );
+    );
   }
 
   downloadSheet(id: string): Observable<Blob> {

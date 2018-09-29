@@ -1,11 +1,11 @@
 <div class="container-fluid mt-5">
   <div class="row">
-    <div class="col-12 col-lg-1 col-md-1">
+    <div class="col-12 col-lg-1 col-md-2">
       <button mat-fab color="primary" class="m-2" (click)="goBack()">
         <i class="material-icons">arrow_back</i>
       </button>
     </div>
-    <div class="col-12 col-lg-11 col-md-11">
+    <div class="col-12 col-lg-11 col-md-10">
       <div class="row">
         <!-- SHEET PARAMS -->
         <div class="col-12 mb-5">
@@ -19,7 +19,7 @@
             </mat-card-title>
             <mat-card-content *ngIf="!loadingSheet && sheet">
               <div class="row align-items-center">
-                <div class="col-12 col-lg-3 col-md-3">
+                <div class="col-12 col-lg-3 col-md-6">
                   <mat-form-field floatLabel="always" class="mx-2">
                     <mat-label>Abgabedatum wählen:&nbsp;</mat-label>
                     <input matInput *ngIf="sheet" [(ngModel)]="sheet.submissiondate"
@@ -28,7 +28,7 @@
                     <owl-date-time #dtPicker1></owl-date-time>
                   </mat-form-field>
                 </div>
-                <div class="col-12 col-lg-3 col-md-3">
+                <div class="col-12 col-lg-3 col-md-6">
                   <mat-form-field class="mx-2">
                     <mat-label>Bestanden ab:&nbsp;</mat-label>
                     <input matInput type="number" *ngIf="sheet" [(ngModel)]="sheet.min_req_points" min="0" max="100"
@@ -36,7 +36,7 @@
                     <span matSuffix>%</span>
                   </mat-form-field>
                 </div>
-                <div class="col-12 col-lg-6 col-md-6">
+                <div class="col-12 col-lg-6 col-md-12">
                   <div class="row">
                     <div class="col-12">
                       <mat-slide-toggle

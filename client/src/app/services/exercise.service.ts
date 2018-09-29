@@ -41,26 +41,16 @@ export class ExerciseService {
   // Update exercise in db
   updateExercise(exercise: Exercise): Observable<Exercise> {
     return this.http.put<Exercise>(`${this.exercisesUrl}/${exercise._id}`, exercise, httpOptions).pipe(
-      tap(_ => this.log(`updated exercise id=${exercise._id}`)),
+      tap(_ => this.log(`Aufgabe erfolreich geändert.`)),
       catchError(this.handleError<any>('updateExercise')));
   }
 
-  /*
-  updateExercise (exercise: Exercise): Exercise {
-    let updatedExercise = new Exercise();
-    this.http.put<Exercise>(this.exercisesUrl + '/' + exercise._id, exercise, httpOptions).pipe(
-      tap(_ => this.log(`updated exercise id=${exercise._id}`)),
-      catchError(this.handleError<any>('updateExercise')))
-      .subscribe(res => updatedExercise = res);
-    return updatedExercise;
-  }
-  */
 
   // Add exercise to sheet
   addExercise (sheetsId: string, exercise: Exercise): Observable<Exercise> {
     const url = `${this.sheetsUrl}/${sheetsId}/exercises`;
     return this.http.post<Exercise>(url, exercise, httpOptions).pipe(
-      tap((newExercise: Exercise) => this.log(`created exercise id=${newExercise[0]._id}`)),
+      tap((newExercise: Exercise) => this.log(`Aufgabe erstellt.`)),
       catchError(this.handleError<Exercise>('addExercise'))
     );
   }
@@ -71,7 +61,7 @@ export class ExerciseService {
     const url = `${this.exercisesUrl}/${id}`;
 
     return this.http.delete<Exercise>(url, httpOptions).pipe(
-      tap(_ => this.log(`deleted exercise id=${id}`)),
+      tap(_ => this.log(`Aufgabe gelöscht.`)),
       catchError(this.handleError<Exercise>('deleteExercise'))
     );
   }

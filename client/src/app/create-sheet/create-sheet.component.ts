@@ -68,10 +68,6 @@ export class CreateSheetComponent implements OnInit {
                     tasks => this.sheet.exercises[index].tasks = tasks,
                     error => console.error( error ),
                     () => {
-                      let points = 0;
-                      this.sheet.exercises[index].tasks.forEach(task => {
-                        points += task.points;
-                      });
                       if (this.sheet.exercises.length - 1 === index) {
                         if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
                           this.selectedExercise = this.sheet.exercises[0]._id;
@@ -81,6 +77,12 @@ export class CreateSheetComponent implements OnInit {
                       }
                     }
                   )
+                } else if (this.sheet.exercises.length - 1 === index) {
+                  if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
+                    this.selectedExercise = this.sheet.exercises[0]._id;
+                  }
+                  this.originalSheet = Object.assign({}, this.sheet);
+                  this.loadingSheet = false;
                 }
               });
             }
