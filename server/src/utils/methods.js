@@ -17,16 +17,18 @@ import mongoose, { Model } from 'mongoose'; // eslint-disable-line no-unused-var
 function get(id, model, populateObj) {
     return new Promise((resolve, reject) => {
         if (populateObj === undefined) {
-            model.findById(id, (err, doc) => {
-                if (err) reject(new StatusError(400, err));
-                else if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
+            model.findById(id).exec().then((doc) => {
+                if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 else resolve(doc);
+            }).catch((err) => {
+                reject(new StatusError(500, err));
             });
         } else {
-            model.findById(id).populate(populateObj).exec((err, doc) => {
-                if (err) reject(new StatusError(400, err));
-                else if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
+            model.findById(id).populate(populateObj).exec().then((doc) => {
+                if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 else resolve(doc);
+            }).catch((err) => {
+                reject(new StatusError(500, err));
             });
         }
     });
@@ -44,14 +46,16 @@ function deepGet(id, parent, child, isSingle) {
         let ids = '';
         if (isSingle) ids = child.modelName.toLowerCase();
         else ids = child.modelName.toLowerCase() + 's';
-        parent.findById(id, (err, doc) => {
-            if (err) reject(new StatusError(400, err));
+        parent.findById(id).exec().then((doc) => {
             if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, parent.modelName + ' not found.'));
-            child.find().where('_id').in(doc[ids]).exec((err, docs) => {
-                if (err) reject(new StatusError(400, err));
+            child.find().where('_id').in(doc[ids]).exec().then((docs) => {
                 if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, child.modelName + ' not found.'));
                 else resolve(docs);
+            }).catch((err) => {
+                reject(new StatusError(500, err));
             });
+        }).catch((err) => {
+            reject(new StatusError(500, err));
         });
     });
 }
@@ -64,16 +68,17 @@ function deepGet(id, parent, child, isSingle) {
 function getAll(model, populateObj) {
     return new Promise((resolve, reject) => {
         if (populateObj === undefined) {
-            model.find({}, (err, docs) => {
-                if (err) reject(new StatusError(400, err));
+            model.find({}).exec().then((docs) => {
                 if (docs === null || (docs.length !== null && docs.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 resolve(docs);
+            }).catch((err) => {
+                reject(new StatusError(500, err));
             });
         } else {
             model.find({}).populate(populateObj).exec().then((docs) => {
                 if (docs === null || (docs.length !== null && docs.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 resolve(docs);
-            }).catch((err) => reject(err));
+            }).catch((err) => reject(new StatusError(500, err)));
         }
     });
 }
@@ -86,13 +91,14 @@ function getAll(model, populateObj) {
  */
 function put(id, body, model) {
     return new Promise((resolve, reject) => {
-        model.findById(id, (err, doc) => {
-            if (err) reject(new StatusError(400, err));
+        model.findById(id).exec().then((doc) => {
             if (doc === null) reject(new StatusError(404, 'No ' + model.modelName + ' with ' + id + ' was found.'));
             doc.set(body);
             doc.save()
                 .then((doc) => resolve(doc))
                 .catch((err) => reject(new StatusError(500, err)));
+        }).catch((err) => {
+            reject(new StatusError(500, err));
         });
     });
 }
@@ -105,13 +111,14 @@ function put(id, body, model) {
  */
 function del(id, model) {
     return new Promise((resolve, reject) => {
-        model.findByIdAndRemove(id, (err, doc) => {
-            if (err) reject(new StatusError(400, err));
+        model.findByIdAndRemove(id).exec().then((doc) => {
             if (doc === null) reject(new StatusError(404, 'No ' + model.modelName + ' with ' + id + ' was found.'));
             else {
                 doc.remove();
                 resolve('Deleted ' + model.modelName + ' with id: ' + id + ' successfully.');
             }
+        }).catch((err) => {
+            reject(new StatusError(500, err));
         });
     });
 }
@@ -138,7 +145,7 @@ function deepDel(id, parentModel, childModel, isSingle) {
                 parent.save().then((doc) => {
                     resolve('Deleted ' + path + ' of ' + parentModel.modelName + ' with id: ' + id + ' successfully.');
                 });
-            }).catch((err) => reject(err));
+            }).catch((err) => reject(new StatusError(500, err)));
     });
 }
 
@@ -150,10 +157,11 @@ function deepDel(id, parentModel, childModel, isSingle) {
  */
 function post(body, model) {
     return new Promise((resolve, reject) => {
-        model.create(body, (err, docs) => {
-            if (err) reject(new StatusError(400, err));
+        model.create(body).exec().then((docs) => {
             if (docs === null || docs.length === 0) reject(new StatusError(404, model.modelName + ' not found.'));
             resolve(docs);
+        }).catch((err) => {
+            reject(new StatusError(500, err));
         });
     });
 }
@@ -172,13 +180,11 @@ function deepPost(id, body, parent, child, isSingle) {
         let dest = '';
         if (isSingle) dest = child.modelName.toLowerCase();
         else dest = child.modelName.toLowerCase() + 's';
-        parent.findById(id, (err, p) => {
-            if (err) reject(new StatusError(400, err));
-            else if (p === undefined) reject(new StatusError(404, 'No ' + parent.modeName + ' with ' + id + ' was found.'));
+        parent.findById(id).exec().then((p) => {
+            if (p === undefined) reject(new StatusError(404, 'No ' + parent.modeName + ' with ' + id + ' was found.'));
             else {
-                child.create(body, (err, childs) => {
-                    if (err) reject(new StatusError(400, err));
-                    else if (childs === null || childs.length === 0) reject(new StatusError(404, child.modelName + ' not found.'));
+                child.create(body).exec().then((childs) => {
+                    if (childs === null || childs.length === 0) reject(new StatusError(404, child.modelName + ' not found.'));
                     else {
                         if (p[dest] === undefined) p[dest] = [];
                         if (childs instanceof Array) {
@@ -187,16 +193,19 @@ function deepPost(id, body, parent, child, isSingle) {
                             }
                         } else if (isSingle) p[dest] = childs._id;
                         else p[dest].push(childs._id);
-                        p.save((err, doc) => {
-                            if (err) reject(new StatusError(400, err));
-                            else {
-                                if (!(childs instanceof Array)) childs = [childs];
-                                resolve(childs);
-                            }
+                        p.save().then((doc) => {
+                            if (!(childs instanceof Array)) childs = [childs];
+                            resolve(childs);
+                        }).catch((err) => {
+                            reject(new StatusError(500, err));
                         });
                     }
+                }).catch((err) => {
+                    reject(new StatusError(500, err));
                 });
             }
+        }).catch((err) => {
+            reject(new StatusError(500, err));
         });
     });
 }
@@ -211,7 +220,7 @@ function deepPost(id, body, parent, child, isSingle) {
 function bulkPost(id, body, parentModel, childModel) {
     return new Promise((resolve, reject) => {
         parentModel.findById(id).exec().then((parent) => {
-            if (parent === null) reject(new StatusError(400, 'No ' + parentModel.modelName + ' with id: ' + id + ' found.'));
+            if (parent === null) reject(new StatusError(404, 'No ' + parentModel.modelName + ' with id: ' + id + ' found.'));
             if (!(body instanceof Array)) body = [body];
             let grandChildModel;
             let promises = [];
@@ -227,7 +236,7 @@ function bulkPost(id, body, parentModel, childModel) {
                                     promises.push(grandChildModel.create(item).then((doc) => {
                                         child[key] = child[key].filter(e => e !== item);
                                         child[key].push(doc._id);
-                                    }).catch((err) => reject(err)));
+                                    }).catch((err) => reject(new StatusError(500, err))));
                                 }
                             }
                         } catch (err) {
@@ -238,7 +247,7 @@ function bulkPost(id, body, parentModel, childModel) {
                         grandChildModel = mongoose.model(grandChildModel);
                         promises.push(grandChildModel.create(child[key]).then((doc) => {
                             child[key] = doc._id;
-                        }).catch((err) => reject(err)));
+                        }).catch((err) => reject(new StatusError(500, err))));
                     } else {
                         if (mongoose.Types.ObjectId.isValid(child[key])) {
                             child[key] = mongoose.Types.ObjectId(child[key]);
@@ -253,9 +262,9 @@ function bulkPost(id, body, parentModel, childModel) {
                     parent[childModel.modelName.toLowerCase() + 's'].push(...ids);
                     parent.save().then((doc) => {
                         resolve(doc);
-                    }).catch((err) => reject(err));
-                }).catch((err) => reject(err));
-            }).catch((err) => reject(err));
+                    }).catch((err) => reject(new StatusError(500, err)));
+                }).catch((err) => reject(new StatusError(500, err)));
+            }).catch((err) => reject(new StatusError(500, err)));
         });
     });
 }
