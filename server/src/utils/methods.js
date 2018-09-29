@@ -183,7 +183,7 @@ function deepPost(id, body, parent, child, isSingle) {
         parent.findById(id).exec().then((p) => {
             if (p === undefined) reject(new StatusError(404, 'No ' + parent.modeName + ' with ' + id + ' was found.'));
             else {
-                child.create(body).exec().then((childs) => {
+                child.create(body).then((childs) => {
                     if (childs === null || childs.length === 0) reject(new StatusError(404, child.modelName + ' not found.'));
                     else {
                         if (p[dest] === undefined) p[dest] = [];
