@@ -46,6 +46,7 @@ export class SheetComponent implements OnInit {
 
   loadingSheet: boolean = false;
   sheet: Sheet;
+  header:string;
 
   loadingSubmissions: boolean = false;
   progressText: string = ""
@@ -140,7 +141,11 @@ export class SheetComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
 
     this.sheetService.getSheet(id).subscribe(
-      sheet => this.sheet = sheet,
+      sheet => {
+                this.sheet = sheet
+        this.header = sheet.name.substring(0, 26);
+        if(this.sheet.name.length > 26) this.header = this.header + "...";
+},
       error => console.error( error ),
       () => {
         this.loadingSheet = false;

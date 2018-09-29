@@ -67,7 +67,7 @@
         <!-- GRID EXERCISES AND TASKS-->
         <div class="col-12 col-lg-6 col-md-6 mb-5">
           <h6 class="text-grayed" *ngIf="sheet">Übungsblatt {{sheet.order + 1}}:</h6>
-          <h2 maxlength="26" *ngIf="sheet">{{sheet.name}}</h2>
+          <h2 maxlength="26" *ngIf="header">{{header}}</h2>
           <mat-card>
             <mat-card-title>Aufgaben</mat-card-title>
             <mat-card-content [ngClass]="{'d-flex justify-content-center align-items-center': loadingExercisesWithTasks || loadingSheet}" class="h-100">
