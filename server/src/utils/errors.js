@@ -25,7 +25,7 @@ class StatusError extends Error {
 }
 
 /**
- * @class StatusError for failures in the routing process.
+ * @class CorrectionError for failures in the auto correction process.
  */
 class CorrectionError extends Error {
     constructor(correction, ...params) {

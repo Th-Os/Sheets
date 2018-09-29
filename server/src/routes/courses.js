@@ -57,29 +57,10 @@ router.get('/_search', verify, function(req, res, next) {
  * @throws 500
  */
 router.get('/:id', verify, function(req, res, next) {
-    methods.get(req.params.id, Course)
+    methods.get(req.params.id, Course, { path: 'sheets' })
         .then((doc) => {
-            let sheetsNameAndId = [];
-            let promises = [];
-            for (let sheetId of doc.sheets) {
-                promises.push(Sheet.findById(sheetId).exec().then((sheet) => {
-                    sheetsNameAndId.push({id: sheetId, name: sheet.name});
-                }).catch((err) => {
-                    req.error = err;
-                    next();
-                }));
-            }
-            Promise.all(promises).then(() => {
-                let obj = JSON.parse(JSON.stringify(doc));
-                obj.sheets = sheetsNameAndId;
-                res.status(200).send(obj);
-                next();
-            }).catch((err) => {
-                if (err.name === StatusError.name) res.status(err.status).send(err.message);
-                else res.status(500).send(err);
-                req.error = err;
-                next();
-            });
+            res.status(200).send(doc);
+            next();
         })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
