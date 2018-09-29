@@ -19,13 +19,13 @@ function get(id, model, populateObj) {
         if (populateObj === undefined) {
             model.findById(id, (err, doc) => {
                 if (err) reject(new StatusError(400, err));
-                else if (doc === undefined) reject(new StatusError(404, model.modelName + ' not found.'));
+                else if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 else resolve(doc);
             });
         } else {
             model.findById(id).populate(populateObj).exec((err, doc) => {
                 if (err) reject(new StatusError(400, err));
-                else if (doc === undefined) reject(new StatusError(404, model.modelName + ' not found.'));
+                else if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 else resolve(doc);
             });
         }
@@ -46,10 +46,10 @@ function deepGet(id, parent, child, isSingle) {
         else ids = child.modelName.toLowerCase() + 's';
         parent.findById(id, (err, doc) => {
             if (err) reject(new StatusError(400, err));
-            if (doc === undefined) reject(new StatusError(404, parent.modelName + ' not found.'));
+            if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, parent.modelName + ' not found.'));
             child.find().where('_id').in(doc[ids]).exec((err, docs) => {
                 if (err) reject(new StatusError(400, err));
-                if (docs === undefined) reject(new StatusError(404, child.modelName + ' not found.'));
+                if (doc === null || (doc.length !== null && doc.length === 0)) reject(new StatusError(404, child.modelName + ' not found.'));
                 else resolve(docs);
             });
         });
@@ -66,11 +66,12 @@ function getAll(model, populateObj) {
         if (populateObj === undefined) {
             model.find({}, (err, docs) => {
                 if (err) reject(new StatusError(400, err));
-                if (docs === null || docs.length === 0) reject(new StatusError(404, model.modelName + ' not found.'));
+                if (docs === null || (docs.length !== null && docs.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 resolve(docs);
             });
         } else {
             model.find({}).populate(populateObj).exec().then((docs) => {
+                if (docs === null || (docs.length !== null && docs.length === 0)) reject(new StatusError(404, model.modelName + ' not found.'));
                 resolve(docs);
             }).catch((err) => reject(err));
         }
