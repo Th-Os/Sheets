@@ -574,8 +574,8 @@ export class SheetComponent implements OnInit {
     return this.parseTemplate(templateString);
   }
 
-  downloadSheet(): void {
-    this.sheetService.downloadSheet(this.route.snapshot.paramMap.get('id')).subscribe(
+  downloadSheetPDF(): void {
+    this.sheetService.downloadSheetPDF(this.route.snapshot.paramMap.get('id')).subscribe(
       data => {
         let blob = new Blob([data], { type: 'application/pdf' });
         let url= window.URL.createObjectURL(blob);

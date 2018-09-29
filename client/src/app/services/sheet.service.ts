@@ -143,8 +143,20 @@ export class SheetService {
     );
   }
 
-  downloadSheet(id: string): Observable<Blob> {
-    return this.http.get(`${this.sheetsUrl}/${id}/export`, {responseType: 'blob'}).pipe(
+  downloadSheetPDF(id: string): Observable<Blob> {
+    return this.http.get(`${this.sheetsUrl}/${id}/pdf`, {responseType: 'blob'}).pipe(
+
+    )
+  }
+
+    downloadSheetCSV(id: string): Observable<Blob> {
+    return this.http.get(`${this.sheetsUrl}/${id}/csv`, {responseType: 'blob'}).pipe(
+
+    )
+  }
+
+    downloadSheetDOCX(id: string): Observable<Blob> {
+    return this.http.get(`${this.sheetsUrl}/${id}/docx`, {responseType: 'blob'}).pipe(
 
     )
   }

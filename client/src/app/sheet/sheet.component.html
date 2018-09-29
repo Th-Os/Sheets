@@ -92,7 +92,7 @@
               </mat-list>
             </mat-card-content>
             <button matTooltip="Übungsblatt herunterladen" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
-                    mat-fab color="primary" (click)="downloadSheet()">
+                    mat-fab color="primary" (click)="downloadSheetPDF()">
               <mat-icon>get_app</mat-icon>
             </button>
             <button matTooltip="Übungsblatt bearbeiten" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 80px;"
