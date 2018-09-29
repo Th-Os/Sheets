@@ -1,3 +1,8 @@
+/**
+ * @overview logging mechanism with log4js.
+ * @author Thomas Oswald
+ */
+
 import log4js from 'log4js';
 import * as settings from '../../resources/settings';
 
@@ -17,6 +22,11 @@ if (settings.logging.console) {
 
 log4js.configure(config);
 
+/**
+ * Logging express routes. This is used for the API calls.
+ * @param {*} req request object of express with an additional error key value pair.
+ * @param {*} res response object of express.
+ */
 function logRoute(req, res) {
     let log = log4js.getLogger();
     if (req.error === undefined) log.debug('API OK: ' + res.statusCode + ' at ' + req.method + ' ' + req.originalUrl);
