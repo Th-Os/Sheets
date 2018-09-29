@@ -13,7 +13,7 @@
         "_comment": {
             "mode": "modes: dev_server, dev_client, prod"
         },
-        "mode": "dev_server"
+        "mode": "dev_client"
     },
     "csv": {
         "_comment": {
