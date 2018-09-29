@@ -52,7 +52,7 @@
         }],
         "comma-style": ["error", "last"],
         "constructor-super": "error",
-        "curly": [0, "multi-line"],
+        "curly": [2, "multi-line"],
         "dot-location": ["error", "property"],
         "eol-last": 0,
         "eqeqeq": ["error", "always", {

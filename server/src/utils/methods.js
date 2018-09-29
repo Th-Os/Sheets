@@ -240,8 +240,9 @@ function bulkPost(id, body, parentModel, childModel) {
                             child[key] = doc._id;
                         }).catch((err) => reject(err)));
                     } else {
-                        if (mongoose.Types.ObjectId.isValid(child[key]))
+                        if (mongoose.Types.ObjectId.isValid(child[key])) {
                             child[key] = mongoose.Types.ObjectId(child[key]);
+                        }
                     }
                 }
             }
