@@ -129,7 +129,7 @@ export class CourseComponent implements OnInit {
     let numSheetsRequiredToPass = this.course.min_req_sheets;
 
     this.studentService.getStudentSubmissions(student._id).subscribe(res => {
-      console.log(res)
+      //console.log(res)
       res.forEach(sub => {
         let achievedPoints = 0;
         let maxPoints = 0;
@@ -139,6 +139,7 @@ export class CourseComponent implements OnInit {
         //find correctSheet for submission (sub)
         this.sheets.find(el => {
           el.submissions.forEach(seachSub => {
+            if(seachSub == null) return
             if(seachSub.toString() == sub._id) correctSheet = el;
           })
           return false});
