@@ -1,3 +1,4 @@
+<!--
 <h2 mat-dialog-title>
   {{(data.create === false) ? 'Kurs bearbeiten' : 'Kurs erstellen'}}
 </h2>
@@ -43,6 +44,63 @@
       color="primary"
       mode="indeterminate"
       [diameter]="20">
+    </mat-progress-spinner>
+  </button>
+</mat-dialog-actions>
+
+-->
+<h2 mat-dialog-title>
+  {{(data.create === false) ? 'Kurs bearbeiten' : 'Kurs erstellen'}}
+</h2>
+<mat-dialog-content>
+  <form #courseForm="ngForm">
+    <mat-list *ngIf="course">
+      <!-- COURSE NAME -->
+      <mat-list-item class="w-100 my-4">
+        <mat-form-field class="w-100 mb-4">
+          <input matInput type="text" id="name" required [(ngModel)]="course.name"
+                 placeholder="Kursname" name="name" #name="ngModel">
+          <mat-error *ngIf="!name.valid">Bitte Kursnamen eingeben</mat-error>
+        </mat-form-field>
+      </mat-list-item>
+      <!-- COURSE FACULTY -->
+      <mat-list-item>
+        <mat-form-field class="w-100 mb-4">
+          <input matInput type="text" id="institute" placeholder="Institut" required
+                 [(ngModel)]="course.institute" name="institute" #institute="ngModel">
+          <mat-error *ngIf="!institute.valid">Bitte Institut eingeben</mat-error>
+        </mat-form-field>
+      </mat-list-item>
+      <!-- COURSE SEMESTER -->
+      <mat-list-item>
+        <mat-form-field class="w-100 mb-4">
+          <input matInput type="text" id="semester" placeholder="Semester" required
+                 [(ngModel)]="course.semester" name="semester" #semester="ngModel">
+          <mat-error *ngIf="!semester.valid">Bitte Semester eingeben</mat-error>
+        </mat-form-field>
+      </mat-list-item>
+      <!-- COURSE MIN_REQ_SHEETS -->
+      <mat-list-item>
+        <mat-form-field class="w-100 mb-4">
+          <input matInput type="number" min="0" required
+                 id="min_req_sheets" placeholder="Zum Bestehen benötigte Übungsblätter"
+                 [(ngModel)]="course.min_req_sheets" name="min_req_sheets" #min_req_sheets="ngModel">
+          <mat-error *ngIf="!min_req_sheets.valid">Bitte Anzahl eingeben</mat-error>
+        </mat-form-field>
+      </mat-list-item>
+    </mat-list>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onClose()">Abbrechen</button>
+  <button mat-button (click)="onSubmit()" [disabled]="!courseForm.form.valid || saving">
+    <span *ngIf="!saving">
+      {{ (data.create === false) ? 'Speichern' : 'Erstellen' }}
+    </span>
+    <mat-progress-spinner *ngIf="saving"
+                          color="primary"
+                          mode="indeterminate"
+                          [diameter]="20">
     </mat-progress-spinner>
   </button>
 </mat-dialog-actions>

@@ -19,6 +19,11 @@ import {SolutionService} from '../services/solution.service';
   styleUrls: ['./create-sheet.component.css'],
   encapsulation: ViewEncapsulation.None
 })
+/**
+ * CreateSheet Component
+ * Ermöglicht die Erstellung, Bearbeitung und Löschung
+ * von Aufgaben und Teilaufgaben eines Übungsblattes
+ */
 export class CreateSheetComponent implements OnInit {
 
   loadingSheet: boolean = false;
@@ -40,6 +45,10 @@ export class CreateSheetComponent implements OnInit {
     this.getSheet();
   }
 
+  /**
+   * Holt das Übungsblatt von Server und lädt alle dazugehörigen
+   * Übungen und Teilaufgaben.
+   */
   getSheet(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.loadingSheet = true;
@@ -47,35 +56,45 @@ export class CreateSheetComponent implements OnInit {
       sheet => this.sheet = sheet,
       error => console.log(error),
       () => {
-        this.sheetService.getSheetExercises(this.sheet._id).subscribe(
-          exercises => this.sheet.exercises = exercises,
-          error => console.error( error ),
-          () => {
-            this.sheet.exercises.forEach( (exercise, index) => {
-                this.taskService.getTasks(exercise._id).subscribe(
-                  tasks => this.sheet.exercises[index].tasks = tasks,
-                  error => console.error( error ),
-                  () => {
-                    let points = 0;
-                    this.sheet.exercises[index].tasks.forEach(task => {
-                      points += task.points;
-                    });
-                    if (this.sheet.exercises.length - 1 === index) {
-                      if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
-                        this.selectedExercise = this.sheet.exercises[0]._id;
+        if (this.sheet.exercises.length === 0) this.loadingSheet = false;
+        else {
+          this.sheetService.getSheetExercises(this.sheet._id).subscribe(
+            exercises => this.sheet.exercises = exercises,
+            error => console.error( error ),
+            () => {
+              this.sheet.exercises.forEach( (exercise, index) => {
+                if (exercise.tasks.length > 0) {
+                  this.taskService.getTasks(exercise._id).subscribe(
+                    tasks => this.sheet.exercises[index].tasks = tasks,
+                    error => console.error( error ),
+                    () => {
+                      let points = 0;
+                      this.sheet.exercises[index].tasks.forEach(task => {
+                        points += task.points;
+                      });
+                      if (this.sheet.exercises.length - 1 === index) {
+                        if (this.selectedExercise == null && this.sheet.exercises.length > 0) {
+                          this.selectedExercise = this.sheet.exercises[0]._id;
+                        }
+                        this.originalSheet = Object.assign({}, this.sheet);
+                        this.loadingSheet = false
                       }
-                      this.originalSheet = Object.assign({}, this.sheet);
-                      this.loadingSheet = false
                     }
-                  }
-                )
-            });
-          }
-        );
+                  )
+                }
+              });
+            }
+          );
+        }
       }
     );
   }
 
+  /**
+   * Wird aufgerufen, wenn eine Teilaufgabe geändert wurde.
+   * Fügt die Änderungen in das Übungsblattobjekt ein.
+   * @param updatedTask
+   */
   onTaskUpdated(updatedTask: Task): void {
     this.checkSubmissionCorrection();
     this.loadingSheet = true;
@@ -91,6 +110,11 @@ export class CreateSheetComponent implements OnInit {
     })
   }
 
+  /**
+   * Wird aufgerufen, wenn eine Aufgabe geändert wurde.
+   * Fügt die Änderungen in das Übungsblattobjekt ein.
+   * @param updatedExercise geänderte Aufgabe
+   */
   onExerciseUpdated(updatedExercise: Exercise): void {
     this.checkSubmissionCorrection();
     this.loadingSheet = true;
@@ -109,6 +133,12 @@ export class CreateSheetComponent implements OnInit {
     })
   }
 
+  /**
+   * Wird aufgerufen, wenn eine Aufgabe erstellt werden soll.
+   * Sind bereits Abgaben für das Übungsblatt hochgeladen worden,
+   * werden diese zuerst gelöscht.
+   * @param exercise
+   */
   onAddExercise() {
     if (this.sheet.submissions.length === 0) {
       this.addExercise()
@@ -123,6 +153,9 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
+  /**
+   * Fügt dem Übungsblatt eine neue Aufgabe hinzu.
+   */
   addExercise(): void {
     this.loadingSheet = true;
     let newExercise = new Exercise();
@@ -143,7 +176,13 @@ export class CreateSheetComponent implements OnInit {
         });
   }
 
-  onDeleteExercise(exercise: Exercise) {
+  /**
+   * Wird aufgerufen, wenn eine Aufgabe gelöscht werden soll.
+   * Sind bereits Abgaben für das Übungsblatt hochgeladen worden,
+   * werden diese zuerst gelöscht.
+   * @param exercise
+   */
+  onDeleteExercise(exercise: Exercise): void {
     if (this.sheet.submissions.length === 0) {
       this.deleteExercise(exercise);
     } else if (window.confirm('Für das Arbeitsblatt wurden bereits Abgaben hochgeladen. Wenn Sie die Aufgabe löschen ' +
@@ -157,6 +196,10 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
+  /**
+   * Löscht die Aufgabe vom Server
+   * @param exercise Aufgabe, die gelöscht werden soll
+   */
   deleteExercise(exercise: Exercise): void {
     if (this.sheet.submissions.length > 0 || window.confirm('Wollen Sie die Aufgabe wirklich löschen?')) {
       this.loadingSheet = true;
@@ -186,7 +229,12 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
-  onAddTask() {
+  /**
+   * Wird aufgerufen wenn eine Teilaufgabe erstellt werden soll.
+   * Sind bereits Abgaben für das Übungsblatt hochgeladen worden,
+   * werden diese zuerst gelöscht.
+   */
+  onAddTask(): void {
     if (this.sheet.submissions.length === 0) {
       this.addTask()
     } else if (window.confirm('Für das Arbeitsblatt wurden bereits Abgaben hochgeladen. Wenn Sie eine neue Teilaufgabe erstellen ' +
@@ -200,6 +248,9 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
+  /**
+   * Fügt der aktuell ausgewählten Aufgabe eine Teilaufgabe hinzu.
+   */
   addTask(): void {
     this.loadingSheet = true;
     let index = this.sheet.exercises.findIndex(e => e._id === this.selectedExercise);
@@ -231,6 +282,13 @@ export class CreateSheetComponent implements OnInit {
       });
   }
 
+  /**
+   * Wird aufgerufen, wenn eine Teilaufgabe gelöscht werden soll.
+   * Sind bereits Abgaben für das Übungsblatt hochgeladen worden,
+   * werden diese zuerst gelöscht.
+   * @param exercise
+   * @param task
+   */
   onDeleteTask(exercise: Exercise, task: Task) {
     if (this.sheet.submissions.length === 0) {
       this.deleteTask(exercise, task);
@@ -245,7 +303,12 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
-  deleteTask(exercise: Exercise,task: Task) {
+  /**
+   * Löscht eine Teilaufgabe einer Aufgabe
+   * @param exercise Aufgabe die die Teilaufgabe enthält
+   * @param task Teilaufgabe, die gelöscht werden soll
+   */
+  deleteTask(exercise: Exercise,task: Task): void {
     if (exercise.tasks.length === 1) {
       if (window.confirm('Wenn Sie die Teilaufgabe löschen wird automatisch die zugehörige Aufgabe mitgelöscht.' +
         ' Wollen Sie die Teilaufgabe löschen?')) {
@@ -283,6 +346,10 @@ export class CreateSheetComponent implements OnInit {
     }
   }
 
+  /**
+   * Wird aufgerufen, wenn Informationen des Übungsblattes geändert wurden.
+   * Schickt die Änderungen an den Server.
+   */
   onSheetUpdate() {
     this.sheetService.updateSheet(this.sheet).subscribe(
       null,
@@ -294,7 +361,12 @@ export class CreateSheetComponent implements OnInit {
     );
   }
 
-  checkSubmissionCorrection(){
+  /**
+   * Überprüft ob für das Übungsblatt bereits Abgaben hochgeladen wurden.
+   * Wenn bereits Abgaben vorhanden sind, wird der User informiert und die erneute
+   * Ausführung der Autokorrektur angeboten.
+   */
+  checkSubmissionCorrection(): void {
     if(this.sheet.submissions == null) return;
     if(this.sheet.submissions.length <= 0) return;
 
@@ -303,12 +375,21 @@ export class CreateSheetComponent implements OnInit {
     console.log("autocorrect")
   }
 
+  /**
+   * Berechnet aus den Teilaufgaben einer Aufgabe die
+   * Gesamtpunktzahl der Aufagbe
+   * @param exercise Aufgabe, für die Gesamtpunktzahl berechnet werden soll
+   * @return number Gesamtpunktzahl der Aufgabe
+   */
   calculatePoints(exercise: Exercise): number {
       let points = 0;
-      exercise.tasks.forEach(task => points += task.points)
+      exercise.tasks.forEach(task => points += task.points);
       return points;
   }
 
+  /**
+   * Navigiert den User zurück zur zuletzt besuchten Seite
+   */
   goBack(): void {
     this.location.back();
   }

@@ -70,8 +70,8 @@
             <mat-card-content [ngClass]="{'d-flex align-items-center justify-content-center' : loadingSheet}">
               <mat-spinner *ngIf="loadingSheet"></mat-spinner>
               <mat-nav-list *ngIf="!loadingSheet && sheet">
-                <mat-list-item *ngIf="sheet.exercises.length === 0" (click)="getSheet()">
-                  Aufgaben konnten nicht geladen werden. Hier klicken um neu zu laden.
+                <mat-list-item *ngIf="sheet.exercises.length === 0">
+                  Keine Aufgaben vorhanden.
                 </mat-list-item>
                 <ng-container *ngFor="let exercise of sheet.exercises; let index = index;">
                   <mat-list-item (click)="selectedExercise = exercise._id; selectedTask = null;"

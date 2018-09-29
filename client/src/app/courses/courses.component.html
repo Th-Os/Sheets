@@ -6,7 +6,8 @@
         <mat-card-content>
           <mat-nav-list *ngIf="courses">
             <mat-list-item *ngFor="let course of courses | checkCoursesPipe" routerLink="/courses/{{course._id}}" role="listitem">
-              <a mat-line> {{ course.name }} </a>
+              <span matLine> {{ course.name }} </span>
+              <span matLine class="text-muted">{{course.semester}}</span>
               <button mat-icon-button matTooltip="Kurs editieren" (click)="update(course); $event.stopPropagation();">
                 <mat-icon color="secondary">edit</mat-icon>
               </button>
