@@ -57,12 +57,6 @@ router.get('/_search', verify, function(req, res, next) {
  * @throws 500
  */
 router.get('/:id', verify, function(req, res, next) {
-    Course.findById(req.params.id).then(
-        course => res.status(200).send(course)
-    ).catch(
-        error =>  res.status(404).send(error)
-    )
-    /*
     methods.get(req.params.id, Course)
         .then((doc) => {
             let sheetsNameAndId = [];
@@ -93,7 +87,6 @@ router.get('/:id', verify, function(req, res, next) {
             req.error = err;
             next();
         });
-        */
 });
 
 /**
