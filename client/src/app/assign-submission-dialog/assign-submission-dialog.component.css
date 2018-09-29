@@ -1,24 +1,8 @@
-.text-grayed {
-  color: grey;
-}
 
-#submissions {
-  width: 50%;
-  height: 100%;
-  float: left;
+.mat-list .mat-list-item{
+  height:initial!important;
 }
-
-#submissionList{
-  overflow: auto;
-  flex-grow: 1;
-  max-height: 300px;
-}
-
-#userList{
-  overflow: auto;
-  flex-grow: 1;
-  max-height: 300px;
-  width: 50%;
-  height: 100%;
-  float: right;
+.mat-line{
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
 }

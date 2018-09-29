@@ -1,8 +1,55 @@
-<h2 mat-dialog-title style="text-align: center">Aufgaben vergeben</h2>
-<mat-dialog-content>
+<h2 mat-dialog-title>Abgaben zuteilen</h2>
+<mat-dialog-content class="h-100">
+  <mat-spinner *ngIf="loadingUsers"></mat-spinner>
+  <mat-list *ngIf="!loadingUsers">
+    <mat-list-item *ngIf="users">
+      <mat-form-field matLine>
+        <mat-select placeholder="Nutzer wählen" required name="userSelect" [(ngModel)]="selectedUser"
+                    id="userSelect" #userSelect>
+          <mat-optgroup label="Tutoren">
+            <mat-option *ngFor="let user of users | filterUsersPipe:'tutor'" [value]="user">
+              {{user.lastname}} {{user.forename}}
+            </mat-option>
+          </mat-optgroup>
+          <mat-optgroup label="Dozenten">
+            <mat-option *ngFor="let user of users | filterUsersPipe:'lecturer'" [value]="user">
+              {{user.lastname}} {{user.forename}}
+            </mat-option>
+          </mat-optgroup>
+          <mat-optgroup label="Admins">
+            <mat-option *ngFor="let user of users | filterUsersPipe:'admin'" [value]="user">
+              {{user.lastname}} {{user.forename}}
+            </mat-option>
+          </mat-optgroup>
+        </mat-select>
+        <mat-error *ngIf="!selectedUser">Bitte Nutzer wählen</mat-error>
+      </mat-form-field>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-list matLine>
+        <h2 matSubheader>Abgaben</h2>
+        <mat-list-item matLine>
+          <mat-label class="my-3">Prozentual verteilen</mat-label>
+          <mat-slider class="ml-3 my-3" [(ngModel)]="numberToAssign" [min]="-1" [max]="submissions.length - 1"
+                      tickInterval="1" thumbLabel (valueChange)="selectPercentage()"></mat-slider>
+        </mat-list-item>
+        <mat-list-item>
+          <mat-selection-list matLine id="submissionsList" #submissionsList
+                              [(ngModel)]="selectedSubmissions" (click)="selectMultiple($event)">
+            <mat-list-option *ngFor="let submission of submissions" role="option" [value]="submission">
+              <span matLine *ngIf="submission.student != null">
+                {{submission.student.lastname}} {{submission.student.name}}
+              </span>
+              <small matLine class="text-grayed" *ngIf="submission.student != null"> {{ submission.student.mat_nr }} </small>
+            </mat-list-option>
+          </mat-selection-list>
+        </mat-list-item>
+      </mat-list>
+    </mat-list-item>
+  </mat-list>
+  <!--
   <div id="submissions">
     <h4>Abgaben</h4>
-    <!--<mat-checkbox [(ngModel)]="selectAll" (change)="selectSubmissions()">Alle auswählen</mat-checkbox>-->
     <mat-slider [(ngModel)]="numberToAssign" [min]="-1" [max]="submissions.length - 1" (valueChange)="selectPercentage()"></mat-slider>
     <div id="submissionList">
       <mat-selection-list #submissionsList role="listbox" [(ngModel)]="selectedSubmissions" (click)="selectMultiple($event)">
@@ -13,11 +60,6 @@
       </mat-selection-list>
     </div>
   </div>
-  <!--<div>
-    <i class="material-icons">
-      forward
-    </i>
-  </div>-->
   <div id="userList">
     <h4>User</h4>
     <mat-selection-list #userList role="listbox" [(ngModel)]="selectedUser">
@@ -31,10 +73,13 @@
       </mat-list-option>
     </mat-selection-list>
   </div>
+  -->
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button (click)="onClose()">Abbrechen</button>
-  <button mat-button (click)="onSubmit()" [disabled]="submissionsList.selectedOptions.selected.length < 1 || userList.selectedOptions.selected.length < 1">
+  <button mat-button (click)="onSubmit()"
+          [disabled]="loadingUsers || !submissionsList || submissionsList.selectedOptions.selected.length < 1
+          || !selectedUser">
     Speichern
   </button>
 </mat-dialog-actions>
