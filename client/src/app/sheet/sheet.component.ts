@@ -310,10 +310,20 @@ export class SheetComponent implements OnInit {
     this.progressText = "sende Abgaben..."
     this.sheetService.uploadSubmissions(this.sheet)
     .subscribe(res => {
+
+      res.submissions.forEach(newSubmission => {
+        this.sheetService.autocorrectSubmission(newSubmission.toString()).subscribe()
+
+      })
+
+      this.loadInProgress = false;
+      this.displayMessage("Abgaben erfolgreich hochgeladen")
+
+      /*
       let tempSheet = null;
       this.sheetService.getSheet(this.sheet._id.toString()).subscribe(sheet => {
         tempSheet = sheet;
-        res.map(sub => tempSheet.submissions.push(sub._id))
+        res.submissions.map(sub => tempSheet.submissions.push(sub._id))
         this.sheetService.updateSheet(tempSheet).subscribe(res => {
           res.submissions.forEach(newSubmission => {
             this.sheetService.autocorrectSubmission(newSubmission.toString()).subscribe()
@@ -322,6 +332,7 @@ export class SheetComponent implements OnInit {
           this.displayMessage("Abgaben erfolgreich hochgeladen")
         })
       });
+      */
     }
     );
   }
