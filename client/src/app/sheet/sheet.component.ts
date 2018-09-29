@@ -362,7 +362,7 @@ export class SheetComponent implements OnInit {
     //"Vorname0 Nachname0_1327627_assignsubmission_file_"
     let relevantFolderName: string = pathSlices[pathSlices.length - 2];
     res = relevantFolderName.split("_")[1];
-    return parseInt(res);
+    return parseInt(res).toString();
   }
 
   autocorrect(){

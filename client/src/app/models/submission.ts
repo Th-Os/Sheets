@@ -8,7 +8,7 @@ export class Submission {
   //user: string;
 	student: Student;
 	answers: Answer[];
-	grips_id: number;
+	grips_id: string;
 	//ui
 	author_name:string;
 	author_lastname: string;
