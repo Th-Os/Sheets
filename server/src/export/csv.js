@@ -62,7 +62,7 @@ CSVRenderer.prototype.addSubmission = function(submission, exercises, sheetOrder
         line += (template.correctly) ? 'korrekt' : 'falsch';
         line += '! </p>\n';
     }
-    if (submission.user !== null) {
+    if (submission.user != null) {
         line += '<p> Korrigiert von ' + submission.user.forename + ' ' + submission.user.lastname + ' </p>';
     }
     line += '"';

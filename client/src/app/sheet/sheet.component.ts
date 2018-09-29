@@ -586,6 +586,30 @@ export class SheetComponent implements OnInit {
       )
   }
 
+    downloadSheetCSV(): void {
+    this.sheetService.downloadSheetCSV(this.route.snapshot.paramMap.get('id')).subscribe(
+      data => {
+        let blob = new Blob([data], { type: 'application/csv' });
+        let url= window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error => console.error( error ),
+      () => console.log('file downloaded')
+      )
+  }
+
+    downloadSheetDOCX(): void {
+    this.sheetService.downloadSheetDOCX(this.route.snapshot.paramMap.get('id')).subscribe(
+      data => {
+        let blob = new Blob([data], { type: 'application/docx' });
+        let url= window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error => console.error( error ),
+      () => console.log('file downloaded')
+      )
+  }
+
   assignSubmissions(): void {
     const notAlreadyAssigned = [];
     this.sheet.submissions.forEach(submission => {
