@@ -594,7 +594,7 @@ export class SheetComponent implements OnInit {
     downloadSheetCSV(): void {
     this.sheetService.downloadSheetCSV(this.route.snapshot.paramMap.get('id')).subscribe(
       data => {
-        let blob = new Blob([data], { type: 'application/csv' });
+        let blob = new Blob([data], { type: 'text/csv' });
         let url= window.URL.createObjectURL(blob);
         window.open(url);
       },
@@ -606,7 +606,7 @@ export class SheetComponent implements OnInit {
     downloadSheetDOCX(): void {
     this.sheetService.downloadSheetDOCX(this.route.snapshot.paramMap.get('id')).subscribe(
       data => {
-        let blob = new Blob([data], { type: 'application/docx' });
+        let blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         let url= window.URL.createObjectURL(blob);
         window.open(url);
       },
