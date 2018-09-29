@@ -41,6 +41,28 @@ router.get('/:id/_aggregate', verify, function(req, res, next) {
 }, logRoute);
 
 /**
+ * Gets an exercise by id.
+ * @param {string} req.params.id: ID of an exercise.
+ * @returns {Exercise}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id', verify, function(req, res, next) {
+    methods.get(req.params.id, Exercise)
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
  * Updates an exercise by id.
  * @param {string} req.params.id: ID of an exercise.
  * @param {Exercise} req.body with updated values.

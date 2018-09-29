@@ -34,13 +34,18 @@ router.get('/:id', verify, function(req, res, next) {
         });
 }, logRoute);
 
-router.put('/:id', verify, function(req, res) {
+router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Answer)
-        .then((doc) => res.status(200).send(doc))
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
         .catch((err) => {
             if (err.name === StatusError.name) res.status(err.status).send(err.message);
             else res.status(500).send(err);
+            req.error = err;
+            next();
         });
-});
+}, logRoute);
 
 export default router;

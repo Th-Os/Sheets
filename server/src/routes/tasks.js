@@ -21,14 +21,35 @@ const router = express.Router();
  * @throws 500
  */
 router.get('/:id/_aggregate', verify, function(req, res, next) {
-    Task.findById(req.params.id).populate({ path: 'solution' }).exec().then((doc) => {
-        res.send(doc);
-        next();
-    }).catch((err) => {
-        res.status(500).send(err);
-        req.error = err;
-        next();
-    });
+    methods.get(req.params.id, Task, {path: 'solution'})
+        .then((doc) => {
+            res.send(doc);
+            next();
+        }).catch((err) => {
+            res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Gets a task by id.
+ * @param {string} req.params.id: ID of a task.
+ * @returns {Task}.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id', verify, function(req, res, next) {
+    methods.get(req.params.id, Task)
+        .then((doc) => {
+            res.send(doc);
+            next();
+        }).catch((err) => {
+            res.status(500).send(err);
+            req.error = err;
+            next();
+        });
 }, logRoute);
 
 /**
