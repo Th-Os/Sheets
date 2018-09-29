@@ -584,6 +584,7 @@ export class SheetComponent implements OnInit {
     });
     const dialogRef = this.dialog.open(AssignSubmissionDialogComponent, {
       width: '500px',
+      height: '80vh',
       data: { submissions: notAlreadyAssigned}
     });
 

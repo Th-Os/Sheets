@@ -16,9 +16,12 @@ export class AssignSubmissionDialogComponent implements OnInit {
   @ViewChild('submissionsList') submissionsList: MatSelectionList;
 
   submissions: Submission[];
+
+  loadingUsers: boolean = false;
   users: User[];
-  selectedSubmissions: Submission[];
-  selectedUser: User[];
+
+  selectedSubmissions: Submission[] = [];
+  selectedUser: User;
   // selectAll = false;
   numberToAssign = -1;
 
@@ -34,9 +37,12 @@ export class AssignSubmissionDialogComponent implements OnInit {
 
   // Get all users to assign submissions to
   getUsers(): void {
-    this.userService.getUsers().subscribe(users => {
-      this.users = users;
-    });
+    this.loadingUsers = true;
+    this.userService.getUsers().subscribe(
+      users => this.users = users,
+      error => console.error( error ),
+      () => this.loadingUsers = false
+    );
   }
 
   /*selectSubmissions(): void {
@@ -88,7 +94,7 @@ export class AssignSubmissionDialogComponent implements OnInit {
   onSubmit(): void {
     const updatedSubmissions = [];
     this.selectedSubmissions.forEach(submission => {
-      submission.user = this.selectedUser[0];
+      submission.user = this.selectedUser;
       updatedSubmissions.push(this.submissionService.updateSubmission(submission));
     });
     this.dialogRef.close(updatedSubmissions);

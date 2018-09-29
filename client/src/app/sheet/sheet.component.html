@@ -49,7 +49,9 @@
               <mat-progress-bar *ngIf="loadInProgress" mode="indeterminate"></mat-progress-bar>
 
             </mat-card-content>
-            <button class="position-absolute" matTooltip="Korrekturzuteilung festlegen" *ngIf="!loadingSubmissions && sheet.submissions.length > 0 && (loggInUserRole === 'admin' || 'lecturer')" style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
+            <button class="position-absolute" matTooltip="Korrekturzuteilung festlegen"
+                    *ngIf="!loadingSubmissions && sheet.submissions.length > 0 && (loggInUserRole === 'admin' || 'lecturer')"
+                    style="right: 150px;" mat-fab color="primary" (click)="assignSubmissions()">
               <mat-icon>person</mat-icon>
             </button>
             <button class="position-absolute" matTooltip="Alle Abgaben löschen" *ngIf="!loadingSubmissions && sheet.submissions.length > 0" style="right: 80px;" mat-fab color="primary" (click)="clearSubmissions()">

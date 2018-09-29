@@ -1,6 +1,4 @@
-.text-grayed {
-  color: grey;
-}
+/*
 
 #submissions {
   width: 50%;
@@ -21,4 +19,12 @@
   width: 50%;
   height: 100%;
   float: right;
+}
+*/
+.mat-list .mat-list-item{
+  height:initial!important;
+}
+.mat-line{
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
 }
