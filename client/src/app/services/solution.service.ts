@@ -22,10 +22,10 @@ export class SolutionService {
   ) { }
 
   // Get all solutions of a task
-  getSolution(taskId: string): Observable<Solution> {
+  getSolution(taskId: string): Observable<Solution[]> {
     const url = `${this.tasksUrl}/${taskId}/solutions`;
-    return this.http.get<Solution>(url).pipe(
-      catchError(this.handleError<Solution>(`getSolution of Task with id=${taskId}`))
+    return this.http.get<Solution[]>(url).pipe(
+      catchError(this.handleError<Solution[]>(`getSolution of Task with id=${taskId}`))
     );
   }
 
