@@ -66,11 +66,11 @@ export class TaskService {
   */
 
   // Add task to exercise
-  addTask (exerciseId: string, task: Task): Observable<Task> {
+  addTasks(exerciseId: string, tasks: Task[]): Observable<Task[]> {
     const url = `${this.exercisesUrl}/${exerciseId}/tasks`;
-    return this.http.post<Task>(url, task, httpOptions).pipe(
-      tap((newTask: Task) => this.log(`created task id=${newTask[0]._id}`)),
-      catchError(this.handleError<Task>('addTask'))
+    return this.http.post<Task[]>(url, tasks, httpOptions).pipe(
+      tap((newTask: Task[]) => this.log(`created tasks id=${newTask[0]._id}`)),
+      catchError(this.handleError<Task[]>('addTask'))
     );
   }
 

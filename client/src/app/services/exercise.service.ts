@@ -47,11 +47,11 @@ export class ExerciseService {
 
 
   // Add exercise to sheet
-  addExercise (sheetsId: string, exercise: Exercise): Observable<Exercise> {
+  addExercises(sheetsId: string, exercises: Exercise[]): Observable<Exercise[]> {
     const url = `${this.sheetsUrl}/${sheetsId}/exercises`;
-    return this.http.post<Exercise>(url, exercise, httpOptions).pipe(
-      tap((newExercise: Exercise) => this.log(`Aufgabe erstellt.`)),
-      catchError(this.handleError<Exercise>('addExercise'))
+    return this.http.post<Exercise[]>(url, exercises, httpOptions).pipe(
+      tap((newExercise: Exercise[]) => this.log(`Aufgabe erstellt.`)),
+      catchError(this.handleError<Exercise[]>('addExercise'))
     );
   }
 

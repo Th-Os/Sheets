@@ -69,9 +69,9 @@ export class CreateSheetInterfaceComponent implements OnChanges, OnInit {
       task  => {
             this.task = task;
             this.solutionService.getSolution(task._id.toString()).subscribe(solution => {
+            this.task.solution = solution[0];
             this.regex.setValue(task.solution.regex);
-
-              this.task.solution = solution[0]});
+            });
           },
           error => console.error( error ),
           () => this.loading = false,

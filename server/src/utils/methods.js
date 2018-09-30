@@ -167,7 +167,7 @@ function post(body, model) {
 }
 
 /**
- * Creates one ore many children under a parent model.
+ * Creates one or many children under a parent model.
  * @param {string} id of the parent.
  * @param {object} body of the child or children.
  * @param {Model} parent model of the existing document.

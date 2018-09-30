@@ -45,7 +45,7 @@
             <!-- PREVIOUS TASK -->
             <div class="col-3 col-md-12 col-lg-12 order-0 my-sm-4">
               <div class="d-flex w-100 align-items-center justify-content-center mb-3" style="max-height: 60px;">
-                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur vorherigen Aufgabe" class="" (click)="navigateTasks(-1)">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur vorherigen Aufgabe (alternativ: Pfeiltasten)" class="" (click)="navigateTasks(-1)">
                   <mat-icon>keyboard_arrow_up</mat-icon>
                 </button>
               </div>
@@ -53,7 +53,7 @@
             <!-- PREVIOUS SUBMISSION -->
             <div class="col-md-2 col-lg-2 col-3 order-1 my-sm-4">
               <div class="d-flex align-items-center justify-content-center h-100">
-                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur vorherigen Abgabe" class="" (click)="navigateSubmissions(-1)">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur vorherigen Abgabe (alternativ: Pfeiltasten)" class="" (click)="navigateSubmissions(-1)">
                   <mat-icon>keyboard_arrow_left</mat-icon>
                 </button>
               </div>
@@ -68,7 +68,7 @@
             <!-- NEXT SUBMISSION -->
             <div class="col-md-2 col-lg-2 col-3 order-3 my-sm-4">
               <div class="d-flex align-items-center justify-content-center h-100">
-                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur nächsten Abgabe"(click)="navigateSubmissions(1)">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur nächsten Abgabe (alternativ: Pfeiltasten)"(click)="navigateSubmissions(1)">
                   <mat-icon>keyboard_arrow_right</mat-icon>
                 </button>
               </div>
@@ -76,7 +76,7 @@
             <!-- NEXT TASK -->
             <div class="col-3 col-md-12 col-lg-12 order-4 my-sm-4">
               <div class="d-flex align-items-center justify-content-center h-100">
-                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur nächsten Teilaufgabe" (click)="navigateTasks(1)">
+                <button mat-fab [color]="correctionMode ? 'accent' : 'primary'" matTooltip="Zur nächsten Teilaufgabe (alternativ: Pfeiltasten)" (click)="navigateTasks(1)">
                   <mat-icon>keyboard_arrow_down</mat-icon>
                 </button>
               </div>

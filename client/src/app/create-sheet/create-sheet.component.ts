@@ -142,6 +142,7 @@ export class CreateSheetComponent implements OnInit {
    * @param exercise
    */
   onAddExercise() {
+    console.log(this.sheet)
     if (this.sheet.submissions.length === 0) {
       this.addExercise()
     } else if (window.confirm('Für das Arbeitsblatt wurden bereits Abgaben hochgeladen. Wenn Sie eine neue Aufgabe erstellen ' +
@@ -167,7 +168,7 @@ export class CreateSheetComponent implements OnInit {
     newExercise.tasks = [];
     newExercise.persistent = false;
 
-    this.exerciseService.addExercise(this.route.snapshot.paramMap.get('id'), newExercise)
+    this.exerciseService.addExercises(this.route.snapshot.paramMap.get('id'), [newExercise])
       .subscribe(
         exercise =>  this.sheet.exercises.push(exercise[0]),
         error => console.error( error ),
@@ -262,7 +263,7 @@ export class CreateSheetComponent implements OnInit {
     newTask.order = this.sheet.exercises[index].tasks.length;
     newTask.points = 0;
 
-    this.taskService.addTask(this.selectedExercise, newTask)
+    this.taskService.addTasks(this.selectedExercise, [newTask])
       .subscribe(task => {
         const newSolution = new Solution();
         newSolution.type = 'none';

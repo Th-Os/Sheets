@@ -39,7 +39,7 @@ export class ExerciseDialogComponent implements OnInit {
     private exerciseService: ExerciseService,
     private taskService: TaskService,
     private solutionService: SolutionService
-  ) { }
+    ) { }
 
   ngOnInit() {
     this.courses = [];
@@ -78,7 +78,7 @@ export class ExerciseDialogComponent implements OnInit {
   getSheets(courses: Course[]): void {
     courses.forEach(course => {
       this.sheetService.getSheets(course._id.toString())
-        .subscribe(sheets => course.sheets = sheets );
+      .subscribe(sheets => course.sheets = sheets );
     });
     this.courses = courses;
   }
@@ -112,6 +112,7 @@ export class ExerciseDialogComponent implements OnInit {
         newSheet.name = 'Vorlage: ' + fetchedSheet.name;
         this.sheetService.getSheets(this.selectedCourseId.toString()).subscribe(sheets => newSheet.order = sheets.length);
         this.fillSheet(newSheet).then(sheet => {
+          console.log(sheet)
           this.router.navigateByUrl('/sheets/' + sheet._id + '/create');
           this.dialogRef.close();
         });
@@ -120,7 +121,7 @@ export class ExerciseDialogComponent implements OnInit {
       newSheet.name = 'Neues Aufgabenblatt';
       this.sheetService.getSheets(this.data.courseId).subscribe(sheets => newSheet.order = sheets.length);
       this.sheetService.addSheet(this.data.courseId, newSheet)
-        .subscribe(sheet => this.router.navigateByUrl('/sheets/' + sheet[0]._id + '/create'));
+      .subscribe(sheet => this.router.navigateByUrl('/sheets/' + sheet[0]._id + '/create'));
       this.dialogRef.close();
     }
   }
@@ -130,7 +131,7 @@ export class ExerciseDialogComponent implements OnInit {
     return new Promise<Sheet>((resolve, reject) => {
       this.sheetService.addSheet(this.data.courseId, newSheet).subscribe(sheet => {
         newSheet._id = sheet[0]._id;
-
+        let newExercises: Exercise[] = [];
         for (let i = 0; i < this.fetchedSheet.exercises.length; i++) {
           const newExercise = new Exercise();
           newExercise.tasks = [];
@@ -138,51 +139,67 @@ export class ExerciseDialogComponent implements OnInit {
           newExercise.description = this.fetchedSheet.exercises[i].description;
           newExercise.name = this.fetchedSheet.exercises[i].name;
           newExercise.order = this.fetchedSheet.exercises[i].order;
+          newExercises.push(newExercise);
+        }
 
-          this.exerciseService.addExercise(newSheet._id.toString(), newExercise).subscribe(exercise => {
+        this.exerciseService.addExercises(newSheet._id.toString(), newExercises).subscribe(exercises => {
+          for (let i = 0; i < this.fetchedSheet.exercises.length; i++) {
+            let newTasks: Task[] = [];
             for (let j = 0; j < this.fetchedSheet.exercises[i].tasks.length; j++) {
               const newTask = new Task();
               newTask.points = this.fetchedSheet.exercises[i].tasks[j].points;
               newTask.question = this.fetchedSheet.exercises[i].tasks[j].question;
               newTask.order = this.fetchedSheet.exercises[i].tasks[j].order;
               newTask.choices = this.fetchedSheet.exercises[i].tasks[j].choices;
-
-              this.taskService.addTask(exercise[0]._id.toString(), newTask).subscribe(task => {
-                const newSolution = new Solution();
-                newSolution.type = this.fetchedSheet.exercises[i].tasks[j].solution.type;
-                newSolution.range = new SolutionRange(0, 0);
-                newSolution.regex = '';
-                switch (newSolution.type) {
-                  case 'none': {
-                    break;
-                  }
-                  case 'freetext': {
-                    newSolution.default_free_text = this.fetchedSheet.exercises[i].tasks[j].solution.default_free_text;
-                    break;
-                  }
-                  case 'number': {
-                    newSolution.number = this.fetchedSheet.exercises[i].tasks[j].solution.number;
-                    break;
-                  }
-                  case 'range': {
-                    newSolution.range.from = this.fetchedSheet.exercises[i].tasks[j].solution.range.from;
-                    newSolution.range.to = this.fetchedSheet.exercises[i].tasks[j].solution.range.to;
-                    break;
-                  }
-                  case 'regex': {
-                    newSolution.regex = this.fetchedSheet.exercises[i].tasks[j].solution.regex;
-                  }
-                }
-                if (this.fetchedSheet.exercises[i].tasks[j].solution.hint) {
-                  newSolution.hint = this.fetchedSheet.exercises[i].tasks[j].solution.hint;
-                } else {
-                  newSolution.hint = '';
-                }
-                this.solutionService.addSolution(task[0]._id.toString(), newSolution).subscribe(_ => resolve(newSheet));
-              });
+              newTasks.push(newTask);
             }
-          });
-        }
+
+              let correctExercise = exercises.find(el => el.order == this.fetchedSheet.exercises[i].order)
+
+              this.taskService.addTasks(correctExercise._id.toString(), newTasks).subscribe(tasks => {
+
+                for (let i = 0; i < this.fetchedSheet.exercises.length; i++) {
+                  for (let j = 0; j < this.fetchedSheet.exercises[i].tasks.length; j++) {
+
+                    const newSolution = new Solution();
+                    newSolution.type = this.fetchedSheet.exercises[i].tasks[j].solution.type;
+                    newSolution.range = new SolutionRange(0, 0);
+                    newSolution.regex = '';
+                    switch (newSolution.type) {
+                      case 'none': {
+                        break;
+                      }
+                      case 'freetext': {
+                        newSolution.default_free_text = this.fetchedSheet.exercises[i].tasks[j].solution.default_free_text;
+                        break;
+                      }
+                      case 'number': {
+                        newSolution.number = this.fetchedSheet.exercises[i].tasks[j].solution.number;
+                        break;
+                      }
+                      case 'range': {
+                        newSolution.range.from = this.fetchedSheet.exercises[i].tasks[j].solution.range.from;
+                        newSolution.range.to = this.fetchedSheet.exercises[i].tasks[j].solution.range.to;
+                        break;
+                      }
+                      case 'regex': {
+                        newSolution.regex = this.fetchedSheet.exercises[i].tasks[j].solution.regex;
+                      }
+                    }
+                    if (this.fetchedSheet.exercises[i].tasks[j].solution.hint) {
+                      newSolution.hint = this.fetchedSheet.exercises[i].tasks[j].solution.hint;
+                    } else {
+                      newSolution.hint = '';
+                    }
+
+                    let correctTask = tasks.find(el => el.order == this.fetchedSheet.exercises[i].tasks[j].order)
+
+                    this.solutionService.addSolution(correctTask._id.toString(), newSolution).subscribe(_ => resolve(newSheet));
+                  }
+                }
+              });
+          }
+        });
       });
     });
   }
@@ -192,15 +209,15 @@ export class ExerciseDialogComponent implements OnInit {
     this.fetchedSheet = new Sheet();
     return new Promise<Sheet>((resolve, reject) => {
       this.sheetService.getSheet(sheetId)
-        .subscribe(sheet => {
-          this.fetchedSheet = sheet;
-          if (Array.isArray(this.fetchedSheet.exercises) && this.fetchedSheet.exercises.length > 0) {
-            this.getExercises(sheetId).then(value => resolve(this.fetchedSheet));
-          } else if (!Array.isArray(this.fetchedSheet.exercises)) {
-            this.fetchedSheet.exercises = [];
-            resolve(this.fetchedSheet);
-          }
-        });
+      .subscribe(sheet => {
+        this.fetchedSheet = sheet;
+        if (Array.isArray(this.fetchedSheet.exercises) && this.fetchedSheet.exercises.length > 0) {
+          this.getExercises(sheetId).then(value => resolve(this.fetchedSheet));
+        } else if (!Array.isArray(this.fetchedSheet.exercises)) {
+          this.fetchedSheet.exercises = [];
+          resolve(this.fetchedSheet);
+        }
+      });
     });
   }
 
