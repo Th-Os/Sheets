@@ -78,7 +78,7 @@
                     [class.active]="exercise._id === selectedExercise">
                     <div class="d-flex justify-content-between" matLine>
                       <div class="text-truncate" [matTooltip]="exercise.name">
-                        {{exercise.order + 1}}.) {{exercise.name}}
+                        {{exercise.order + 1}}. {{exercise.name}}
                       </div>
                       <small>{{calculatePoints(exercise)}} Punkte</small>
                     </div>
