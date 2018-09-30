@@ -95,15 +95,15 @@
             </mat-card-content>
             <button matTooltip="Übungsblatt im Format .pdf herunterladen" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 10px;"
                     mat-fab color="primary" (click)="downloadSheetPDF()">.pdf
-              <mat-icon>get_app</mat-icon>
+              <!--<mat-icon>get_app</mat-icon>-->
             </button>
                         <button matTooltip="Übungsblatt im Format .csv herunterladen" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 80px;"
                     mat-fab color="primary" (click)="downloadSheetCSV()">.csv
-              <mat-icon>get_app</mat-icon>
+              <!--<mat-icon>get_app</mat-icon>-->
             </button>
                         <button matTooltip="Übungsblatt im Format .docx herunterladen" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 150px;"
                     mat-fab color="primary" (click)="downloadSheetDOCX()">.docx
-              <mat-icon>get_app</mat-icon>
+              <!--<mat-icon>get_app</mat-icon>-->
             </button>
             <button matTooltip="Übungsblatt bearbeiten" class="position-absolute" *ngIf="!loadingExercisesWithTasks && !loadingSheet" style="right: 220px;"
                     mat-fab color="primary" routerLink="./edit">
