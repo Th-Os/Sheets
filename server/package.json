@@ -10,8 +10,8 @@
         "babel-node": "babel-node --presets=latest",
         "preload": "node -r dotenv/config -r babel/register index.js",
         "start": "nodemon --exec npm run babel-node -- ./src/index.js",
-        "prebuild": "rm -rf ./build/* && cpx .env ./build",
-        "build": "babel ./src -d ./build",
+        "prebuild": "rm -rf ./build/* && cpx .env ./build && cpx ./resources/settings.json ./build/resources && cpx ./resources/template.html ./build/resources && cpx ./resources/package.json ./build",
+        "build": "babel ./src -d ./build/app && cd build && npm install",
         "prerun": "npm run-script build",
         "run": "node ./build/index.js",
         "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/*.js"

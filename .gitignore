@@ -8,7 +8,7 @@
 *.log.gz
 
 # compiled output
-/dist
+client/\dist/
 /tmp
 output/
 server/\build/
