@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/exercises.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/exercises.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// TODO: document with  ./node_modules/.bin/jsdoc -c jsdoc-conf.json
+/**
+ * @module API/exercises
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
+ * @overview The routing of the exercises API.
+ * @author Thomas Oswald
+ */
+
+import express from 'express';
+import verify from '../auth/verification';
+import * as methods from '../utils/methods';
+import {StatusError} from '../utils/errors';
+import {Exercise, Task} from '../models/sheet';
+import {logRoute} from '../utils/log';
+
+const router = express.Router();
+
+/**
+ * Gets an aggregated exercise by id.
+ * @name GET|exercises/:id/_aggregate
+ * @function
+ * @memberof module:API/exercises
+ * @param {string} req.params.id: ID of an exercise.
+ * @returns {Exercise} with Tasks and a Solution.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id/_aggregate', verify, function(req, res, next) {
+    Exercise.findById(req.params.id).populate({
+        path: 'exercises',
+        model: 'Exercise',
+        populate:
+            {
+                path: 'tasks',
+                model: 'Task',
+                populate: { path: 'solution' }
+            }
+    }).exec().then((doc) => {
+        res.send(doc);
+        next();
+    }).catch((err) => {
+        res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * Gets an exercise by id.
+ * @name GET|exercises/:id
+ * @function
+ * @memberof module:API/exercises
+ * @param {string} req.params.id: ID of an exercise.
+ * @returns {Exercise}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id', verify, function(req, res, next) {
+    methods.get(req.params.id, Exercise)
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Updates an exercise by id.
+ * @name PUT|exercises/:id
+ * @function
+ * @memberof module:API/exercises
+ * @param {string} req.params.id: ID of an exercise.
+ * @param {Exercise} req.body with updated values.
+ * @returns {Exercise}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.put('/:id', verify, function(req, res, next) {
+    methods.put(req.params.id, req.body, Exercise)
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Deletes an exercise by id.
+ * @name DELETE|exercises/:id
+ * @function
+ * @memberof module:API/exercises
+ * @param {string} req.params.id: ID of an exercise.
+ * @returns {string} success message.
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.delete('/:id', verify, function(req, res, next) {
+    methods.del(req.params.id, Exercise)
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+/**
+ * Gets all tasks of an exercise by id.
+ * @name GET|exercises/:id/tasks
+ * @function
+ * @memberof module:API/exercises
+ * @param {string} req.params.id: ID of an exercise.
+ * @returns {Array} of {Task}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id/tasks', verify, function(req, res, next) {
+    methods.deepGet(req.params.id, Exercise, Task)
+        .then((doc) => {
+            res.status(200).send(doc);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Creates tasks for an exercise by id.
+ * @name POST|exercises/:id/tasks
+ * @function
+ * @memberof module:API/exercises
+ * @param {string} req.params.id: ID of an exercise.
+ * @param {Array} req.body Array of tasks.
+ * @returns {Array} of {Task}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.post('/:id/tasks', verify, function(req, res, next) {
+    methods.deepPost(req.params.id, req.body, Exercise, Task)
+        .then((doc) => {
+            res.status(201).send(doc);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+export default router;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-API_answers.html">API/answers</a></li><li><a href="module-API_authentication.html">API/authentication</a></li><li><a href="module-API_correction.html">API/correction</a></li><li><a href="module-API_courses.html">API/courses</a></li><li><a href="module-API_exercises.html">API/exercises</a></li><li><a href="module-API_export.html">API/export</a></li><li><a href="module-API_sheets.html">API/sheets</a></li><li><a href="module-API_solutions.html">API/solutions</a></li><li><a href="module-API_students.html">API/students</a></li><li><a href="module-API_submissions.html">API/submissions</a></li><li><a href="module-API_tasks.html">API/tasks</a></li><li><a href="module-API_users.html">API/users</a></li><li><a href="module-API_verification.html">API/verification</a></li><li><a href="module-database.html">database</a></li><li><a href="module-models_course.html">models/course</a></li><li><a href="module-models_sheet.html">models/sheet</a></li><li><a href="module-models_submission.html">models/submission</a></li><li><a href="module-models_user.html">models/user</a></li><li><a href="module-utils_errors.html">utils/errors</a></li><li><a href="module-utils_logging.html">utils/logging</a></li><li><a href="module-utils_methods.html">utils/methods</a></li></ul><h3>Classes</h3><ul><li><a href="module-API_export.CSVRenderer.html">CSVRenderer</a></li><li><a href="module-API_export.Renderer.html">Renderer</a></li><li><a href="module-models_course-Schema_%2520Course.html">Schema: Course</a></li><li><a href="module-models_sheet-Schema_%2520Exercise.html">Schema: Exercise</a></li><li><a href="module-models_sheet-Schema_%2520Sheet.html">Schema: Sheet</a></li><li><a href="module-models_sheet-Schema_%2520Solution.html">Schema: Solution</a></li><li><a href="module-models_sheet-Schema_%2520Task.html">Schema: Task</a></li><li><a href="module-models_submission-Schema_%2520Answer.html">Schema: Answer</a></li><li><a href="module-models_submission-Schema_%2520Student.html">Schema: Student</a></li><li><a href="module-models_submission-Schema_%2520Submission.html">Schema: Submission</a></li><li><a href="module-models_user-Schema_%2520Role.html">Schema: Role</a></li><li><a href="module-models_user-Schema_%2520User.html">Schema: User</a></li><li><a href="module-utils_errors-CorrectionError.html">CorrectionError</a></li><li><a href="module-utils_errors-StatusError.html">StatusError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Oct 05 2018 13:00:54 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

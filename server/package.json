@@ -16,7 +16,7 @@
         "run": "node ./build/index.js",
         "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/*.js",
         "docs": "node_modules/.bin/jsdoc -c jsdoc.json",
-        "docs-md": "node_modules/.bin/jsdoc2md -c jsdoc.json --files ./src/**/*.js > ./docs/index.md"
+        "docs-md": "node_modules/.bin/jsdoc2md --files ./src/**/*.js > ./docs/index.md"
     },
     "author": "",
     "license": "ISC",

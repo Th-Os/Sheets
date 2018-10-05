@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/export.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/export.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module API/export
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
+ * @overview The routing of the exports API.
+ * @author Thomas Oswald
+ */
+
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import moment from 'moment';
+import * as methods from '../utils/methods';
+import {StatusError} from '../utils/errors';
+import verify from '../auth/verification';
+import Renderer from '../export/renderer';
+import CSVRenderer from '../export/csv';
+import {Course} from '../models/course';
+import {Sheet, Exercise, Task} from '../models/sheet';
+import {logRoute} from '../utils/log';
+
+const router = express.Router();
+moment.locale('de');
+
+/**
+ * Gets a pdf file with a sheetID
+ * @name GET|pdf/:id
+ * @function
+ * @memberof module:API/export
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {PDF} with type application/pdf
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/pdf/:id', verify, function(req, res, next) {
+    sendReport(req.params.id, 'pdf', res).then(() => {
+        next();
+    }).catch((err) => {
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * Gets a docx file with a sheetID
+ * @name GET|docx/:id
+ * @function
+ * @memberof module:API/export
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {DOCX} with type application/vnd.openxmlformats-officedocument.wordprocessingml.document
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/docx/:id', verify, function(req, res, next) {
+    sendReport(req.params.id, 'docx', res).then(() => {
+        next();
+    }).catch((err) => {
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * Gets a csv file with a sheetID
+ * @name GET|csv/:id
+ * @function
+ * @memberof module:API/export
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {CSV} text/csv
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/csv/:id', verify, function(req, res, next) {
+    methods.get(req.params.id, Sheet, [
+        {
+            path: 'exercises',
+            model: 'Exercise',
+            populate:
+                {
+                    path: 'tasks',
+                    model: 'Task',
+                    populate: { path: 'solution' }
+                }
+        }, {
+            path: 'submissions',
+            model: 'Submission',
+            populate:
+                [
+                    {
+                        path: 'answers',
+                        model: 'Answer',
+                        populate:
+                            {
+                                path: 'task',
+                                populate: { path: 'solution' }
+                            }
+                    },
+                    {
+                        path: 'student'
+                    }
+                ]
+        }
+    ]).then((sheet) => {
+        let renderer = new CSVRenderer().addHeader().addToAlphabeticOrder(toAlphabeticOrder);
+        for (let s of sheet.submissions) {
+            let maxPoints = 0;
+            for (let a of s.answers) {
+                maxPoints += a.task.points;
+                a.task.exercise = 0;
+            }
+            if (sheet.template.flag) maxPoints += sheet.template.points;
+            renderer.addSubmission(s, sheet.exercises, sheet.order, sheet.min_req_points, maxPoints, sheet.template);
+        }
+        res.attachment('output.csv').type('text/csv').end(renderer.export());
+        next();
+    }).catch((err) => {
+        res.status(500).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * Gets a tempate file with a sheetID
+ * @name GET|template/:id
+ * @function
+ * @memberof module:API/export
+ * @param {string} req.params.id: ID of a sheet.
+ * @returns {TXT} txt
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/template/:id', verify, function(req, res, next) {
+    let sheet = {};
+    Sheet.findById(req.params.id).exec().then((doc) => {
+        sheet = doc;
+        Exercise.find().where('_id').in(doc.exercises).exec().then((docs) => {
+            sheet.exercises = docs;
+            let promises = [];
+            for (let exercise of sheet.exercises) {
+                promises.push(Task.find().where('_id').in(exercise.tasks).then((docs) => {
+                    exercise.tasks = docs;
+                    for (let task of exercise.tasks) {
+                        task.order = toAlphabeticOrder(task.order);
+                    }
+                }).catch((err) => {
+                    res.status(400).send(err);
+                    req.error = err;
+                    next();
+                }));
+            }
+            Promise.all(promises).then(() => {
+                // https://stackoverflow.com/questions/21950049/create-a-text-file-in-node-js-from-a-string-and-stream-it-in-response
+                res.attachment('template.txt').type('txt').end(getTemplate(sheet, 'txt'));
+                next();
+            }).catch((err) => {
+                res.status(500).send(err);
+                req.error = err;
+                next();
+            });
+        }).catch((err) => {
+            res.status(400).send(err);
+            req.error = err;
+            next();
+        });
+    }).catch((err) => {
+        res.status(400).send(err);
+        req.error = err;
+        next();
+    });
+}, logRoute);
+
+/**
+ * This function gets all reporting data,
+ * renders it to the specific type of file
+ * and sends it to the client.
+ * @param {string} id of a {Sheet}.
+ * @param {string} type (pdf|docx) of document.
+ * @param {object} res express response object.
+ */
+function sendReport(id, type, res) {
+    return new Promise((resolve, reject) => {
+        getReportObj(id).then((obj) => {
+            let renderer = new Renderer();
+            renderer
+                .addHelper(toAlphabeticOrder)
+                .addHelper(renderer.helpers.calcPoints)
+                .addHelper(renderer.helpers.addTemplateExercise)
+                .addHelper(renderer.helpers.addNameSubmissionFile)
+                .data(JSON.stringify(obj))
+                .html(obj.html)
+                .name(obj.course.name + ' - ' + obj.sheet.name)
+                .output(type)
+                .send(res);
+            resolve();
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
+/**
+ * Implementation of accumulating and preparing the report data:
+ * template.html
+ * {Course} and {Sheet} with exercises and tasks.
+ * @param {string} sheetId a {Sheet} id.
+ */
+function getReportObj(sheetId) {
+    return new Promise((resolve, reject) => {
+        let obj = {};
+        fs.readFile(path.join(__dirname, '../../resources/template.html'), 'utf8', function(err, html) {
+            obj.html = html;
+            if (err) reject(new StatusError(500, err));
+            Course.find({sheets: sheetId}).exec().then((docs) => {
+                if (docs === undefined || docs.length === 0) reject(new StatusError(404, 'Course not found'));
+                obj.course = docs[0];
+                methods.get(sheetId, Sheet, { path: 'exercises', populate: { path: 'tasks' } }).then((sheet) => {
+                    obj.sheet = sheet;
+                    obj.date = toReadableDate(obj.sheet.submissiondate);
+                    obj.template = getTemplate(sheet, 'html');
+                    obj = countOrderUpBy(obj, 1);
+                    resolve(obj);
+                }).catch((err) => reject(new StatusError(400, err)));
+            }).catch((err) => reject(new StatusError(400, err)));
+        });
+    });
+}
+
+/**
+ * Parses a sheet to a template.
+ * This function uses replacing of '&lt;' and '>' to prevent html to be interpreted.
+ * Furthermore, it adds linebreaks to its output depending on the mode.
+ * @param {*} sheet a sheet object.
+ * @param {*} mode (txt|html)
+ */
+function getTemplate(sheet, mode) {
+    let newLine = (mode === 'txt') ? '\n' : '&lt;br>';
+    let template = (mode === 'txt') ? '&lt;Ihre Matrikelnummer>' : '&amp;lt;Ihre Matrikelnummer&amp;gt;';
+    template += newLine;
+    for (let exercise of sheet.exercises) {
+        if (exercise.tasks !== undefined) {
+            template += 'Aufgabe ' + (sheet.order + 1) + '.' + (exercise.order + 1) + ':' + newLine;
+            for (let task of exercise.tasks) {
+                let choices = task.choices.join(' | ');
+                // Should prevent html from being interpreted.
+                if (mode === 'html') {
+                    choices = choices.replace('&lt;', '&amp;lt;');
+                    choices = choices.replace('>', '&amp;gt;');
+                }
+                template += toAlphabeticOrder(task.order + 1) + ')  &lt; ' + choices + ' >' + newLine;
+            }
+        }
+    }
+    return template;
+}
+
+/**
+ * This function parses a numerical order to an alphabetical one.
+ * @param {number} numerical a order number.
+ * @returns alphabetic character.
+ */
+function toAlphabeticOrder(numerical) {
+    if (numerical &lt; 10) {
+        return String.fromCharCode(('' + numerical).charCodeAt() + 16).toLowerCase();
+    } else {
+        if (numerical &lt; 27) return String.fromCharCode('9'.charCodeAt() + numerical - 9 + 16).toLowerCase();
+        return toAlphabeticOrder(1) + toAlphabeticOrder(numerical - 26);
+    }
+}
+
+/**
+ * This function counts up all orders of the report object.
+ * @param {object} obj is a report object.
+ * @param {number} countUp value that is added to the order.
+ * @returns updated report object.
+ */
+function countOrderUpBy(obj, countUp) {
+    obj.course.order += countUp;
+    obj.sheet.order += countUp;
+    for (let exercise of obj.sheet.exercises) {
+        exercise.order += countUp;
+        for (let task of exercise.tasks) {
+            task.order += countUp;
+        }
+    }
+    return obj;
+}
+
+/**
+ * This function parses a date string to a predefined format.
+ * @param {string} str date string.
+ */
+function toReadableDate(str) {
+    return moment(str).format('dddd, D. MMMM YYYY, hh:mm [Uhr]');
+}
+
+export default router;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-API_answers.html">API/answers</a></li><li><a href="module-API_authentication.html">API/authentication</a></li><li><a href="module-API_correction.html">API/correction</a></li><li><a href="module-API_courses.html">API/courses</a></li><li><a href="module-API_exercises.html">API/exercises</a></li><li><a href="module-API_export.html">API/export</a></li><li><a href="module-API_sheets.html">API/sheets</a></li><li><a href="module-API_solutions.html">API/solutions</a></li><li><a href="module-API_students.html">API/students</a></li><li><a href="module-API_submissions.html">API/submissions</a></li><li><a href="module-API_tasks.html">API/tasks</a></li><li><a href="module-API_users.html">API/users</a></li><li><a href="module-API_verification.html">API/verification</a></li><li><a href="module-database.html">database</a></li><li><a href="module-models_course.html">models/course</a></li><li><a href="module-models_sheet.html">models/sheet</a></li><li><a href="module-models_submission.html">models/submission</a></li><li><a href="module-models_user.html">models/user</a></li><li><a href="module-utils_errors.html">utils/errors</a></li><li><a href="module-utils_logging.html">utils/logging</a></li><li><a href="module-utils_methods.html">utils/methods</a></li></ul><h3>Classes</h3><ul><li><a href="module-API_export.CSVRenderer.html">CSVRenderer</a></li><li><a href="module-API_export.Renderer.html">Renderer</a></li><li><a href="module-models_course-Schema_%2520Course.html">Schema: Course</a></li><li><a href="module-models_sheet-Schema_%2520Exercise.html">Schema: Exercise</a></li><li><a href="module-models_sheet-Schema_%2520Sheet.html">Schema: Sheet</a></li><li><a href="module-models_sheet-Schema_%2520Solution.html">Schema: Solution</a></li><li><a href="module-models_sheet-Schema_%2520Task.html">Schema: Task</a></li><li><a href="module-models_submission-Schema_%2520Answer.html">Schema: Answer</a></li><li><a href="module-models_submission-Schema_%2520Student.html">Schema: Student</a></li><li><a href="module-models_submission-Schema_%2520Submission.html">Schema: Submission</a></li><li><a href="module-models_user-Schema_%2520Role.html">Schema: Role</a></li><li><a href="module-models_user-Schema_%2520User.html">Schema: User</a></li><li><a href="module-utils_errors-CorrectionError.html">CorrectionError</a></li><li><a href="module-utils_errors-StatusError.html">StatusError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Oct 05 2018 13:00:54 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

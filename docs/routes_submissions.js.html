@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/submissions.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/submissions.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module API/submissions
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
+ * @overview The routing of the submissions API.
+ * @author Thomas Oswald
+ */
+
+import express from 'express';
+import verify from '../auth/verification';
+import * as methods from '../utils/methods';
+import {StatusError} from '../utils/errors';
+import {Submission, Answer} from '../models/submission';
+import {logRoute} from '../utils/log';
+
+const router = express.Router();
+
+/**
+ * Searches through all submissions with an user id.
+ * @name GET|submissions/_search
+ * @function
+ * @memberof module:API/submissions
+ * @param {string} req.query.user: ID of a user.
+ * @returns {Array} of @see {Submission}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ * @example /submissions/_search?user={ID}
+ */
+router.get('/_search', verify, function(req, res, next) {
+    let userId = req.query.user;
+    if (userId !== undefined) {
+        Submission.find({ user: userId }).then((subs) => {
+            if (subs === undefined || subs.length === 0) {
+                res.status(404).send('No submissions found');
+            } else res.send(subs);
+            next();
+        }).catch((err) => {
+            res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+    } else {
+        let err = new Error('Query "' + req.query + '" not available.');
+        res.send(400).send(err);
+        req.error = err;
+        next();
+    }
+}, logRoute);
+
+/**
+ * Updates a submission by id.
+ * @name PUT|submissions/:id
+ * @function
+ * @memberof module:API/submissions
+ * @param {string} req.params.id: ID of a submission.
+ * @param {object} req.body with values for update.
+ * @returns {Submission}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.put('/:id', verify, function(req, res, next) {
+    methods.put(req.params.id, req.body, Submission)
+        .then((doc) => {
+            res.send(doc);
+            next();
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Gets all answers of a submission by id.
+ * @name GET|submissions/:id/answers
+ * @function
+ * @memberof module:API/submissions
+ * @param {string} req.params.id: ID of a submission.
+ * @returns {Array} of @see {Answer}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.get('/:id/answers', verify, function(req, res, next) {
+    methods.get(req.params.id, Submission, { path: 'answers' })
+        .then((doc) => {
+            res.status(200).send(doc.answers);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Creates answers for a submission by id.
+ * @name POST|submissions/:id/answers
+ * @function
+ * @memberof module:API/submissions
+ * @param {string} req.params.id: ID of a submission.
+ * @param {Array} req.body with {Answer}
+ * @returns {Array} of @see {Answer}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
+router.post('/:id/answers', verify, function(req, res, next) {
+    methods.deepPost(req.params.id, req.body, Submission, Answer)
+        .then((docs) => {
+            res.status(201).send(docs);
+            next();
+        })
+        .catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+}, logRoute);
+
+/**
+ * Searches through all answers of an submission by id with a task id.
+ * @name GET|submissions/:id/answers/_search
+ * @function
+ * @memberof module:API/submissions
+ * @param {string} req.query.task: ID of a task.
+ * @returns {Array} of @see {Answer}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ * @example /submissions/:id/answers/_search?task={ID}
+ */
+router.get('/:id/answers/_search', verify, function(req, res, next) {
+    let taskId = req.query.task;
+    if (taskId !== undefined) {
+        methods.get(req.params.id, Submission).then((doc) => {
+            let promises = [];
+            let answers = [];
+            for (let answerId of doc.answers) {
+                promises.push(Answer.findById(answerId).exec().then((answer) => {
+                    if (answer.task &amp;&amp; answer.task.equals(taskId)) {
+                        answers.push(answer);
+                        res.send(answer);
+                        next();
+                    }
+                }).catch((err) => {
+                    res.status(500).send(err);
+                    req.error = err;
+                    next();
+                }));
+            }
+            Promise.all(promises).then(() => {
+                res.status(200).send(answers);
+                next();
+            }).catch((err) => {
+                res.status(500).send(err);
+                req.error = err;
+                next();
+            });
+        }).catch((err) => {
+            if (err.name === StatusError.name) res.status(err.status).send(err.message);
+            else res.status(500).send(err);
+            req.error = err;
+            next();
+        });
+    } else {
+        let err = new Error('Query "' + req.query + '" not available.');
+        res.send(400).send(err);
+        req.error = err;
+        next();
+    }
+}, logRoute);
+
+export default router;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-API_answers.html">API/answers</a></li><li><a href="module-API_authentication.html">API/authentication</a></li><li><a href="module-API_correction.html">API/correction</a></li><li><a href="module-API_courses.html">API/courses</a></li><li><a href="module-API_exercises.html">API/exercises</a></li><li><a href="module-API_export.html">API/export</a></li><li><a href="module-API_sheets.html">API/sheets</a></li><li><a href="module-API_solutions.html">API/solutions</a></li><li><a href="module-API_students.html">API/students</a></li><li><a href="module-API_submissions.html">API/submissions</a></li><li><a href="module-API_tasks.html">API/tasks</a></li><li><a href="module-API_users.html">API/users</a></li><li><a href="module-API_verification.html">API/verification</a></li><li><a href="module-database.html">database</a></li><li><a href="module-models_course.html">models/course</a></li><li><a href="module-models_sheet.html">models/sheet</a></li><li><a href="module-models_submission.html">models/submission</a></li><li><a href="module-models_user.html">models/user</a></li><li><a href="module-utils_errors.html">utils/errors</a></li><li><a href="module-utils_logging.html">utils/logging</a></li><li><a href="module-utils_methods.html">utils/methods</a></li></ul><h3>Classes</h3><ul><li><a href="module-API_export.CSVRenderer.html">CSVRenderer</a></li><li><a href="module-API_export.Renderer.html">Renderer</a></li><li><a href="module-models_course-Schema_%2520Course.html">Schema: Course</a></li><li><a href="module-models_sheet-Schema_%2520Exercise.html">Schema: Exercise</a></li><li><a href="module-models_sheet-Schema_%2520Sheet.html">Schema: Sheet</a></li><li><a href="module-models_sheet-Schema_%2520Solution.html">Schema: Solution</a></li><li><a href="module-models_sheet-Schema_%2520Task.html">Schema: Task</a></li><li><a href="module-models_submission-Schema_%2520Answer.html">Schema: Answer</a></li><li><a href="module-models_submission-Schema_%2520Student.html">Schema: Student</a></li><li><a href="module-models_submission-Schema_%2520Submission.html">Schema: Submission</a></li><li><a href="module-models_user-Schema_%2520Role.html">Schema: Role</a></li><li><a href="module-models_user-Schema_%2520User.html">Schema: User</a></li><li><a href="module-utils_errors-CorrectionError.html">CorrectionError</a></li><li><a href="module-utils_errors-StatusError.html">StatusError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Oct 05 2018 13:00:54 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

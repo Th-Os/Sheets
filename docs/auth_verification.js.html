@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: auth/verification.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: auth/verification.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module API/verification
+ */
+
+/**
+ * @overview The verification process checks the token sent by the client and acts accordingly.
+ * @author Thomas Oswald
+ */
+
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import log from '../utils/log';
+
+/**
+ * This function will check whether the req.params.id is a mongoDB ObjectId
+ * and verify the token of every request.
+ * @module module:API/verification
+ * @param {*} req express request object.
+ * @param {*} res express response object.
+ * @param {*} next express next function.
+ */
+function verify(req, res, next) {
+    // check if id is a valid mongoose ObjectId:
+    if (req.params.id !== undefined) {
+        if (!(req.params.id === '_search' || req.params.id === '_aggregate' || req.params.id === '_bulk')) {
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                let err = new Error('Bad ObjectId.');
+                res.status(400).send(err);
+                log.error('VerificationError: ' + err + ' ' + err.message);
+                return;
+            }
+        }
+    }
+
+    if (process.env.AUTH === 'false') {
+        next();
+        return;
+    }
+    // check header or url parameters or post parameters for token
+    var token = req.headers['x-access-token'];
+    if (!token) {
+        log.error('VerificationError: ' + req.headers + ' - No token provided.');
+        return res.status(403).send({
+            auth: false,
+            message: 'No token provided.'
+        });
+    }
+
+    // verifies secret and checks exp
+    jwt.verify(token, process.env.SECRET, function(err, decoded) {
+        if (err) {
+            log.error('VerificationError: ' + req.headers + ' - Failed to authenticate token.');
+            return res.status(403).send({
+                auth: false,
+                message: 'Failed to authenticate token.'
+            });
+        }
+
+        // if everything is good, save to request for use in other routes
+        req.userId = decoded.id;
+        next();
+    });
+}
+export default verify;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-API_answers.html">API/answers</a></li><li><a href="module-API_authentication.html">API/authentication</a></li><li><a href="module-API_correction.html">API/correction</a></li><li><a href="module-API_courses.html">API/courses</a></li><li><a href="module-API_exercises.html">API/exercises</a></li><li><a href="module-API_export.html">API/export</a></li><li><a href="module-API_sheets.html">API/sheets</a></li><li><a href="module-API_solutions.html">API/solutions</a></li><li><a href="module-API_students.html">API/students</a></li><li><a href="module-API_submissions.html">API/submissions</a></li><li><a href="module-API_tasks.html">API/tasks</a></li><li><a href="module-API_users.html">API/users</a></li><li><a href="module-API_verification.html">API/verification</a></li><li><a href="module-database.html">database</a></li><li><a href="module-models_course.html">models/course</a></li><li><a href="module-models_sheet.html">models/sheet</a></li><li><a href="module-models_submission.html">models/submission</a></li><li><a href="module-models_user.html">models/user</a></li><li><a href="module-utils_errors.html">utils/errors</a></li><li><a href="module-utils_logging.html">utils/logging</a></li><li><a href="module-utils_methods.html">utils/methods</a></li></ul><h3>Classes</h3><ul><li><a href="module-API_export.CSVRenderer.html">CSVRenderer</a></li><li><a href="module-API_export.Renderer.html">Renderer</a></li><li><a href="module-models_course-Schema_%2520Course.html">Schema: Course</a></li><li><a href="module-models_sheet-Schema_%2520Exercise.html">Schema: Exercise</a></li><li><a href="module-models_sheet-Schema_%2520Sheet.html">Schema: Sheet</a></li><li><a href="module-models_sheet-Schema_%2520Solution.html">Schema: Solution</a></li><li><a href="module-models_sheet-Schema_%2520Task.html">Schema: Task</a></li><li><a href="module-models_submission-Schema_%2520Answer.html">Schema: Answer</a></li><li><a href="module-models_submission-Schema_%2520Student.html">Schema: Student</a></li><li><a href="module-models_submission-Schema_%2520Submission.html">Schema: Submission</a></li><li><a href="module-models_user-Schema_%2520Role.html">Schema: Role</a></li><li><a href="module-models_user-Schema_%2520User.html">Schema: User</a></li><li><a href="module-utils_errors-CorrectionError.html">CorrectionError</a></li><li><a href="module-utils_errors-StatusError.html">StatusError</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Oct 05 2018 13:00:54 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
