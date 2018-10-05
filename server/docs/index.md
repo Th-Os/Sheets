@@ -5,6 +5,9 @@
 <dd></dd>
 <dt><a href="#module_API/verification">API/verification</a></dt>
 <dd></dd>
+<dt><a href="#module_API/verification">API/verification</a></dt>
+<dd><p>This function will check whether the req.params.id is a mongoDB ObjectId
+and verify the token of every request.</p></dd>
 <dt><a href="#module_API/correction">API/correction</a></dt>
 <dd></dd>
 <dt><a href="#module_database">database</a></dt>
@@ -47,6 +50,9 @@
 <dd></dd>
 <dt><a href="#module_API/verification">API/verification</a></dt>
 <dd></dd>
+<dt><a href="#module_API/verification">API/verification</a></dt>
+<dd><p>This function will check whether the req.params.id is a mongoDB ObjectId
+and verify the token of every request.</p></dd>
 <dt><a href="#module_API/correction">API/correction</a></dt>
 <dd></dd>
 <dt><a href="#module_database">database</a></dt>
@@ -136,32 +142,12 @@
 <a name="module_API/verification"></a>
 
 ## API/verification
+<a name="module_API/verification"></a>
 
-* [API/verification](#module_API/verification)
-    * [~verify(req, res, next)](#module_API/verification..verify)
-    * [~verify(req, res, next)](#module_API/verification..verify)
-
-<a name="module_API/verification..verify"></a>
-
-### API/verification~verify(req, res, next)
+## API/verification
 <p>This function will check whether the req.params.id is a mongoDB ObjectId
 and verify the token of every request.</p>
 
-**Kind**: inner method of [<code>API/verification</code>](#module_API/verification)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| req | <code>\*</code> | <p>express request object.</p> |
-| res | <code>\*</code> | <p>express response object.</p> |
-| next | <code>\*</code> | <p>express next function.</p> |
-
-<a name="module_API/verification..verify"></a>
-
-### API/verification~verify(req, res, next)
-<p>This function will check whether the req.params.id is a mongoDB ObjectId
-and verify the token of every request.</p>
-
-**Kind**: inner method of [<code>API/verification</code>](#module_API/verification)  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -4134,32 +4120,12 @@ Furthermore, it adds linebreaks to its output depending on the mode.</p>
 <a name="module_API/verification"></a>
 
 ## API/verification
+<a name="module_API/verification"></a>
 
-* [API/verification](#module_API/verification)
-    * [~verify(req, res, next)](#module_API/verification..verify)
-    * [~verify(req, res, next)](#module_API/verification..verify)
-
-<a name="module_API/verification..verify"></a>
-
-### API/verification~verify(req, res, next)
+## API/verification
 <p>This function will check whether the req.params.id is a mongoDB ObjectId
 and verify the token of every request.</p>
 
-**Kind**: inner method of [<code>API/verification</code>](#module_API/verification)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| req | <code>\*</code> | <p>express request object.</p> |
-| res | <code>\*</code> | <p>express response object.</p> |
-| next | <code>\*</code> | <p>express next function.</p> |
-
-<a name="module_API/verification..verify"></a>
-
-### API/verification~verify(req, res, next)
-<p>This function will check whether the req.params.id is a mongoDB ObjectId
-and verify the token of every request.</p>
-
-**Kind**: inner method of [<code>API/verification</code>](#module_API/verification)  
 
 | Param | Type | Description |
 | --- | --- | --- |

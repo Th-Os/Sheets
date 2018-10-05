@@ -14,6 +14,7 @@ import log from '../utils/log';
 /**
  * This function will check whether the req.params.id is a mongoDB ObjectId
  * and verify the token of every request.
+ * @module module:API/verification
  * @param {*} req express request object.
  * @param {*} res express response object.
  * @param {*} next express next function.
