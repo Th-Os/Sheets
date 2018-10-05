@@ -1,4 +1,9 @@
 /**
+ * @module API/submissions
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the submissions API.
  * @author Thomas Oswald
  */
@@ -14,6 +19,9 @@ const router = express.Router();
 
 /**
  * Searches through all submissions with an user id.
+ * @name GET|submissions/_search
+ * @function
+ * @memberof module:API/submissions
  * @param {string} req.query.user: ID of a user.
  * @returns {Array} of @see {Submission}
  * @throws 400
@@ -44,6 +52,9 @@ router.get('/_search', verify, function(req, res, next) {
 
 /**
  * Updates a submission by id.
+ * @name PUT|submissions/:id
+ * @function
+ * @memberof module:API/submissions
  * @param {string} req.params.id: ID of a submission.
  * @param {object} req.body with values for update.
  * @returns {Submission}
@@ -66,6 +77,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Gets all answers of a submission by id.
+ * @name GET|submissions/:id/answers
+ * @function
+ * @memberof module:API/submissions
  * @param {string} req.params.id: ID of a submission.
  * @returns {Array} of @see {Answer}
  * @throws 400
@@ -88,6 +102,9 @@ router.get('/:id/answers', verify, function(req, res, next) {
 
 /**
  * Creates answers for a submission by id.
+ * @name POST|submissions/:id/answers
+ * @function
+ * @memberof module:API/submissions
  * @param {string} req.params.id: ID of a submission.
  * @param {Array} req.body with {Answer}
  * @returns {Array} of @see {Answer}
@@ -111,6 +128,9 @@ router.post('/:id/answers', verify, function(req, res, next) {
 
 /**
  * Searches through all answers of an submission by id with a task id.
+ * @name GET|submissions/:id/answers/_search
+ * @function
+ * @memberof module:API/submissions
  * @param {string} req.query.task: ID of a task.
  * @returns {Array} of @see {Answer}
  * @throws 400

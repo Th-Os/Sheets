@@ -1,4 +1,9 @@
 /**
+ * @module API/students
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the students API.
  * @author Thomas Oswald
  */
@@ -16,6 +21,9 @@ const router = express.Router();
 
 /**
  * Searches through all students with a mat_nr.
+ * @name GET|students/_search
+ * @function
+ * @memberof module:API/students
  * @param {string} req.query.matnr: matricle number of a student.
  * @returns {Student}
  * @throws 400
@@ -53,6 +61,9 @@ router.get('/_search', verify, function(req, res, next) {
 
 /**
  * Gets a student by id.
+ * @name GET|students/:id
+ * @function
+ * @memberof module:API/students
  * @param {string} req.params.id: ID of a student.
  * @returns {Student}
  * @throws 400
@@ -75,6 +86,9 @@ router.get('/:id', verify, function(req, res, next) {
 
 /**
  * Creates students.
+ * @name POST|students
+ * @function
+ * @memberof module:API/students
  * @param {Array} req.body with {Student}
  * @returns {Array} of @see {Student}
  * @throws 400
@@ -97,6 +111,9 @@ router.post('/', verify, function(req, res, next) {
 
 /**
  * Updates a student by id.
+ * @name PUT|students/:id
+ * @function
+ * @memberof module:API/students
  * @param {string} req.params.id: ID of a student.
  * @param {Student} req.body with updated values.
  * @returns {Student}
@@ -120,6 +137,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Deletes a student by id.
+ * @name DELETE|students/:id
+ * @function
+ * @memberof module:API/students
  * @param {string} req.params.id: ID of a student.
  * @returns {string} success message.
  * @throws 400
@@ -142,6 +162,9 @@ router.delete('/:id', verify, function(req, res, next) {
 
 /**
  * Gets all submissions of a student by id.
+ * @name GET|students/:id/submissions
+ * @function
+ * @memberof module:API/students
  * @param {string} req.params.id: ID of a student.
  * @returns {Array} of @see {Submission}
  * @throws 400
@@ -163,6 +186,9 @@ router.get('/:id/submissions', verify, function(req, res, next) {
 
 /**
  * Gets all courses of a student by id.
+ * @name GET|students/:id/courses
+ * @function
+ * @memberof module:API/students
  * @param {string} req.params.id: ID of a student.
  * @returns {Array} of @see {Courses}
  * @throws 400

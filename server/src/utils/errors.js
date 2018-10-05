@@ -1,4 +1,9 @@
 /**
+ * Errors
+ * @module utils/errors
+ */
+
+/**
  * @overview collection of custom error implementations.
  * @see https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Error
  * @author Thomas Oswald

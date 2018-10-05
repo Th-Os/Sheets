@@ -1,4 +1,9 @@
 /**
+ * @module API/users
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing logic for the users API.
  * @author Thomas Oswald
  */
@@ -15,6 +20,9 @@ const router = express.Router();
 
 /**
  * Gets all users.
+ * @name GET|users
+ * @function
+ * @memberof module:API/users
  * @returns {Array} all users.
  * @throws 400
  * @throws 404
@@ -36,6 +44,9 @@ router.get('/', verify, function(req, res, next) {
 
 /**
  * Gets all roles.
+ * @name GET|users/roles
+ * @function
+ * @memberof module:API/users
  * @returns {Array} all roles.
  * @throws 400
  * @throws 404
@@ -55,6 +66,9 @@ router.get('/roles', verify, function(req, res, next) {
 
 /**
  * Gets a role by id.
+ * @name GET|users/roles/:id
+ * @function
+ * @memberof module:API/users
  * @param {string} req.params.id: ID of a role.
  * @returns {Role} role by id.
  * @throws 400
@@ -77,6 +91,9 @@ router.get('/roles/:id', verify, function(req, res, next) {
 
 /**
  * Creates users.
+ * @name POST|users
+ * @function
+ * @memberof module:API/users
  * @param {object|Array} req.body user objects with username, password and roleId.
  * @throws 400
  * @throws 404
@@ -105,6 +122,9 @@ router.post('/', verify, function(req, res, next) {
 
 /**
  * Gets user by id.
+ * @name GET|users/:id
+ * @function
+ * @memberof module:API/users
  * @param {string} req.params.id: ID of a user.
  * @returns {User} with a role.
  * @throws 400
@@ -127,6 +147,9 @@ router.get('/:id', verify, function(req, res, next) {
 
 /**
  * Updates user by id. Hashes the password beforehand.
+ * @name PUT|users/:id
+ * @function
+ * @memberof module:API/users
  * @param {string} req.params.id: ID of a user.
  * @returns {User} in its updated state.
  * @throws 400
@@ -152,6 +175,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Deletes a user by id.
+ * @name DELETE|users/:id
+ * @function
+ * @memberof module:API/users
  * @param {string} req.params.id: ID of a user.
  * @returns {string} success message.
  * @throws 400

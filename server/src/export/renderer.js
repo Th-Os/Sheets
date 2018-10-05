@@ -9,6 +9,7 @@ import log from '../utils/log';
 
 /**
  * @class Renderer defines jsreport specific template values and extensions.
+ * @memberof module:API/export
  */
 function Renderer() {
     this.obj = {

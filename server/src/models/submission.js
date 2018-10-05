@@ -1,4 +1,8 @@
 /**
+ * @module models/submission
+ */
+
+/**
  * @overview The definition of the schemas and models of submission, answer and student.
  * @author Thomas Oswald and Johannes Dengler
  */
@@ -7,6 +11,14 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
+/**
+* @class
+* @name Schema: Submission
+* @property {Student} student - required
+* @property {Array.<Answer>} answers - required
+* @property {User} user - optional
+* @property {string} grips_id - required
+*/
 const submissionSchema = new mongoose.Schema({
     student: {
         type: Schema.Types.ObjectId,
@@ -50,6 +62,17 @@ submissionSchema.post('remove', function(doc) {
     });
 });
 
+/**
+* @class
+* @name Schema: Answer
+* @property {string} text - required
+* @property {Task} task - optional
+* @property {string} feedback - optional
+* @property {boolean} auto_corrected - optional, auto correction flag.
+* @property {boolean} corrected - optional, manual correction flag.
+* @property {boolean} help - optional
+* @property {number} achieved_points - optional
+*/
 const answerSchema = new mongoose.Schema({
     text: {
         type: String,
@@ -96,6 +119,14 @@ answerSchema.post('remove', function(doc) {
     });
 });
 
+/**
+* @class
+* @name Schema: Student
+* @property {string} name - required
+* @property {string} lastname - optional
+* @property {string} mat_nr - required
+* @property {string} status - optional
+*/
 const studentSchema = new mongoose.Schema({
     name: {
         type: String,

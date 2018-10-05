@@ -6,6 +6,11 @@
 
 import settings from '../../resources/settings';
 
+/**
+ * @class
+ * @description Specific renderer for csv files to be used by GRIPS.
+ * @memberof module:API/export
+ */
 function CSVRenderer() {
     this.header = 'ID,Bewertung,Skala,Zuletzt geändert (Bewertung),Feedback als Kommentar';
     this.type = 'text/csv;charset=utf-8;';
@@ -79,6 +84,7 @@ CSVRenderer.prototype.export = function() {
 
 /**
  * Calculates reached points and compares the result with the required points.
+ * @memberof CSVRenderer
  * @param {Submission} submission a {Submission} with an array of {Answer}.
  * @param {number} requiredPoints points that indicates passing the sheet.
  * @param {number} templatePoints points for the last exercise.
@@ -96,6 +102,8 @@ function hasPassed(submission, requiredPoints, templatePoints) {
 
 /**
  * Searches exercises after task that has the taskId.
+ * @memberof CSVRenderer
+ * @private
  * @param {Array} exercises array of {Exercise}.
  * @param {string} taskId id of {Task}.
  * @returns {number} order of exercise.
@@ -113,6 +121,8 @@ function getExerciseOrder(exercises, taskId) {
 
 /**
  * Returns feedback for the whole submission.
+ * @memberof class:CSVRenderer
+ * @private
  * @param {Submission} submission with array of {Answer}.
  * @param {number} requiredPoints points that indicates passing the sheet.
  * @param {number} maxPoints maximum of points achievable.
@@ -129,6 +139,8 @@ function getOverallFeedback(submission, requiredPoints, maxPoints) {
 
 /**
  * Replaces all " with ' in a string.
+ * @private
+ * @memberof module:API/export~CSVRenderer
  * @param {string} str string
  */
 function toCSVString(str) {

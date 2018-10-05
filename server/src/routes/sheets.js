@@ -1,4 +1,9 @@
 /**
+ * @module API/sheets
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the sheets API.
  * @author Thomas Oswald
  */
@@ -15,6 +20,9 @@ const router = express.Router();
 
 /**
  * Gets a sheet by id.
+ * @name GET|sheets/:id
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @returns {Sheet}
  * @throws 400
@@ -37,6 +45,9 @@ router.get('/:id', verify, function(req, res, next) {
 
 /**
  * Gets an aggregated sheet by id.
+ * @name GET|sheets/:id/_aggregate
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @returns {Sheet} with Exercises, Tasks, Solution and Submissions, Answers, Task, Solution.
  * @throws 400
@@ -86,6 +97,9 @@ router.get('/:id/_aggregate', verify, function(req, res, next) {
 
 /**
  * Updates a sheet by id.
+ * @name PUT|sheets/:id
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @param {Sheet} req.body with updated values.
  * @returns {Sheet}
@@ -109,6 +123,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Deletes a sheet by id.
+ * @name DELETE|sheets/:id
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @returns {string} success message.
  * @throws 400
@@ -130,6 +147,9 @@ router.delete('/:id', verify, function(req, res, next) {
 }, logRoute);
 /**
  * Gets all exercises of a sheet by id.
+ * @name GET|sheets/:id/exercises
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @returns {Array} of @see {Exercise}
  * @throws 400
@@ -152,6 +172,9 @@ router.get('/:id/exercises', verify, function(req, res, next) {
 
 /**
  * Gets all submissions of a sheet by id.
+ * @name GET|sheets/:id/submissions
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @returns {Array} of @see {Submission}
  * @throws 400
@@ -174,6 +197,9 @@ router.get('/:id/submissions', verify, function(req, res, next) {
 
 /**
  * Creates exercises for a sheet by id.
+ * @name POST|sheets/:id/exercises
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @param {Array} req.body Array of exercises.
  * @returns {Array} of @see {Exercise}
@@ -197,6 +223,9 @@ router.post('/:id/exercises', verify, function(req, res, next) {
 
 /**
  * Creates submissions for a sheet by id.
+ * @name POST|sheets/:id/submissions
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @param {Array} req.body Array of submissions.
  * @returns {Array} of @see {Submission}
@@ -219,6 +248,9 @@ router.post('/:id/submissions', verify, function(req, res, next) {
 }, logRoute);
 /**
  * Creates submissions with 2 further levels (answers and task) for a sheet by id.
+ * @name POST|sheets/:id/submissions/_bulk
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @param {Array} req.body Array of submissions.
  * @returns {Array} of @see {Submission}
@@ -242,6 +274,9 @@ router.post('/:id/submissions/_bulk', verify, function(req, res, next) {
 
 /**
  * Deletes all exercises of a sheet by id.
+ * @name DELETE|sheets/:id/exercises
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @returns {string} success message.
  * @throws 400
@@ -262,6 +297,9 @@ router.delete('/:id/exercises', verify, function(req, res, next) {
 
 /**
  * Deletes all submissions of a sheet by id.
+ * @name DELETE|sheets/:id/submissions
+ * @function
+ * @memberof module:API/sheets
  * @param {string} req.params.id: ID of a sheet.
  * @returns {string} success message.
  * @throws 400
@@ -282,6 +320,9 @@ router.delete('/:id/submissions', verify, function(req, res, next) {
 
 /**
  * Redirects to @see export.js
+ * @name GET|sheets/:id/pdf
+ * @function
+ * @memberof module:API/sheets
  */
 router.get('/:id/pdf', verify, function(req, res) {
     res.redirect('../../export/pdf/' + req.params.id);
@@ -289,6 +330,9 @@ router.get('/:id/pdf', verify, function(req, res) {
 
 /**
  * Redirects to @see export.js
+ * @name GET|sheets/:id/docx
+ * @function
+ * @memberof module:API/sheets
  */
 router.get('/:id/docx', verify, function(req, res) {
     res.redirect('../../export/docx/' + req.params.id);
@@ -296,6 +340,9 @@ router.get('/:id/docx', verify, function(req, res) {
 
 /**
  * Redirects to @see export.js
+ * @name GET|sheets/:id/csv
+ * @function
+ * @memberof module:API/sheets
  */
 router.get('/:id/csv', verify, function(req, res) {
     res.redirect('../../export/csv/' + req.params.id);
@@ -303,6 +350,9 @@ router.get('/:id/csv', verify, function(req, res) {
 
 /**
  * Redirects to @see export.js
+ * @name GET|sheets/:id/template
+ * @function
+ * @memberof module:API/sheets
  */
 router.get('/:id/template', verify, function(req, res) {
     res.redirect('../../export/template/' + req.params.id);

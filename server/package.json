@@ -14,7 +14,9 @@
         "build": "babel ./src -d ./build/app && cd build && npm install",
         "prerun": "npm run-script build",
         "run": "node ./build/index.js",
-        "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/*.js"
+        "test": "mocha --timeout 5000 --require babel-core/register --require babel-polyfill test/*.js",
+        "docs": "node_modules/.bin/jsdoc -c jsdoc.json",
+        "docs-md": "node_modules/.bin/jsdoc2md -c jsdoc.json --files ./src/**/*.js > ./docs/index.md"
     },
     "author": "",
     "license": "ISC",
@@ -49,6 +51,8 @@
         "eslint-plugin-node": "^6.0.1",
         "eslint-plugin-promise": "^3.8.0",
         "eslint-plugin-standard": "^3.1.0",
+        "jsdoc": "^3.5.5",
+        "jsdoc-to-markdown": "^4.0.1",
         "mocha": "^5.2.0",
         "nodemon": "^1.18.4"
     },

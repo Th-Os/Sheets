@@ -1,4 +1,8 @@
 /**
+ * @module API/correction
+ */
+
+/**
  * @overview The routing of the correction API.
  * @author Thomas Oswald
  */
@@ -13,6 +17,9 @@ const router = express.Router();
 
 /**
  * Corrects a submission by id.
+ * @name GET|correct/:id
+ * @function
+ * @memberof module:API/correction
  * @param {string} req.params.id: ID of a sheet.
  * @returns {Submission} and depending on the correction an {Array} of {CorrectionError}.
  * @throws 400

@@ -1,4 +1,8 @@
 /**
+ * @module models/course
+ */
+
+/**
  * @overview The definition of the schema and model of course.
  * @author Thomas Oswald and Johannes Dengler
  */
@@ -7,6 +11,15 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
+/**
+ * @class
+ * @name Schema: Course
+ * @property {string} name - required
+ * @property {string} institute - required
+ * @property {string} semester - required
+ * @property {string} min_req_sheets - required, Minimal amount of sheets to pass the course.
+ * @property {Array.<Sheet>} sheets - optional
+ */
 const courseSchema = new mongoose.Schema({
     name: {
         type: String,

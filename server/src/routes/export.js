@@ -1,4 +1,9 @@
 /**
+ * @module API/export
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the exports API.
  * @author Thomas Oswald
  */
@@ -21,6 +26,9 @@ moment.locale('de');
 
 /**
  * Gets a pdf file with a sheetID
+ * @name GET|pdf/:id
+ * @function
+ * @memberof module:API/export
  * @param {string} req.params.id: ID of a sheet.
  * @returns {PDF} with type application/pdf
  * @throws 400
@@ -38,6 +46,9 @@ router.get('/pdf/:id', verify, function(req, res, next) {
 
 /**
  * Gets a docx file with a sheetID
+ * @name GET|docx/:id
+ * @function
+ * @memberof module:API/export
  * @param {string} req.params.id: ID of a sheet.
  * @returns {DOCX} with type application/vnd.openxmlformats-officedocument.wordprocessingml.document
  * @throws 400
@@ -55,6 +66,9 @@ router.get('/docx/:id', verify, function(req, res, next) {
 
 /**
  * Gets a csv file with a sheetID
+ * @name GET|csv/:id
+ * @function
+ * @memberof module:API/export
  * @param {string} req.params.id: ID of a sheet.
  * @returns {CSV} text/csv
  * @throws 400
@@ -113,6 +127,9 @@ router.get('/csv/:id', verify, function(req, res, next) {
 
 /**
  * Gets a tempate file with a sheetID
+ * @name GET|template/:id
+ * @function
+ * @memberof module:API/export
  * @param {string} req.params.id: ID of a sheet.
  * @returns {TXT} txt
  * @throws 400

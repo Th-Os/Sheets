@@ -1,3 +1,7 @@
+/**
+ * @module database
+ */
+
 // Content taken from "Getting MEAN with Mongo, Express, Angular, and Node" by Simon Holmes
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';

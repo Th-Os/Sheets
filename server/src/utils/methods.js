@@ -1,5 +1,10 @@
 /**
- * @overview methods is an accumulation of functions that display a middleware between the routings and the mongoose framework.
+ * Methods
+ * @module utils/methods
+ */
+
+/**
+ * @file methods is an accumulation of functions that display a middleware between the routings and the mongoose framework.
  * @author Thomas Oswald
  */
 

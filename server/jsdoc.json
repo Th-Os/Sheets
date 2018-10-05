@@ -1,0 +1,16 @@
+{
+    "opts": {
+        "template": "templates/default",
+        "encoding": "utf8",
+        "destination": "./docs/",
+        "recurse": true
+    },
+    "plugins": ["plugins/markdown"],
+    "markdown": {
+        "tags": ["file", "overview"]
+    },
+    "source": {
+        "include": ["src/index.js", "src/auth", "src/correction", "src/database", "src/export", "src/models", "src/utils", "src/routes"]
+    },
+    "sourceType": "module"
+}

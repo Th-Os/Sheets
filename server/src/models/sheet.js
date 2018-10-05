@@ -1,12 +1,32 @@
 /**
+ * @module models/sheet
+ */
+
+/**
  * @overview The definition of the schemas and models of sheet, exercise, task and solution.
  * @author Thomas Oswald and Johannes Dengler
  */
 
 import mongoose from 'mongoose';
+import log from './../utils/log';
 
 const Schema = mongoose.Schema;
 
+/**
+ * @class
+ * @name Schema: Sheet
+ * @property {string} name - required
+ * @property {Array.<Submission>} submissions - optional
+ * @property {Date} submissiondate - required
+ * @property {Array.<Exercise>} exercises - optional
+ * @property {number} min_req_points - required, Minimal amount of points to pass the sheet.
+ * @property {number} order - default: 0
+ * @property {boolean} persistent - default: false
+ * @property {object} template
+ * @property {boolean} template.flag - default: false
+ * @property {boolean} template.correctly - default: true
+ * @property {number} template.points - default: 0
+ */
 const sheetSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -86,10 +106,19 @@ sheetSchema.post('remove', (doc) => {
                     }
                 }));
         }
-        Promise.all(promises).then(() => console.log('saved all other sheets'));
+        Promise.all(promises).then(() => log.info('saved all other sheets'));
     });
 });
 
+/**
+ * @class
+ * @name Schema: Exercise
+ * @property {string} name - required
+ * @property {string} description - required
+ * @property {Array.<Task>} tasks - required
+ * @property {number} order - required
+ * @property {boolean} persistent - default: false
+ */
 const exerciseSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -139,11 +168,20 @@ exerciseSchema.post('remove', (doc) => {
                         }
                     }));
             }
-            Promise.all(promises).then(() => console.log('saved all other exercises'));
+            Promise.all(promises).then(() => log.info('saved all other exercises'));
         }
     });
 });
 
+/**
+ * @class
+ * @name Schema: Task
+ * @property {string} question - required
+ * @property {number} points - required
+ * @property {number} order - required
+ * @property {Array.<string>} choices - required
+ * @property {Solution} solution - optional
+*/
 const taskSchema = new mongoose.Schema({
     question: {
         type: String,
@@ -189,13 +227,25 @@ taskSchema.post('remove', (doc) => {
                             task.order -= 1;
                             task.save();
                         }
-                    }).catch((err) => console.error(err)));
+                    }).catch((err) => log.error(err)));
             }
-            Promise.all(promises).then(() => console.log('saved all other tasks'));
+            Promise.all(promises).then(() => log.info('saved all other tasks'));
         }
     });
 });
 
+/**
+ * @class
+ * @name Schema: Solution
+ * @property {string} type - required
+ * @property {string} regex - optional
+ * @property {object} range - optional
+ * @property {number} range.from - optional
+ * @property {number} range.to - optional
+ * @property {number} number - optional
+ * @property {string} hint - optional
+ * @property {boolean} default_free_text - optional, if true then auto-correct will give points, if false -> 0
+*/
 const solutionSchema = new mongoose.Schema({
     type: {
         type: String,

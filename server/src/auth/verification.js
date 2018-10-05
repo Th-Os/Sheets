@@ -1,4 +1,8 @@
 /**
+ * @module API/verification
+ */
+
+/**
  * @overview The verification process checks the token sent by the client and acts accordingly.
  * @author Thomas Oswald
  */
@@ -8,10 +12,11 @@ import mongoose from 'mongoose';
 import log from '../utils/log';
 
 /**
- * This function will check whether the req.params.id is a mongoDB ObjectId.
- * @param {*} req
- * @param {*} res
- * @param {*} next
+ * This function will check whether the req.params.id is a mongoDB ObjectId
+ * and verify the token of every request.
+ * @param {*} req express request object.
+ * @param {*} res express response object.
+ * @param {*} next express next function.
  */
 function verify(req, res, next) {
     // check if id is a valid mongoose ObjectId:

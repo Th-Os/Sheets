@@ -1,4 +1,9 @@
 /**
+ * @module API/solutions
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the solutions API.
  * @author Thomas Oswald
  */
@@ -14,6 +19,9 @@ const router = express.Router();
 
 /**
  * Updates a solution by id.
+ * @name PUT|solutions/:id
+ * @function
+ * @memberof module:API/solutions
  * @param {string} req.params.id: ID of a solution.
  * @param {Solution} req.body with updated values.
  * @returns {Solution}
@@ -37,6 +45,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Deletes a solution by id.
+ * @name DELETE|solutions/:id
+ * @function
+ * @memberof module:API/solutions
  * @param {string} req.params.id: ID of a solution.
  * @returns {string} success message.
  * @throws 400

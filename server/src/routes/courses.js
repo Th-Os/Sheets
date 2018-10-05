@@ -1,4 +1,9 @@
 /**
+ * @module API/courses
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the courses API.
  * @author Thomas Oswald
  */
@@ -13,6 +18,17 @@ import {Student} from '../models/submission';
 import {logRoute} from '../utils/log';
 
 const router = express.Router();
+
+/**
+ * Gets all courses.
+ * @name GET|courses
+ * @function
+ * @memberof module:API/courses
+ * @returns {Array} of {Course}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.get('/', verify, function(req, res, next) {
     methods.getAll(Course).then((docs) => {
         res.status(200).send(docs);
@@ -27,6 +43,9 @@ router.get('/', verify, function(req, res, next) {
 
 /**
  * Searches through all courses with a sheetID and returns found courses.
+ * @name GET|courses/_search
+ * @function
+ * @memberof module:API/courses
  * @param {string} req.query.sheet: id of a {Sheet}.
  * @returns {Array} of {Course}
  * @throws 400
@@ -50,6 +69,9 @@ router.get('/_search', verify, function(req, res, next) {
 
 /**
  * Gets a course by id.
+ * @name GET|courses/:id
+ * @function
+ * @memberof module:API/courses
  * @param {string} req.params.id: ID of a course.
  * @returns {Course}
  * @throws 400
@@ -72,6 +94,9 @@ router.get('/:id', verify, function(req, res, next) {
 
 /**
  * Creates one or many courses.
+ * @name POST|courses
+ * @function
+ * @memberof module:API/courses
  * @param {Array|Course} req.body Array of or single course.
  * @returns {Array|Course} {Course}
  * @throws 400
@@ -94,6 +119,9 @@ router.post('/', verify, function(req, res, next) {
 
 /**
  * Updates a course by id.
+ * @name PUT|courses/:id
+ * @function
+ * @memberof module:API/courses
  * @param {string} req.params.id: ID of a course.
  * @param {Course} req.body with updated values.
  * @returns {Course}
@@ -117,6 +145,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Deletes a course by id.
+ * @name DELETE|courses/:id
+ * @function
+ * @memberof module:API/courses
  * @param {string} req.params.id: ID of a course.
  * @returns {string} success message.
  * @throws 400
@@ -139,6 +170,9 @@ router.delete('/:id', verify, function(req, res, next) {
 
 /**
  * Gets all students of a course by id.
+ * @name GET|courses/:id/students
+ * @function
+ * @memberof module:API/courses
  * @param {string} req.params.id: ID of a course.
  * @returns {Array} of {Student}
  * @throws 400
@@ -186,6 +220,9 @@ router.get('/:id/students', verify, function(req, res, next) {
 
 /**
  * Gets all sheets of a course by id.
+ * @name GET|courses/:id/sheets
+ * @function
+ * @memberof module:API/courses
  * @param {string} req.params.id: ID of a course.
  * @returns {Array} of {Sheet}
  * @throws 400
@@ -207,6 +244,9 @@ router.get('/:id/sheets', verify, function(req, res, next) {
 });
 /**
  * Creates one or many sheets.
+ * @name POST|courses/:id/sheets
+ * @function
+ * @memberof module:API/courses
  * @param {Array|Sheet} req.body Array of sheets or single sheet.
  * @returns {Array|Sheet} {Sheet}
  * @throws 400

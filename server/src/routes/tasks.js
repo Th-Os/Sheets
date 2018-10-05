@@ -1,4 +1,9 @@
 /**
+ * @module API/tasks
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the tasks API.
  * @author Thomas Oswald
  */
@@ -14,6 +19,9 @@ const router = express.Router();
 
 /**
  * Gets a task by id with an aggregated solution.
+ * @name GET|tasks/:id/_aggregate
+ * @function
+ * @memberof module:API/tasks
  * @param {string} req.params.id: ID of a task.
  * @returns {Task} with solution.
  * @throws 400
@@ -34,6 +42,9 @@ router.get('/:id/_aggregate', verify, function(req, res, next) {
 
 /**
  * Gets a task by id.
+ * @name GET|tasks/:id
+ * @function
+ * @memberof module:API/tasks
  * @param {string} req.params.id: ID of a task.
  * @returns {Task}.
  * @throws 400
@@ -54,6 +65,9 @@ router.get('/:id', verify, function(req, res, next) {
 
 /**
  * Updates a task.
+ * @name PUT|tasks/:id
+ * @function
+ * @memberof module:API/tasks
  * @param {string} req.params.id: ID of a task.
  * @param {Task} req.body object with values for the update.
  * @returns {Task}
@@ -77,6 +91,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Delets a task.
+ * @name DELETE|tasks/:id
+ * @function
+ * @memberof module:API/tasks
  * @param {string} req.params.id: ID of a task.
  * @returns {Task}
  * @throws 400
@@ -99,6 +116,9 @@ router.delete('/:id', verify, function(req, res, next) {
 
 /**
  * Gets all solutions of a task by its id.
+ * @name GET|tasks/:id/solutions
+ * @function
+ * @memberof module:API/tasks
  * @param {string} req.params.id: ID of a task.
  * @returns {Array} of @see {Solution}
  * @throws 400
@@ -121,6 +141,9 @@ router.get('/:id/solutions', verify, function(req, res, next) {
 
 /**
  * Creates all solutions of a task by its id.
+ * @name POST|tasks/:id/solutions
+ * @function
+ * @memberof module:API/tasks
  * @param {string} req.params.id: ID of a task.
  * @param {object} req.body with {Array} of {Solution}.
  * @returns {Array} of @see {Solution}

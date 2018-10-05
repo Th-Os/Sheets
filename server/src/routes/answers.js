@@ -1,4 +1,9 @@
 /**
+ * @module API/answers
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
+/**
  * @overview The routing of the answers API.
  * @author Thomas Oswald
  */
@@ -14,7 +19,10 @@ const router = express.Router();
 
 /**
  * Gets an answer by id.
- * @param {string} req.params.id: ID of a answer.
+ * @name GET|answers/:id
+ * @function
+ * @memberof module:API/answers
+ * @param {string} req.params.id - ID of a answer.
  * @returns {Answer}
  * @throws 400
  * @throws 404
@@ -34,6 +42,17 @@ router.get('/:id', verify, function(req, res, next) {
         });
 }, logRoute);
 
+/**
+ * Updates an answer.
+ * @name PUT|answers/:id
+ * @function
+ * @memberof module:API/answers
+ * @param {Array|Answer} req.body - One or more answers.
+ * @returns {Answer}
+ * @throws 400
+ * @throws 404
+ * @throws 500
+ */
 router.put('/:id', verify, function(req, res, next) {
     methods.put(req.params.id, req.body, Answer)
         .then((doc) => {

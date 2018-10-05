@@ -1,4 +1,9 @@
 /**
+ * Logging
+ * @module utils/logging
+ */
+
+/**
  * @overview logging mechanism with log4js.
  * @author Thomas Oswald
  */

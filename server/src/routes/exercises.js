@@ -1,3 +1,9 @@
+// TODO: document with  ./node_modules/.bin/jsdoc -c jsdoc-conf.json
+/**
+ * @module API/exercises
+ * @see @link https://stackoverflow.com/questions/31818538/jsdocs-documenting-node-js-express-routes
+ */
+
 /**
  * @overview The routing of the exercises API.
  * @author Thomas Oswald
@@ -14,6 +20,9 @@ const router = express.Router();
 
 /**
  * Gets an aggregated exercise by id.
+ * @name GET|exercises/:id/_aggregate
+ * @function
+ * @memberof module:API/exercises
  * @param {string} req.params.id: ID of an exercise.
  * @returns {Exercise} with Tasks and a Solution.
  * @throws 400
@@ -42,6 +51,9 @@ router.get('/:id/_aggregate', verify, function(req, res, next) {
 
 /**
  * Gets an exercise by id.
+ * @name GET|exercises/:id
+ * @function
+ * @memberof module:API/exercises
  * @param {string} req.params.id: ID of an exercise.
  * @returns {Exercise}
  * @throws 400
@@ -64,6 +76,9 @@ router.get('/:id', verify, function(req, res, next) {
 
 /**
  * Updates an exercise by id.
+ * @name PUT|exercises/:id
+ * @function
+ * @memberof module:API/exercises
  * @param {string} req.params.id: ID of an exercise.
  * @param {Exercise} req.body with updated values.
  * @returns {Exercise}
@@ -87,6 +102,9 @@ router.put('/:id', verify, function(req, res, next) {
 
 /**
  * Deletes an exercise by id.
+ * @name DELETE|exercises/:id
+ * @function
+ * @memberof module:API/exercises
  * @param {string} req.params.id: ID of an exercise.
  * @returns {string} success message.
  * @throws 400
@@ -108,6 +126,9 @@ router.delete('/:id', verify, function(req, res, next) {
 }, logRoute);
 /**
  * Gets all tasks of an exercise by id.
+ * @name GET|exercises/:id/tasks
+ * @function
+ * @memberof module:API/exercises
  * @param {string} req.params.id: ID of an exercise.
  * @returns {Array} of {Task}
  * @throws 400
@@ -130,6 +151,9 @@ router.get('/:id/tasks', verify, function(req, res, next) {
 
 /**
  * Creates tasks for an exercise by id.
+ * @name POST|exercises/:id/tasks
+ * @function
+ * @memberof module:API/exercises
  * @param {string} req.params.id: ID of an exercise.
  * @param {Array} req.body Array of tasks.
  * @returns {Array} of {Task}

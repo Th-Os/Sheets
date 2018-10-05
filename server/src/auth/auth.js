@@ -1,4 +1,8 @@
 /**
+ * @module API/authentication
+ */
+
+/**
  * @overview The authentication handles login and logout requests.
  * @author Thomas Oswald
  */
@@ -19,6 +23,9 @@ router.use(bodyParser.json());
 
 /**
  * Login route that generates a token for the client.
+ * @name POST|auth/login
+ * @function
+ * @memberof module:API/authentication
  * @param req.body.username the username of the user.
  * @param req.body.password the password of the user.
  */
@@ -70,6 +77,9 @@ router.post('/login', function(req, res, next) {
 
 /**
  * Logout route.
+ * @name GET|auth/logout
+ * @function
+ * @memberof module:API/authentication
  */
 router.get('/logout', function(req, res) {
     res.status(200).send({
