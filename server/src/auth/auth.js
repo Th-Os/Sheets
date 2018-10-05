@@ -28,6 +28,7 @@ router.use(bodyParser.json());
  * @memberof module:API/authentication
  * @param req.body.username the username of the user.
  * @param req.body.password the password of the user.
+ * @see @link https://medium.freecodecamp.org/securing-node-js-restful-apis-with-json-web-tokens-9f811a92bb52
  */
 router.post('/login', function(req, res, next) {
     User.findOne({username: req.body.username}).exec().then((user) => {
@@ -80,6 +81,7 @@ router.post('/login', function(req, res, next) {
  * @name GET|auth/logout
  * @function
  * @memberof module:API/authentication
+ * @see @link https://medium.freecodecamp.org/securing-node-js-restful-apis-with-json-web-tokens-9f811a92bb52
  */
 router.get('/logout', function(req, res) {
     res.status(200).send({

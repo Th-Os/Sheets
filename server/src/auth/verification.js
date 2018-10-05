@@ -18,6 +18,7 @@ import log from '../utils/log';
  * @param {*} req express request object.
  * @param {*} res express response object.
  * @param {*} next express next function.
+ * @see @link https://medium.freecodecamp.org/securing-node-js-restful-apis-with-json-web-tokens-9f811a92bb52
  */
 function verify(req, res, next) {
     // check if id is a valid mongoose ObjectId:
