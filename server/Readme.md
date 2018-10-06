@@ -85,7 +85,7 @@ npm run docs-md
 
 ## API
 
-All API calls possible.
+All possible API calls.
 
 | address  | method  | params  | body  | success | fail |
 |---|---|---|---|---|---|
