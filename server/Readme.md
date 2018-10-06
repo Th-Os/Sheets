@@ -24,7 +24,18 @@ npm start
 npm test
 ```
 
-## Settings / Resources (Path: resources)
+## Production Process
+
+When the software should delivered to the production server, you first need to update the npm configuration file in `/resources`, which is described below. Next the software has to be built with the command `npm run-script build`. After that a directory named `/build` should be appearing. This folder contains the production environment that can be copied anywhere you would like. By executing the command `npm start` in this directory, the production server will be starting. Right now the `/node_modules` directory will be initiated by the build. However, when transferring the production environment, you should delete this folder and execute a `npm install` after moving the directory.
+
+**Summary**
+
+- update npm configuration in `/resources` with the one used for development (only normal dependencies)
+- execute `npm run-script build`
+- when moving the environment located in `/build`, delete `/node_modules` and execute `npm install` right after it
+- start server with `npm install`
+
+## Settings / Resources (Path: /resources)
 
 ### .env (important)
 
@@ -54,6 +65,10 @@ All keys are explained by a equally named ```_comment``` object.
 
 This HTML file is used as a template for the PDF and DOCX export.
 Changing the text or handlebar functions will result in a different output.
+
+### package.json
+
+This npm configuration file is used for the built software. Before building one needs to copy all dependecies of the development package.json to this file.
 
 ## API
 
