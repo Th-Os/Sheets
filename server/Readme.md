@@ -70,6 +70,19 @@ Changing the text or handlebar functions will result in a different output.
 
 This npm configuration file is used for the built software. Before building one needs to copy all dependecies of the development package.json to this file.
 
+
+## Documentation
+
+The entire code is documented with JSDoc. Therefore, it can be used to generate a external HTML documentation to the `/docs` folder.
+
+```bash
+# generate documentation in html
+npm run docs
+
+# generate documentation in markdown
+npm run docs-md
+```
+
 ## API
 
 All API calls possible.
