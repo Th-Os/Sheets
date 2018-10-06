@@ -1,7 +1,7 @@
 {
-    "name": "server",
+    "name": "sheets-server",
     "version": "1.0.0",
-    "description": "",
+    "description": "This is the server implementation of the Sheets application.",
     "main": "index.js",
     "directories": {
         "test": "test"
@@ -10,7 +10,7 @@
         "babel-node": "babel-node --presets=latest",
         "preload": "node -r dotenv/config -r babel/register index.js",
         "start": "nodemon --exec npm run babel-node -- ./src/index.js",
-        "prebuild": "rm -rf ./build/* && cpx .env ./build && cpx ./resources/settings.json ./build/resources && cpx ./resources/template.html ./build/resources && cpx ./resources/package.json ./build",
+        "prebuild": "rm -rf ./build/* && node ./resources/packageUpdater.js && cpx .env ./build && cpx ./resources/settings.json ./build/resources && cpx ./resources/template.html ./build/resources && cpx ./resources/package.json ./build",
         "build": "babel ./src -d ./build/app && cd build && npm install",
         "prerun": "npm run-script build",
         "run": "node ./build/index.js",
@@ -18,8 +18,8 @@
         "docs": "node_modules/.bin/jsdoc -c jsdoc.json",
         "docs-md": "node_modules/.bin/jsdoc2md --files ./src/**/*.js > ./docs/index.md"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "Johannes Wiesneth, Matthias Schenk, Johannes Dengler, Thomas Oswald",
+    "license": "afl-3.0",
     "dependencies": {
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.18.3",

@@ -1,13 +1,13 @@
 {
-    "name": "sheets",
+    "name": "sheets-server",
     "version": "1.0.0",
     "description": "A software for creating and administrating templates of sheets, correcting their submissions and exporting the result.",
     "main": "index.js",
     "scripts": {
         "start": "node ./app/index.js"
     },
-    "author": "Team Sheets",
-    "license": "ISC",
+    "author": "Johannes Wiesneth, Matthias Schenk, Johannes Dengler, Thomas Oswald",
+    "license": "afl-3.0",
     "repository": {
         "type": "git",
         "url": "git@github.com:TrueCodingNinja/Sheets.git"
